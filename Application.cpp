@@ -189,11 +189,19 @@ HRESULT Application::InitVertexBuffer()
     // Create vertex buffer
     SimpleVertex vertices[] =
     {
-        // Four verticies for the square being drawn
-        { XMFLOAT3( -1.0f,  1.0f, 0.0f ), XMFLOAT4( 0.0f, 0.0f, 1.0f, 1.0f ) },
-        { XMFLOAT3(  1.0f,  1.0f, 0.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( -1.0f, -1.0f, 0.0f ), XMFLOAT4( 0.0f, 1.0f, 1.0f, 1.0f ) },
-        { XMFLOAT3(  1.0f, -1.0f, 0.0f ), XMFLOAT4( 1.0f, 0.0f, 0.0f, 1.0f ) },
+        // The eight verticies for the cube
+
+        // Front four
+        { XMFLOAT3( -1.0f,  1.0f, -1.0f ), XMFLOAT4( 0.0f, 0.0f, 1.0f, 1.0f ) }, // Top front left
+        { XMFLOAT3(  1.0f,  1.0f, -1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) }, // Top front right
+        { XMFLOAT3( -1.0f, -1.0f, -1.0f ), XMFLOAT4( 0.0f, 1.0f, 1.0f, 1.0f ) }, // Bottom front left
+        { XMFLOAT3(  1.0f, -1.0f, -1.0f ), XMFLOAT4( 1.0f, 0.0f, 0.0f, 1.0f ) }, // Bottom front right
+
+        // Back four
+        { XMFLOAT3( -1.0f,  1.0f, 1.0f ), XMFLOAT4( 1.0f, 0.0f, 0.0f, 1.0f ) }, // Top Back left
+        { XMFLOAT3(  1.0f,  1.0f, 1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) }, // Top Back right
+        { XMFLOAT3( -1.0f, -1.0f, 1.0f ), XMFLOAT4( 0.0f, 0.0f, 1.0f, 1.0f ) }, // Bottom back left
+        { XMFLOAT3(  1.0f, -1.0f, 1.0f ), XMFLOAT4( 1.0f, 0.0f, 0.0f, 1.0f ) }, // Bottom back right
     };
 
     // Buffer description data
@@ -201,7 +209,7 @@ HRESULT Application::InitVertexBuffer()
 	ZeroMemory(&bd, sizeof(bd));
 
     bd.Usage          = D3D11_USAGE_DEFAULT;      // Set to a default usage
-    bd.ByteWidth      = sizeof(SimpleVertex) * 4; // Set the byte width
+    bd.ByteWidth      = sizeof(SimpleVertex) * 8; // Set the byte width
     bd.BindFlags      = D3D11_BIND_VERTEX_BUFFER; // Set the bind flag
 	bd.CPUAccessFlags = 0;                        // CPU access flags??????
 
@@ -231,8 +239,29 @@ HRESULT Application::InitIndexBuffer()
     // Create index buffer with the correct indicies for the square
     WORD indices[] =
     {
+        // Front
         0,1,2,
         2,1,3,
+
+        // Back
+        5,4,6,
+        7,5,6,
+
+        // Top
+        4,5,0,
+        5,1,0,
+
+        // Bottom
+        2,3,6,
+        3,7,6,
+
+        // Left
+        4,0,6,
+        0,2,6,
+
+        // Right
+        1,5,3,
+        5,7,3
     };
 
     // Create and data setup for the index buffer - the same as the vertex buffer init
@@ -240,7 +269,7 @@ HRESULT Application::InitIndexBuffer()
 	ZeroMemory(&bd, sizeof(bd));
 
     bd.Usage          = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth      = sizeof(WORD) * 6;     
+    bd.ByteWidth      = sizeof(WORD) * 36;     
     bd.BindFlags      = D3D11_BIND_INDEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 
@@ -514,7 +543,7 @@ void Application::Update()
     //
     // Animate the cube
     //
-	XMStoreFloat4x4(&_world, XMMatrixRotationZ(t));
+	XMStoreFloat4x4(&_world, XMMatrixRotationZ(t) * XMMatrixRotationY(t));
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -547,9 +576,11 @@ void Application::Draw()
     //
 	_pImmediateContext->VSSetShader(_pVertexShader, nullptr, 0);
 	_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
+
     _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
 	_pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
-	_pImmediateContext->DrawIndexed(6, 0, 0);        
+
+	_pImmediateContext->DrawIndexed(36, 0, 0);        
 
     //
     // Present our back buffer to our front buffer
