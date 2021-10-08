@@ -56,21 +56,27 @@ private:
 	UINT _WindowWidth;
 
 private:
-	HINSTANCE               _hInst;
-	HWND                    _hWnd;
-	D3D_DRIVER_TYPE         _driverType;
-	D3D_FEATURE_LEVEL       _featureLevel;
-	ID3D11Device*           _pd3dDevice;
-	ID3D11DeviceContext*    _pImmediateContext;
-	IDXGISwapChain*         _pSwapChain;
-	ID3D11RenderTargetView* _pRenderTargetView;
-	ID3D11VertexShader*     _pVertexShader;
-	ID3D11PixelShader*      _pPixelShader;
-	ID3D11InputLayout*      _pVertexLayout;
-	ID3D11Buffer*           _pVertexBuffer;
-	ID3D11Buffer*           _pIndexBuffer;
-	ID3D11Buffer*           _pConstantBuffer;
-	XMFLOAT4X4              _world;
+	HINSTANCE               _hInst;             // Handle to the of directX?
+	HWND                    _hWnd;              // Window instance handle 
+	D3D_DRIVER_TYPE         _driverType;        // The driver type
+	D3D_FEATURE_LEVEL       _featureLevel;      // The feature level of directX
+
+	ID3D11Device*           _pd3dDevice;        // The device
+	ID3D11DeviceContext*    _pImmediateContext; // The context of the window
+	IDXGISwapChain*         _pSwapChain;        // The chain that allows for the back and front buffers to swap
+	ID3D11RenderTargetView* _pRenderTargetView; // The render target
+
+	ID3D11VertexShader*     _pVertexShader;     // Vertex shader instance
+	ID3D11PixelShader*      _pPixelShader;      // Pixel shader instance
+	ID3D11InputLayout*      _pVertexLayout;     // Layout of the vertex shader data
+	ID3D11Buffer*           _pVertexBuffer;     // Vertex buffer data
+	ID3D11Buffer*           _pIndexBuffer;      // Index buffer
+	ID3D11Buffer*           _pConstantBuffer;   // The constant buffer
+
+	// Matricies for world manipulation
+	XMFLOAT4X4              _world_cube1;
+	XMFLOAT4X4              _world_cube2;
+
 	XMFLOAT4X4              _view;
 	XMFLOAT4X4              _projection;
 };

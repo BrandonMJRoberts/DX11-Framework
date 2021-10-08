@@ -82,10 +82,16 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     }
 
 	// Initialize the world matrix
-	XMStoreFloat4x4(&_world, XMMatrixIdentity());
+	XMStoreFloat4x4(&_world_cube1, XMMatrixIdentity());
+
+
+    XMStoreFloat4x4(&_world_cube2, XMMatrixAffineTransformation(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f), 
+                                                                XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 
+                                                                XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 
+                                                                XMVectorSet(3.0f, 0.0f, 0.0f, 0.0f)));
 
     // Initialize the view matrix
-	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f); // Camera position
+	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f); // Camera position
 	XMVECTOR At  = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);  // Camera looking at position
 	XMVECTOR Up  = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);  // Camera's up direction
 
@@ -543,7 +549,22 @@ void Application::Update()
     //
     // Animate the cube
     //
-	XMStoreFloat4x4(&_world, XMMatrixRotationZ(t) * XMMatrixRotationY(t));
+	XMStoreFloat4x4(&_world_cube1, XMMatrixRotationZ(t) * XMMatrixRotationY(t));
+
+    // Load in the current model matrix
+    XMMATRIX world = XMLoadFloat4x4(&_world_cube2);
+
+    // Translate back to the origin and then rotate and then translate back to its original position
+             world = world * XMMatrixAffineTransformation(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f), 
+                                                          XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 
+                                                          XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 
+                                                          XMVectorSet(-3.0f, 0.0f, 0.0f, 0.0f)) 
+                           * XMMatrixRotationX(t) * XMMatrixRotationY(t) 
+                           * XMMatrixAffineTransformation(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f),
+                                                          XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
+                                                          XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
+                                                          XMVectorSet(3.0f, 0.0f, 0.0f, 0.0f));
+    XMStoreFloat4x4(&_world_cube2, world);
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -557,7 +578,7 @@ void Application::Draw()
     _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
 
     // Load in the matricies
-	XMMATRIX world      = XMLoadFloat4x4(&_world);
+	XMMATRIX world      = XMLoadFloat4x4(&_world_cube1);
 	XMMATRIX view       = XMLoadFloat4x4(&_view);
 	XMMATRIX projection = XMLoadFloat4x4(&_projection);
 
@@ -572,15 +593,30 @@ void Application::Draw()
 	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     //
-    // Renders a square
+    // Renders a cube
     //
+    // Set the vertex shader
 	_pImmediateContext->VSSetShader(_pVertexShader, nullptr, 0);
+    // Set the vertex shader constant buffer data
 	_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
 
-    _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
-	_pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
 
-	_pImmediateContext->DrawIndexed(36, 0, 0);        
+    // Set the pixel shader
+    _pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
+    // Set the pixel shader constant buffer
+    _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
+
+    // Draw the cube
+	_pImmediateContext->DrawIndexed(36, 0, 0);
+
+    // Now change the model matrix for the second cube
+    world     = XMLoadFloat4x4(&_world_cube2);
+    cb.mWorld = XMMatrixTranspose(world);
+
+    _pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+    // Draw the second cube
+    _pImmediateContext->DrawIndexed(36, 0, 0);
 
     //
     // Present our back buffer to our front buffer
