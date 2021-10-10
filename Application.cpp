@@ -416,13 +416,32 @@ HRESULT Application::InitDevice()
     sd.BufferDesc.Width                   = _WindowWidth;  // Window width
     sd.BufferDesc.Height                  = _WindowHeight; // Window height
     sd.BufferDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator   = 60; // The refresh rate of the screen
-    sd.BufferDesc.RefreshRate.Denominator = 1;
+    sd.BufferDesc.RefreshRate.Denominator = 1;  
     sd.BufferUsage                        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     sd.OutputWindow                       = _hWnd;
     sd.SampleDesc.Count                   = 1;
     sd.SampleDesc.Quality                 = 0;
     sd.Windowed                           = TRUE; // If the window is run in windowed mode or not
+
+    // Get the monitor's refresh rate
+    DEVMODE devMode;
+    memset(&devMode, 0, sizeof(DEVMODE)); // Fill in the struct with zero's data
+
+    // Default to 60
+    unsigned int refreshRateToSet = 60;
+
+    // Set the size of the variable to indicate the type of DEVMODE being used
+    devMode.dmSize        = sizeof(DEVMODE);
+
+    // Set that we are not using any device specific information by setting this to being zero
+    devMode.dmDriverExtra = 0;
+
+    if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode) != 0)
+    {
+        refreshRateToSet = devMode.dmDisplayFrequency;
+    }
+
+    sd.BufferDesc.RefreshRate.Numerator = refreshRateToSet; // Set the refresh rate to being whatever the user's monitor is 
 
     // Setup the driver
     for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
@@ -590,11 +609,8 @@ void Application::Draw()
 	cb.mView       = XMMatrixTranspose(view);
 	cb.mProjection = XMMatrixTranspose(projection);
 
-	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);   
 
-    //
-    // Renders a cube
-    //
     // Set the vertex shader
 	_pImmediateContext->VSSetShader(_pVertexShader, nullptr, 0);
     // Set the vertex shader constant buffer data
@@ -618,10 +634,9 @@ void Application::Draw()
     // Draw the second cube
     _pImmediateContext->DrawIndexed(36, 0, 0);
 
-    //
-    // Present our back buffer to our front buffer
-    //
-    _pSwapChain->Present(0, 0);
+
+    // Present our back buffer to our front buffer vsynced
+    _pSwapChain->Present(1, 0);
 }
 
 // ------------------------------------------------------------------------------------------ //
