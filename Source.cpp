@@ -1,4 +1,6 @@
-#include "Application.h"
+#include "Code/GameScreens/ScreenManager.h"
+
+#include <windows.h>
 
 // ---------------------------------------------------------------------------------------------------- //
 
@@ -9,16 +11,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // Create the application we are going to be running
-	Application * theApp = new Application();
+    GameScreenManager* gameScreenManager = new GameScreenManager(hInstance, nCmdShow);
 
-    // If the application failed to initialise then we should leave the program now
-	if (FAILED(theApp->Initialise(hInstance, nCmdShow)))
-	{
-		return -1;
-	}
+    // Check the screen was setup correctly
+    if (gameScreenManager == nullptr)
+    {
+        return -1;
+    }
 
     // Main message loop
     MSG msg = {0};
+
+    DWORD dwTimeStart = 0;
+    DWORD dwTimeCur   = 0;
+    float deltaTime   = 0.0f;
 
     // While the window is not being told to close
     while (WM_QUIT != msg.message)
@@ -32,15 +38,23 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         }
         else
         {
-            // If no windows message then update and draw the game
-			theApp->Update();
-            theApp->Draw();
+            // Calculate deltaTime
+            dwTimeCur = GetTickCount64();
+
+            if (dwTimeStart == 0)
+                dwTimeStart = dwTimeCur;
+
+            deltaTime = (dwTimeCur - dwTimeStart) / 1000.0f;
+
+            // If no windows message then update and render the game
+            gameScreenManager->Update(deltaTime);
+            gameScreenManager->Render();
         }
     }
 
     // When the program has been closed we need to clean up the memory we have allocated for the application
-	delete theApp;
-	theApp = nullptr;
+	delete gameScreenManager;
+    gameScreenManager = nullptr;
 
     return (int) msg.wParam;
 }

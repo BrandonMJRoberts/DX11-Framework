@@ -9,27 +9,100 @@
       <UniqueIdentifier>{2c3d4c8c-5d1a-459a-a05a-a4e4b608a44e}</UniqueIdentifier>
       <Extensions>fx;fxh;hlsl</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Application.h" />
+    <Filter Include="Headers">
+      <UniqueIdentifier>{3f51eb78-13ef-4f07-b1f0-bd8227c443ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{fb3fb1c2-57cf-4341-8f8a-d6d49e384f5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\GameScreens">
+      <UniqueIdentifier>{633630db-6acc-4e68-b9be-9537eb1897ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Track">
+      <UniqueIdentifier>{4d5f976b-011d-4b4e-9603-97d539a46b61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Editor">
+      <UniqueIdentifier>{741c5191-8d2f-4a4a-b5a7-9081a422f585}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Editor\Grid">
+      <UniqueIdentifier>{26ba3f76-d25b-4ca6-94a5-7c8b10ee0362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Surroundings">
+      <UniqueIdentifier>{247f3846-c900-45c1-95a1-62279b2e70cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Editor\Ground">
+      <UniqueIdentifier>{7b047baa-de96-4f34-ad60-60247f73ae94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Camera">
+      <UniqueIdentifier>{6e85f7df-9b16-46f6-ada9-5cc40056e0a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\GameScreens">
+      <UniqueIdentifier>{6b7b8514-9281-4c31-bf5a-b4c06fe822e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor">
+      <UniqueIdentifier>{5bf59cac-fe31-4857-9414-4d98c9be4c0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Camera">
+      <UniqueIdentifier>{c2655a5c-ca4e-43f4-87a8-984a5292fa67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Surroundings">
+      <UniqueIdentifier>{e758af24-969e-47df-abf4-e7c07d8df92f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Track">
+      <UniqueIdentifier>{f8a9a357-ec93-45ec-9895-55177beadbe8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="DX11 Framework.cpp" />
+    <ClCompile Include="Code\Track\TrackPiece.cpp">
+      <Filter>Source\Track</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Track\TrackPieceFactory.cpp">
+      <Filter>Source\Track</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Code\GameScreens\ScreenManager.cpp">
+      <Filter>Source\GameScreens</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\GameScreens\GameScreen.cpp">
+      <Filter>Source\GameScreens</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CLInclude Include="resource.h">
+    <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
-    </CLInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DX11 Framework.fx">
-      <Filter>Shaders</Filter>
-    </None>
+    </ClInclude>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Code\GameScreens\GameScreen.h">
+      <Filter>Headers\GameScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\GameScreens\GameScreen_Editor.h">
+      <Filter>Headers\GameScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\GameScreens\GameScreen_InGame.h">
+      <Filter>Headers\GameScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\GameScreens\GameScreen_MainMenu.h">
+      <Filter>Headers\GameScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\GameScreens\ScreenManager.h">
+      <Filter>Headers\GameScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Track\TrackPiece.h">
+      <Filter>Headers\Track</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Track\TrackPieceFactory.h">
+      <Filter>Headers\Track</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11 Framework.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="DX11 Framework.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

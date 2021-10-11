@@ -171,6 +171,10 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <FxCompile>
+      <EntryPointName>main</EntryPointName>
+      <ShaderType>Effect</ShaderType>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <ClCompile>
@@ -250,6 +254,10 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <FxCompile>
+      <EntryPointName>main</EntryPointName>
+      <ShaderType>Effect</ShaderType>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
     <ClCompile>
@@ -331,6 +339,10 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <FxCompile>
+      <EntryPointName>main</EntryPointName>
+      <ShaderType>Effect</ShaderType>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|X64'">
     <ClCompile>
@@ -373,22 +385,32 @@
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup />
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="DX11 Framework.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DX11 Framework.fx" />
+    <ClCompile Include="Code\GameScreens\GameScreen.cpp" />
+    <ClCompile Include="Code\GameScreens\ScreenManager.cpp" />
+    <ClCompile Include="Code\Track\TrackPiece.cpp" />
+    <ClCompile Include="Code\Track\TrackPieceFactory.cpp" />
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <CLInclude Include="resource.h" />
+    <ClInclude Include="Code\GameScreens\GameScreen.h" />
+    <ClInclude Include="Code\GameScreens\GameScreen_Editor.h" />
+    <ClInclude Include="Code\GameScreens\GameScreen_InGame.h" />
+    <ClInclude Include="Code\GameScreens\GameScreen_MainMenu.h" />
+    <ClInclude Include="Code\GameScreens\ScreenManager.h" />
+    <ClInclude Include="Code\Track\TrackPiece.h" />
+    <ClInclude Include="Code\Track\TrackPieceFactory.h" />
+    <ClInclude Include="resource.h" />
     <ResourceCompile Include="DX11 Framework.rc" />
   </ItemGroup>
   <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
+    <FxCompile Include="DX11 Framework.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
