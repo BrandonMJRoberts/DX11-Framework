@@ -26,14 +26,20 @@ GameScreenManager::~GameScreenManager()
 {
 	delete mCurrentScreen;
 	mCurrentScreen = nullptr;
+
+    Cleanup();
 }
 
 // -------------------------------------------------------------------------- //
 
 void GameScreenManager::Render()
 {
-    float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; // red,green,blue,alpha
-    _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
+    // Clear the screen
+    _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, clearColour);
+
+    // Render the current screen
+    if(mCurrentScreen)
+        mCurrentScreen->Render();
 
     // Present our back buffer to our front buffer - vsynced
     _pSwapChain->Present(1, 0);
@@ -43,7 +49,8 @@ void GameScreenManager::Render()
 
 void GameScreenManager::Update(const float deltaTime)
 {
-
+    if (mCurrentScreen)
+        mCurrentScreen->Update(deltaTime);
 }
 
 // -------------------------------------------------------------------------- //
@@ -203,7 +210,7 @@ bool GameScreenManager::InitDevice()
     pBackBuffer->Release();
 
     if (FAILED(hr))
-        return hr;
+        return false;
 
     _pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, nullptr);
 

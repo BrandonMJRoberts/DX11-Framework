@@ -70,7 +70,7 @@ private:
 	~TrackPieceFactory();
 
 	// std::vector<Models*> mModels;
-	// std::vector<Collisions*> mCollisions;
+	// std::vector<TrackCollision*> mCollisions;
 };
 
 // -------------------------------------------------------------------- //

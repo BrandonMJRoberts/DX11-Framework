@@ -51,6 +51,12 @@
     <Filter Include="Source\Track">
       <UniqueIdentifier>{f8a9a357-ec93-45ec-9895-55177beadbe8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Shaders">
+      <UniqueIdentifier>{830048b0-1ed4-427e-bee4-9fb3f504b0c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders">
+      <UniqueIdentifier>{cb6df118-7ca6-494e-9e5f-b8533093835a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -66,6 +72,18 @@
     </ClCompile>
     <ClCompile Include="Code\GameScreens\GameScreen.cpp">
       <Filter>Source\GameScreens</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\GameScreens\GameScreen_Editor.cpp">
+      <Filter>Source\GameScreens</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\GameScreens\GameScreen_InGame.cpp">
+      <Filter>Source\GameScreens</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\GameScreens\GameScreen_MainMenu.cpp">
+      <Filter>Source\GameScreens</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Shaders\ShaderHandler.cpp">
+      <Filter>Source\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +111,9 @@
     </ClInclude>
     <ClInclude Include="Code\Track\TrackPieceFactory.h">
       <Filter>Headers\Track</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Shaders\ShaderHandler.h">
+      <Filter>Headers\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

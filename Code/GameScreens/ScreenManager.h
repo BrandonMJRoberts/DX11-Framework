@@ -8,6 +8,8 @@
 const int ScreenWidth = 1000;
 const int ScreenHeight = 1000;
 
+const float clearColour[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
 class GameScreenManager final
 {
 public:

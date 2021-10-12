@@ -10,8 +10,11 @@ public:
 	~TrackPiece();
 
 private:
+	//Vector3D mGridPosition;
+	//Vector3D mFacingDirection;
 
-
+	// Model* mModel;
+	// TrackCollision* mCollision;
 };
 
 // -------------------------------------------------------------------- //

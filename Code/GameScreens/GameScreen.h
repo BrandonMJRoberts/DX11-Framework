@@ -7,6 +7,9 @@ public:
 	GameScreen();
 	~GameScreen();
 
+	void Render();
+	void Update(const float deltaTime);
+
 private:
 };
 
