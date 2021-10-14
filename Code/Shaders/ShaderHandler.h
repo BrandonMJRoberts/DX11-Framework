@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include <d3d11_1.h>
+#include <directxmath.h>
 #include <string>
 
 // ----------------------------------------------------------------------------------------------- /
@@ -30,7 +31,7 @@ public:
 	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob);
 
 	// Buffer creation
-	bool CreateBuffer(D3D11_USAGE usageType, D3D11_BIND_FLAG bindFlags, D3D11_CPU_ACCESS_FLAG  CPUAccessFlag, const D3D11_SUBRESOURCE_DATA* bufferData, unsigned int bytesInBuffer, ID3D11Buffer* returnBuffer);
+	bool CreateBuffer(D3D11_USAGE usageType, D3D11_BIND_FLAG bindFlags, D3D11_CPU_ACCESS_FLAG  CPUAccessFlag, void* bufferData, unsigned int bytesInBuffer, ID3D11Buffer** returnBuffer);
 
 	// Buffer binding functionality
 	bool BindVertexBuffersToRegisters(unsigned int startSlot, unsigned int numberOfBuffers, ID3D11Buffer* const* buffers, const unsigned int* strides, const unsigned int* offsets);
@@ -43,7 +44,7 @@ public:
 
 	// Current Shader Setter
 	bool SetVertexShader(ID3D11VertexShader* vertexShader);
-	bool SetPixelSHader(ID3D11PixelShader* pixelShader);
+	bool SetPixelShader(ID3D11PixelShader* pixelShader);
 
 	// Constant buffer setter
 	bool SetVertexShaderConstantBufferData(unsigned int startSlot, unsigned int numberOfbuffers, ID3D11Buffer* const* buffers);

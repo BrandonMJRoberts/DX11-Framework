@@ -3,13 +3,19 @@
 
 #include "GameScreen.h"
 
+#include "../Test/TestCube.h"
+
 class GameScreen_MainMenu final : public GameScreen
 {
 public:
-	GameScreen_MainMenu();
+	GameScreen_MainMenu(ShaderHandler& shaderHandler);
 	~GameScreen_MainMenu();
 
+	void Render() override;
+	void Update(const float deltaTime) override;
+
 private:
+	TestCube* testCube;
 };
 
 #endif

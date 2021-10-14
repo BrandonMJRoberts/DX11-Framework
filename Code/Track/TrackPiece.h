@@ -1,20 +1,25 @@
 #ifndef _TRACK_PIECE_H
 #define _TRACK_PIECE_H
 
+#include <DirectXMath.h>
+
+class Model;
+class TrackCollision;
+
 // -------------------------------------------------------------------- //
 
 class TrackPiece final
 {
 public:
-	TrackPiece();
+	TrackPiece(Model& model, TrackCollision& collision);
 	~TrackPiece();
 
 private:
-	//Vector3D mGridPosition;
-	//Vector3D mFacingDirection;
+	DirectX::XMUINT3  mGridPosition;
+	DirectX::XMFLOAT3 mFacingDirection;
 
-	// Model* mModel;
-	// TrackCollision* mCollision;
+	Model&            mModel;
+	TrackCollision&   mCollision;
 };
 
 // -------------------------------------------------------------------- //

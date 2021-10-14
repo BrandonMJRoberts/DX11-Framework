@@ -57,6 +57,24 @@
     <Filter Include="Source\Shaders">
       <UniqueIdentifier>{cb6df118-7ca6-494e-9e5f-b8533093835a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Models">
+      <UniqueIdentifier>{80cb40e3-4f3d-4874-8f36-e0af050c2d7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Models">
+      <UniqueIdentifier>{4fcf6fb4-a547-488e-beaa-2066d7bcb5ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Collisions">
+      <UniqueIdentifier>{f04ba091-7bd3-47ae-b03d-db31874f4a51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Collisions">
+      <UniqueIdentifier>{96d17109-1bf1-4d88-b1a2-0d7c3f406125}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Test">
+      <UniqueIdentifier>{fdf43336-d410-4a18-999c-c6828b2aaba0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Test">
+      <UniqueIdentifier>{718fb13e-0935-4e49-a822-2610ef5502c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -84,6 +102,15 @@
     </ClCompile>
     <ClCompile Include="Code\Shaders\ShaderHandler.cpp">
       <Filter>Source\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Models\Model.cpp">
+      <Filter>Source\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Collisions\TrackCollision.cpp">
+      <Filter>Source\Collisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Test\TestCube.cpp">
+      <Filter>Source\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +141,15 @@
     </ClInclude>
     <ClInclude Include="Code\Shaders\ShaderHandler.h">
       <Filter>Headers\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Models\Model.h">
+      <Filter>Headers\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Collisions\TrackCollision.h">
+      <Filter>Headers\Collisions</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Test\TestCube.h">
+      <Filter>Headers\Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

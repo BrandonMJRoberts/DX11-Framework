@@ -387,24 +387,30 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Code\Collisions\TrackCollision.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_Editor.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_InGame.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_MainMenu.cpp" />
     <ClCompile Include="Code\GameScreens\ScreenManager.cpp" />
+    <ClCompile Include="Code\Models\Model.cpp" />
     <ClCompile Include="Code\Shaders\ShaderHandler.cpp" />
+    <ClCompile Include="Code\Test\TestCube.cpp" />
     <ClCompile Include="Code\Track\TrackPiece.cpp" />
     <ClCompile Include="Code\Track\TrackPieceFactory.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Code\Collisions\TrackCollision.h" />
     <ClInclude Include="Code\GameScreens\GameScreen.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_Editor.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_InGame.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_MainMenu.h" />
     <ClInclude Include="Code\GameScreens\ScreenManager.h" />
+    <ClInclude Include="Code\Models\Model.h" />
     <ClInclude Include="Code\Shaders\ShaderHandler.h" />
+    <ClInclude Include="Code\Test\TestCube.h" />
     <ClInclude Include="Code\Track\TrackPiece.h" />
     <ClInclude Include="Code\Track\TrackPieceFactory.h" />
     <ClInclude Include="resource.h" />

@@ -1,16 +1,19 @@
 #ifndef _GAMESCREEN_H_
 #define _GAMESCREEN_H_
 
+#include "../Shaders/ShaderHandler.h"
+
 class GameScreen
 {
 public:
-	GameScreen();
+	GameScreen(ShaderHandler& shaderHandler);
 	~GameScreen();
 
-	void Render();
-	void Update(const float deltaTime);
+	virtual void Render();
+	virtual void Update(const float deltaTime);
 
 private:
+	ShaderHandler& mShaderHandler;
 };
 
 #endif

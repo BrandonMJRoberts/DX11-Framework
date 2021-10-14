@@ -1,11 +1,26 @@
 #include "ScreenManager.h"
 
 #include "../../resource.h"
+#include "../Shaders/ShaderHandler.h"
+
+#include "GameScreen_MainMenu.h"
+#include "GameScreen_Editor.h"
+#include "GameScreen_InGame.h"
+
+#include <iostream>
+
+const int GameScreenManager::ScreenWidth  = 640;
+const int GameScreenManager::ScreenHeight = 480;
 
 // -------------------------------------------------------------------------- //
 
 GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
 	: mCurrentScreen(nullptr)
+    , mShaderHandler(nullptr)
+    , mDeviceHandle(nullptr)
+    , mDeviceContextHandle(nullptr)
+    , mSwapChain(nullptr)
+    , mRenderTargetView(nullptr)
 {
 	// Actual windows window setup
     if (!InitWindow(hInstance, nCmdShow))
@@ -18,6 +33,15 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
         return;
     }
 
+    // Create the shader handler to be a wrapper around all needed shader functionality - pass this into things instead of the device handle
+    mShaderHandler = new ShaderHandler(mDeviceHandle, mDeviceContextHandle);
+
+    if(mShaderHandler)
+        SwitchToWindow(ScreenTypes::MAIN_MENU, *mShaderHandler);
+    else
+    {
+        std::cout << "Shader handler failed to initialise!" << std::endl;
+    }
 }
 
 // -------------------------------------------------------------------------- //
@@ -27,6 +51,9 @@ GameScreenManager::~GameScreenManager()
 	delete mCurrentScreen;
 	mCurrentScreen = nullptr;
 
+    delete mShaderHandler;
+    mShaderHandler = nullptr;
+
     Cleanup();
 }
 
@@ -35,14 +62,14 @@ GameScreenManager::~GameScreenManager()
 void GameScreenManager::Render()
 {
     // Clear the screen
-    _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, clearColour);
+    mDeviceContextHandle->ClearRenderTargetView(mRenderTargetView, clearColour);
 
     // Render the current screen
     if(mCurrentScreen)
         mCurrentScreen->Render();
 
     // Present our back buffer to our front buffer - vsynced
-    _pSwapChain->Present(1, 0);
+    mSwapChain->Present(1, 0);
 }
 
 // -------------------------------------------------------------------------- //
@@ -103,23 +130,23 @@ bool GameScreenManager::InitWindow(HINSTANCE hInstance, int nCmdShow)
         return false;
 
     // Create window
-    _hInst = hInstance;
+    mInstanceHandle = hInstance;
     RECT rc = {0, 0, ScreenWidth, ScreenHeight}; // Set the screen corner positions
 
     // Apply this positional data
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
     // Create the window
-    _hWnd = CreateWindow(L"WindowClass", L"Track Builder Project", WS_OVERLAPPEDWINDOW,
+    mWindowHandle = CreateWindow(L"WindowClass", L"Track Builder Project", WS_OVERLAPPEDWINDOW,
                          CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
                          nullptr);
 
     // Check that the window has been constructed correctly
-    if (!_hWnd)
+    if (!mWindowHandle)
 		return false;
 
     // Display the window
-    ShowWindow(_hWnd, nCmdShow);
+    ShowWindow(mWindowHandle, nCmdShow);
 
     return true;
 }
@@ -169,7 +196,7 @@ bool GameScreenManager::InitDevice()
     sd.BufferDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM;
     sd.BufferDesc.RefreshRate.Denominator = 1;  
     sd.BufferUsage                        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow                       = _hWnd;
+    sd.OutputWindow                       = mWindowHandle;
     sd.SampleDesc.Count                   = 1;
     sd.SampleDesc.Quality                 = 0;
     sd.Windowed                           = TRUE;             // If the window is run in windowed mode or not
@@ -182,11 +209,11 @@ bool GameScreenManager::InitDevice()
     for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
     {
         // Get the current driver type
-        _driverType = driverTypes[driverTypeIndex];
+        mDriverType = driverTypes[driverTypeIndex];
 
         // Attempt to create the device from the driver
-        hr          = D3D11CreateDeviceAndSwapChain(nullptr, _driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-                                           D3D11_SDK_VERSION, &sd, &_pSwapChain, &_pd3dDevice, &_featureLevel, &_pImmediateContext);
+        hr          = D3D11CreateDeviceAndSwapChain(nullptr, mDriverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
+                                           D3D11_SDK_VERSION, &sd, &mSwapChain, &mDeviceHandle, &mFeatureLevel, &mDeviceContextHandle);
 
         // If we have succeeded then get out of the loop
         if (SUCCEEDED(hr))
@@ -201,18 +228,18 @@ bool GameScreenManager::InitDevice()
 
     // Create a render target view
     ID3D11Texture2D* pBackBuffer = nullptr;
-                     hr          = _pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+                     hr          = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 
     if (FAILED(hr))
         return false;
 
-    hr = _pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &_pRenderTargetView);
+    hr = mDeviceHandle->CreateRenderTargetView(pBackBuffer, nullptr, &mRenderTargetView);
     pBackBuffer->Release();
 
     if (FAILED(hr))
         return false;
 
-    _pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, nullptr);
+    mDeviceContextHandle->OMSetRenderTargets(1, &mRenderTargetView, nullptr);
 
     // Setup the viewport
     D3D11_VIEWPORT vp;
@@ -222,7 +249,7 @@ bool GameScreenManager::InitDevice()
     vp.MaxDepth = 1.0f;
     vp.TopLeftX = 0;
     vp.TopLeftY = 0;
-    _pImmediateContext->RSSetViewports(1, &vp);
+    mDeviceContextHandle->RSSetViewports(1, &vp);
 
     return true;
 }
@@ -253,12 +280,39 @@ unsigned int GameScreenManager::GetRefreshRate()
 
 void GameScreenManager::Cleanup()
 {
-    if (_pImmediateContext) _pImmediateContext->ClearState();
+    if (mDeviceContextHandle) mDeviceContextHandle->ClearState();
 
-    if (_pRenderTargetView) _pRenderTargetView->Release();
-    if (_pSwapChain)        _pSwapChain->Release();
-    if (_pImmediateContext) _pImmediateContext->Release();
-    if (_pd3dDevice)        _pd3dDevice->Release();
+    if (mRenderTargetView)    mRenderTargetView->Release();
+    if (mSwapChain)           mSwapChain->Release();
+    if (mDeviceContextHandle) mDeviceContextHandle->Release();
+    if (mDeviceHandle)        mDeviceHandle->Release();
+}
+
+// -------------------------------------------------------------------------- //
+
+void GameScreenManager::SwitchToWindow(ScreenTypes screenType, ShaderHandler& shaderHandler)
+{
+    if (mCurrentScreen)
+    {
+        delete mCurrentScreen;
+        mCurrentScreen = nullptr;
+    }
+
+    switch (screenType)
+    {
+    default:
+    case ScreenTypes::MAIN_MENU:
+        mCurrentScreen = new GameScreen_MainMenu(shaderHandler);
+    break;
+
+    case ScreenTypes::EDITOR:
+        mCurrentScreen = new GameScreen_Editor(shaderHandler);
+    break;
+
+    case ScreenTypes::IN_GAME:
+        mCurrentScreen = new GameScreen_InGame(shaderHandler);
+    break;
+    }
 }
 
 // -------------------------------------------------------------------------- //

@@ -2,7 +2,8 @@
 
 // ------------------------------------------------------------- //
 
-GameScreen::GameScreen()
+GameScreen::GameScreen(ShaderHandler& shaderHandler) 
+	: mShaderHandler(shaderHandler)
 {
 
 }

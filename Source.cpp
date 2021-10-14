@@ -39,7 +39,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         else
         {
             // Calculate deltaTime
-            dwTimeCur = GetTickCount64();
+            dwTimeCur = GetTickCount();
 
             if (dwTimeStart == 0)
                 dwTimeStart = dwTimeCur;

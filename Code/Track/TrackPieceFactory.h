@@ -1,11 +1,18 @@
 #ifndef _TRACK_PIECE_FACTORY_H_
 #define _TRACK_PIECE_FACTORY_H_
 
+#include <vector>
+
 #include "TrackPiece.h"
+
+#include "../Shaders/ShaderHandler.h"
+
+class Model;
+class TrackCollision;
 
 // -------------------------------------------------------------------- //
 
-enum class TrackPieceType
+enum class TrackPieceType : unsigned int
 {
 	// Starts //
 		START_ONE_ENTRANCE = 0,
@@ -51,8 +58,9 @@ enum class TrackPieceType
 
 		// Custom
 		JUMP_UP,
-		JUMP_DOWN
+		JUMP_DOWN,
 
+		MAX
 };
 
 // -------------------------------------------------------------------- //
@@ -60,17 +68,19 @@ enum class TrackPieceType
 static class TrackPieceFactory final
 {
 public:
-	void Init();
-	void Destroy();
+	TrackPieceFactory(ShaderHandler& shaderHander);
+	~TrackPieceFactory();
 
 	TrackPiece* CreateTrackPiece(TrackPieceType pieceToMake);
 
 private:
-	TrackPieceFactory();
-	~TrackPieceFactory();
+	ShaderHandler&                     mShaderHandler;
 
-	// std::vector<Models*> mModels;
-	// std::vector<TrackCollision*> mCollisions;
+	const std::vector<std::string>     kFilePathsToModels;
+	const std::vector<std::string>     kFilePathsToCollisionData;
+
+	std::vector<Model*>                mModels;
+	std::vector<TrackCollision*>       mCollisions;
 };
 
 // -------------------------------------------------------------------- //

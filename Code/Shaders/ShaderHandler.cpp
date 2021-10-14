@@ -1,6 +1,7 @@
 #include "ShaderHandler.h"
 
 #include <d3dcompiler.h>
+#include <iostream>
 
 // ------------------------------------------------------------------------------------------ //
 
@@ -29,7 +30,7 @@ VertexShaderReturnData ShaderHandler::CompileVertexShader(WCHAR* filePathToOvera
     ID3DBlob* pVSBlob = nullptr;              
 
     // Check that the overall shader has been loaded
-    if (CompileShaderFromFile(filePathToOverallShader, nameOfVertexMainFunction, "vs_4_0", &pVSBlob) < 0)
+    if (!CompileShaderFromFile(filePathToOverallShader, nameOfVertexMainFunction, "vs_4_0", &pVSBlob))
     {
         // Output the error
         MessageBox(nullptr, L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
@@ -40,7 +41,9 @@ VertexShaderReturnData ShaderHandler::CompileVertexShader(WCHAR* filePathToOvera
 
 	// Create the vertex shader
     ID3D11VertexShader* vertexShader;
-	if(mDeviceHandle->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &vertexShader) < 0)
+    HRESULT hr;
+    hr = mDeviceHandle->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &vertexShader);
+	if(FAILED(hr))
     {	
         // Clean up the data
 		pVSBlob->Release();
@@ -64,7 +67,7 @@ ID3D11PixelShader* ShaderHandler::CompilePixelShader(WCHAR* filePathToOverallSha
     ID3DBlob* pPSBlob = nullptr;
 
     // Check that the overall shader has been loaded
-    if (CompileShaderFromFile(filePathToOverallShader, nameOfPixelMainFunction, "ps_4_0", &pPSBlob) < 0)
+    if (!CompileShaderFromFile(filePathToOverallShader, nameOfPixelMainFunction, "ps_4_0", &pPSBlob))
     {
         // Output the error
         MessageBox(nullptr, L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
@@ -75,7 +78,9 @@ ID3D11PixelShader* ShaderHandler::CompilePixelShader(WCHAR* filePathToOverallSha
 
     // Create the vertex shader
     ID3D11PixelShader* pixelShader;
-    if (mDeviceHandle->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &pixelShader) < 0)
+    HRESULT hr;
+            hr = mDeviceHandle->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &pixelShader);
+    if (FAILED(hr))
     {
         // Clean up the data
         pPSBlob->Release();
@@ -104,7 +109,9 @@ bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob)
 
     // Create the input layout
     ID3D11InputLayout* vertexLayout;
-    if (mDeviceHandle->CreateInputLayout(layout, numElements, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &vertexLayout) < 0)
+    HRESULT hr;
+    hr = mDeviceHandle->CreateInputLayout(layout, numElements, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &vertexLayout);
+    if (FAILED(hr))
     {
         vertexShaderBlob->Release();
         return false;
@@ -112,6 +119,7 @@ bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob)
 
     // Free the data we dont need anymore
     vertexShaderBlob->Release();
+    vertexShaderBlob = nullptr;
 
     // Set the input layout
     mDeviceContext->IASetInputLayout(vertexLayout);
@@ -134,7 +142,9 @@ bool ShaderHandler::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint
     
     // Compile the shader from the file path given
     ID3DBlob* pErrorBlob;
-    if (D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob) < 0)
+    HRESULT hr;
+            hr = D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+    if (FAILED(hr))
     {
         // Output the error message
         if (pErrorBlob != nullptr)
@@ -158,11 +168,17 @@ bool ShaderHandler::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint
 
 // ------------------------------------------------------------------------------------------ //
 
-bool ShaderHandler::CreateBuffer(D3D11_USAGE usageType, D3D11_BIND_FLAG bindFlags, D3D11_CPU_ACCESS_FLAG  CPUAccessFlag, const D3D11_SUBRESOURCE_DATA* bufferData, unsigned int bytesInBuffer, ID3D11Buffer* returnBuffer)
+bool ShaderHandler::CreateBuffer(D3D11_USAGE usageType, D3D11_BIND_FLAG bindFlags, D3D11_CPU_ACCESS_FLAG  CPUAccessFlag, void* bufferData, unsigned int bytesInBuffer, ID3D11Buffer** returnBuffer)
 {
     // Quick out
     if (!mDeviceHandle)
         return false;
+
+    HRESULT hr = 0;
+
+    D3D11_SUBRESOURCE_DATA InitData;
+    ZeroMemory(&InitData, sizeof(InitData));
+    InitData.pSysMem = bufferData;
 
     // Setup the buffer description
     D3D11_BUFFER_DESC bufferDescription;
@@ -170,12 +186,24 @@ bool ShaderHandler::CreateBuffer(D3D11_USAGE usageType, D3D11_BIND_FLAG bindFlag
     bufferDescription.ByteWidth      = bytesInBuffer;
     bufferDescription.BindFlags      = bindFlags;
     bufferDescription.CPUAccessFlags = CPUAccessFlag;
+    bufferDescription.MiscFlags      = 0;
 
-    // Create the buffer
-    if (mDeviceHandle->CreateBuffer(&bufferDescription, bufferData, &returnBuffer) < 0)
+    if (bufferData)
     {
-        if(returnBuffer)
-            returnBuffer->Release();
+        // Create the buffer
+        hr = mDeviceHandle->CreateBuffer(&bufferDescription, &InitData, returnBuffer);
+    }
+    else
+    {
+        hr = mDeviceHandle->CreateBuffer(&bufferDescription, nullptr, returnBuffer);
+    }
+
+    if (FAILED(hr))
+    {
+        if(returnBuffer && *returnBuffer)
+            (*returnBuffer)->Release();
+
+        std::cout << "Failed to create the buffer!" << std::endl;
 
         return false;
     }
@@ -235,7 +263,7 @@ bool ShaderHandler::SetVertexShader(ID3D11VertexShader* vertexShader)
 
 // ------------------------------------------------------------------------------------------ //
 
-bool ShaderHandler::SetPixelSHader(ID3D11PixelShader* pixelShader)
+bool ShaderHandler::SetPixelShader(ID3D11PixelShader* pixelShader)
 {
     if (!mDeviceContext)
         return false;

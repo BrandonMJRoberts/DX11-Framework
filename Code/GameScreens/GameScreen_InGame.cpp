@@ -2,7 +2,7 @@
 
 // --------------------------------------------------------- //
 
-GameScreen_InGame::GameScreen_InGame()
+GameScreen_InGame::GameScreen_InGame(ShaderHandler& shaderHandler) : GameScreen(shaderHandler)
 {
 
 }

@@ -6,7 +6,7 @@
 class GameScreen_InGame final : public GameScreen
 {
 public:
-	GameScreen_InGame();
+	GameScreen_InGame(ShaderHandler& shaderHandler);
 	~GameScreen_InGame();
 
 private:
