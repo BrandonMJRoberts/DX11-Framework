@@ -177,6 +177,8 @@ Vector2D& Vector2D::Normalise() // Changes the internal data and then returns it
 
 	x /= magnitude;
 	y /= magnitude;
+
+	return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -192,6 +194,15 @@ float    Vector2D::LengthSquared() // Calculates the length squared of the vecto
 {
 	return ((x * x) + (y * y));
 }
+
+// ------------------------------------------------------------------------------------------------
+
+DirectX::XMFLOAT2 Vector2D::ConvertToDirectXFloat2()
+{
+	return DirectX::XMFLOAT2(x, y);
+}
+
+// ------------------------------------------------------------------------------------------------
 
 // ===============================================================================================//
 //------------------------------------------- Vector3D -------------------------------------------//
@@ -295,6 +306,8 @@ Vector3D& Vector3D::operator*=(const int& factor)
 	x *= (float)factor;
 	y *= (float)factor;
 	z *= (float)factor;
+
+	return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -403,6 +416,15 @@ float    Vector3D::LengthSquared() // Calculates the length squared of the vecto
 {
 	return ((x * x) + (y * y) + (z * z));
 }
+
+// ------------------------------------------------------------------------------------------------
+
+DirectX::XMFLOAT3 Vector3D::ConvertToDirectXFloat3()
+{
+	return DirectX::XMFLOAT3(x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
 
 // ===============================================================================================//
 //------------------------------------------- Vector4D -------------------------------------------//
@@ -602,6 +624,8 @@ Vector4D& Vector4D::Normalise() // Changes the internal data and then returns it
 	y /= magnitude;
 	z /= magnitude;
 	w /= magnitude;
+
+	return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -616,6 +640,13 @@ float    Vector4D::Length() // Calculates the length of the vector
 float    Vector4D::LengthSquared() // Calculates the length squared of the vector
 {
 	return ((x * x) + (y * y) + (z * z) + (w * w));
+}
+
+// ------------------------------------------------------------------------------------------------
+
+DirectX::XMFLOAT4 Vector4D::ConvertToDirectXFloat4()
+{
+	return DirectX::XMFLOAT4(x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------

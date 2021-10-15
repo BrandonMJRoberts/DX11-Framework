@@ -45,8 +45,8 @@ public:
 	float    Length();        // Calculates the length of the vector
 	float    LengthSquared(); // Calculates the length squared of the vector
 
+	DirectX::XMFLOAT2 ConvertToDirectXFloat2();
 
-private:
 	float x, y;
 };
 
@@ -93,8 +93,9 @@ public:
 	float    Length();        // Calculates the length of the vector
 	float    LengthSquared(); // Calculates the length squared of the vector
 
+	DirectX::XMFLOAT3 ConvertToDirectXFloat3();
 
-private:
+
 	float x, y, z;
 };
 
@@ -134,14 +135,15 @@ public:
 	//------------------------ Functionality functions ------------------------//
 	float    Dot(const Vector4D& other);
 
-	Vector4D Normalised(); // Retuns back the normalised vector - doesn't change the data stored internally
+	Vector4D Normalised();  // Retuns back the normalised vector - doesn't change the data stored internally
 	Vector4D& Normalise();  // Changes the internal data and then returns itself back
 
 	float    Length();        // Calculates the length of the vector
 	float    LengthSquared(); // Calculates the length squared of the vector
 
+	DirectX::XMFLOAT4 ConvertToDirectXFloat4();
 
-private:
+
 	float x, y, z, w;
 };
 

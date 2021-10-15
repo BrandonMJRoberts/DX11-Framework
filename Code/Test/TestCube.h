@@ -2,6 +2,7 @@
 #define _TEST_CUBE_H_
 
 #include "../Shaders/ShaderHandler.h"
+#include "../Maths/CommonMaths.h"
 
 // ------------------------------------------------------------- //
 
@@ -23,7 +24,7 @@ struct ConstantBuffer
 class TestCube
 {
 public:
-	TestCube(ShaderHandler& shaderHandler);
+	TestCube(ShaderHandler& shaderHandler, Vector3D position);
 	~TestCube();
 
 	void Render();
@@ -37,6 +38,8 @@ private:
 	ID3D11Buffer*       mVertexBuffer;
 	ID3D11Buffer*       mIndexBuffer;
 	ID3D11Buffer*       mConstantBuffer;
+
+	Vector3D            mPosition;
 
 	DirectX::XMFLOAT4X4 modelMat;
 	DirectX::XMFLOAT4X4 viewMat;
