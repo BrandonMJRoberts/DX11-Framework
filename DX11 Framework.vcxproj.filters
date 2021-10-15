@@ -75,6 +75,12 @@
     <Filter Include="Source\Test">
       <UniqueIdentifier>{718fb13e-0935-4e49-a822-2610ef5502c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Maths">
+      <UniqueIdentifier>{b1a24e28-79b4-4180-aba0-cacf07d12d4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Maths">
+      <UniqueIdentifier>{f81e0d2d-bf68-4c63-a2b0-3dc56d248ec6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -111,6 +117,9 @@
     </ClCompile>
     <ClCompile Include="Code\Test\TestCube.cpp">
       <Filter>Source\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Maths\CommonMaths.cpp">
+      <Filter>Source\Maths</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +159,9 @@
     </ClInclude>
     <ClInclude Include="Code\Test\TestCube.h">
       <Filter>Headers\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Maths\CommonMaths.h">
+      <Filter>Headers\Maths</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
