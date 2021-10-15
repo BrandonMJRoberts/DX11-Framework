@@ -2,9 +2,14 @@
 
 // ------------------------------------------------------------------- //
 
-GameScreen_MainMenu::GameScreen_MainMenu(ShaderHandler& shaderHandler) : GameScreen(shaderHandler)
+GameScreen_MainMenu::GameScreen_MainMenu(ShaderHandler& shaderHandler) 
+	: GameScreen(shaderHandler)
+	, testCube(nullptr)
+	, testCube2(nullptr)
 {
-	testCube = new TestCube(shaderHandler);
+	testCube = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
+
+	testCube2 = new TestCube(shaderHandler, Vector3D(-3.0f, 0.0f, 0.0f));
 }
 
 // ------------------------------------------------------------------- //
@@ -20,6 +25,9 @@ void GameScreen_MainMenu::Render()
 {
 	if (testCube)
 		testCube->Render();
+
+	if (testCube2)
+		testCube2->Render();
 }
 
 // ------------------------------------------------------------------- //

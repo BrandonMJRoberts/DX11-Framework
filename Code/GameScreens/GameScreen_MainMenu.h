@@ -16,6 +16,7 @@ public:
 
 private:
 	TestCube* testCube;
+	TestCube* testCube2;
 };
 
 #endif

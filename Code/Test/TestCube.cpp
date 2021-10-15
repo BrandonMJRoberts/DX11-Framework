@@ -4,18 +4,19 @@
 
 // ---------------------------------------------------------------- //
 
-TestCube::TestCube(ShaderHandler& shaderHandler) 
+TestCube::TestCube(ShaderHandler& shaderHandler, Vector3D position) 
 	: mShaderHandler(shaderHandler)
 	, mVertexShader(nullptr)
 	, mPixelShader(nullptr)
 	, mConstantBuffer(nullptr)
 	, mIndexBuffer(nullptr)
 	, mVertexBuffer(nullptr)
+	, mPosition(position)
 {
 	// ------------------------------------------------------------------------------------------------------------------------------------- 
 
 	// Matricies
-	DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixIdentity());
+	DirectX::XMStoreFloat4x4(&modelMat,DirectX::XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z));
 
 	// Would normally be through a camera but this is for a test
 	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f);
@@ -161,7 +162,7 @@ void TestCube::Render()
 void TestCube::Update(const float deltaTime)
 {
 	//DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixAffineTransformation(DirectX::XMVectorSet(10.0f, 10.0f, 10.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixRotationZ(deltaTime) * DirectX::XMMatrixRotationY(deltaTime));
+	//DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixRotationZ(deltaTime) * DirectX::XMMatrixRotationY(deltaTime));
 }
 
 // ---------------------------------------------------------------- //
