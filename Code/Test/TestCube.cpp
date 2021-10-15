@@ -16,7 +16,7 @@ TestCube::TestCube(ShaderHandler& shaderHandler, Vector3D position)
 	// ------------------------------------------------------------------------------------------------------------------------------------- 
 
 	// Matricies
-	DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixAffineTransformation(DirectX::XMVectorSet(1.0f, 1.0f, 1.0, 1.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(mPosition.x, mPosition.y, mPosition.z, 0.0f)));
+	DirectX::XMStoreFloat4x4(&modelMat,DirectX::XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z));
 
 	// Would normally be through a camera but this is for a test
 	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f);
