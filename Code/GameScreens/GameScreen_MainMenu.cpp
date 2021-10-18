@@ -9,7 +9,7 @@ GameScreen_MainMenu::GameScreen_MainMenu(ShaderHandler& shaderHandler)
 {
 	testCube = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
-	testCube2 = new TestCube(shaderHandler, Vector3D(-3.0f, 0.0f, 0.0f));
+	testCube2 = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 3.0f));
 }
 
 // ------------------------------------------------------------------- //

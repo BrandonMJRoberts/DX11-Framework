@@ -41,6 +41,7 @@ private:
 
 	bool InitWindow(HINSTANCE hInstance, int nCmdShow);
 	bool InitDevice();
+	bool SetupDepthStencil();
 	void Cleanup();
 
 	unsigned int GetRefreshRate();
@@ -52,6 +53,9 @@ private:
 	HWND                    mWindowHandle;       // Window instance handle 
 	D3D_DRIVER_TYPE         mDriverType;         // The driver type
 	D3D_FEATURE_LEVEL       mFeatureLevel;       // The feature level of directX
+
+	ID3D11DepthStencilView* mDepthStencilView;
+	ID3D11Texture2D*        mDepthStencilBuffer;
 
 	ID3D11Device*           mDeviceHandle;       // The device
 	ID3D11DeviceContext*    mDeviceContextHandle;// The context of the window

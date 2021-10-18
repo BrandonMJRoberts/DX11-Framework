@@ -21,6 +21,8 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
     , mDeviceContextHandle(nullptr)
     , mSwapChain(nullptr)
     , mRenderTargetView(nullptr)
+    , mDepthStencilBuffer(nullptr)
+    , mDepthStencilView(nullptr)
 {
 	// Actual windows window setup
     if (!InitWindow(hInstance, nCmdShow))
@@ -63,6 +65,9 @@ void GameScreenManager::Render()
 {
     // Clear the screen
     mDeviceContextHandle->ClearRenderTargetView(mRenderTargetView, clearColour);
+
+    // Clear the depth and stencil buffers
+    mDeviceContextHandle->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
     // Render the current screen
     if(mCurrentScreen)
@@ -239,7 +244,14 @@ bool GameScreenManager::InitDevice()
     if (FAILED(hr))
         return false;
 
-    mDeviceContextHandle->OMSetRenderTargets(1, &mRenderTargetView, nullptr);
+    if (SetupDepthStencil())
+    {
+        mDeviceContextHandle->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+    }
+    else
+    {
+        mDeviceContextHandle->OMSetRenderTargets(1, &mRenderTargetView, nullptr);
+    }
 
     // Setup the viewport
     D3D11_VIEWPORT vp;
@@ -286,6 +298,9 @@ void GameScreenManager::Cleanup()
     if (mSwapChain)           mSwapChain->Release();
     if (mDeviceContextHandle) mDeviceContextHandle->Release();
     if (mDeviceHandle)        mDeviceHandle->Release();
+
+    if (mDepthStencilView)     mDepthStencilView->Release();
+    if (mDepthStencilBuffer)   mDepthStencilBuffer->Release();
 }
 
 // -------------------------------------------------------------------------- //
@@ -313,6 +328,39 @@ void GameScreenManager::SwitchToWindow(ScreenTypes screenType, ShaderHandler& sh
         mCurrentScreen = new GameScreen_InGame(shaderHandler);
     break;
     }
+}
+
+// -------------------------------------------------------------------------- //
+
+bool GameScreenManager::SetupDepthStencil()
+{
+    // Define the texture
+    D3D11_TEXTURE2D_DESC depthStencilDesc;
+
+    depthStencilDesc.Width     = ScreenWidth;
+    depthStencilDesc.Height    = ScreenHeight;
+    depthStencilDesc.MipLevels = 1;
+    depthStencilDesc.ArraySize = 1;
+    depthStencilDesc.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthStencilDesc.SampleDesc.Count   = 1;
+    depthStencilDesc.SampleDesc.Quality = 0;
+    depthStencilDesc.Usage              = D3D11_USAGE_DEFAULT;
+    depthStencilDesc.BindFlags          = D3D11_BIND_DEPTH_STENCIL;
+    depthStencilDesc.CPUAccessFlags     = 0;
+    depthStencilDesc.MiscFlags          = 0;
+
+    // Create the texture and the view
+    mDeviceHandle->CreateTexture2D(&depthStencilDesc, nullptr, &mDepthStencilBuffer);
+
+    if (mDepthStencilBuffer)
+        mDeviceHandle->CreateDepthStencilView(mDepthStencilBuffer, nullptr, &mDepthStencilView);
+    else
+    {
+        return false;
+    }
+
+    return true;
+
 }
 
 // -------------------------------------------------------------------------- //
