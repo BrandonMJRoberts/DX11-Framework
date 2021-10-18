@@ -393,6 +393,7 @@
     <ClCompile Include="Code\GameScreens\GameScreen_InGame.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_MainMenu.cpp" />
     <ClCompile Include="Code\GameScreens\ScreenManager.cpp" />
+    <ClCompile Include="Code\Input\InputHandler.cpp" />
     <ClCompile Include="Code\Maths\CommonMaths.cpp" />
     <ClCompile Include="Code\Models\Model.cpp" />
     <ClCompile Include="Code\Shaders\ShaderHandler.cpp" />
@@ -409,6 +410,7 @@
     <ClInclude Include="Code\GameScreens\GameScreen_InGame.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_MainMenu.h" />
     <ClInclude Include="Code\GameScreens\ScreenManager.h" />
+    <ClInclude Include="Code\Input\InputHandler.h" />
     <ClInclude Include="Code\Maths\CommonMaths.h" />
     <ClInclude Include="Code\Models\Model.h" />
     <ClInclude Include="Code\Shaders\ShaderHandler.h" />

@@ -81,6 +81,12 @@
     <Filter Include="Source\Maths">
       <UniqueIdentifier>{f81e0d2d-bf68-4c63-a2b0-3dc56d248ec6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Input">
+      <UniqueIdentifier>{bb69a898-fea3-440b-9f17-3d7518edc859}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Input">
+      <UniqueIdentifier>{8a1f8c2e-34bd-466f-9d9c-790b7a022627}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -120,6 +126,9 @@
     </ClCompile>
     <ClCompile Include="Code\Maths\CommonMaths.cpp">
       <Filter>Source\Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Input\InputHandler.cpp">
+      <Filter>Source\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +171,9 @@
     </ClInclude>
     <ClInclude Include="Code\Maths\CommonMaths.h">
       <Filter>Headers\Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Input\InputHandler.h">
+      <Filter>Headers\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

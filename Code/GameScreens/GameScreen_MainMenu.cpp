@@ -2,8 +2,8 @@
 
 // ------------------------------------------------------------------- //
 
-GameScreen_MainMenu::GameScreen_MainMenu(ShaderHandler& shaderHandler) 
-	: GameScreen(shaderHandler)
+GameScreen_MainMenu::GameScreen_MainMenu(ShaderHandler& shaderHandler, InputHandler& inputHandler) 
+	: GameScreen(shaderHandler, inputHandler)
 	, testCube(nullptr)
 	, testCube2(nullptr)
 {
@@ -34,8 +34,18 @@ void GameScreen_MainMenu::Render()
 
 void GameScreen_MainMenu::Update(const float deltaTime)
 {
+	if (mInputHandler.GetIsKeyPressed(DIK_F))
+	{
+		testCube->move(deltaTime);
+	}
+
 	if (testCube)
 		testCube->Update(deltaTime);
+
+	if (testCube2)
+	{
+		testCube2->Update(deltaTime);
+	}
 }
 
 // ------------------------------------------------------------------- //

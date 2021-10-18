@@ -30,6 +30,8 @@ public:
 	void Render();
 	void Update(const float deltaTime);
 
+	void move(const float deltaTime);
+
 private:
 	ShaderHandler&     mShaderHandler;
 

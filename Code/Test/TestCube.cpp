@@ -163,6 +163,16 @@ void TestCube::Update(const float deltaTime)
 {
 	//DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixAffineTransformation(DirectX::XMVectorSet(10.0f, 10.0f, 10.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	//DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixRotationZ(deltaTime) * DirectX::XMMatrixRotationY(deltaTime));
+
+	// Make sure that the cube's position is always where it is internally stored
+	DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z));
+}
+
+// ---------------------------------------------------------------- //
+
+void TestCube::move(const float deltaTime)
+{
+	mPosition.y += 0.1f * deltaTime;
 }
 
 // ---------------------------------------------------------------- //

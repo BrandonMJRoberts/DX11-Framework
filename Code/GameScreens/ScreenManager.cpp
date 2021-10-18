@@ -23,6 +23,7 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
     , mRenderTargetView(nullptr)
     , mDepthStencilBuffer(nullptr)
     , mDepthStencilView(nullptr)
+    , mInputHandler(nullptr)
 {
 	// Actual windows window setup
     if (!InitWindow(hInstance, nCmdShow))
@@ -37,6 +38,16 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
 
     // Create the shader handler to be a wrapper around all needed shader functionality - pass this into things instead of the device handle
     mShaderHandler = new ShaderHandler(mDeviceHandle, mDeviceContextHandle);
+    mInputHandler  = new InputHandler();
+
+    if (mInputHandler)
+    {
+        mInputHandler->Init(mInstanceHandle, mWindowHandle, ScreenWidth, ScreenHeight);
+    }
+    else
+    {
+        return;
+    }
 
     if(mShaderHandler)
         SwitchToWindow(ScreenTypes::MAIN_MENU, *mShaderHandler);
@@ -55,6 +66,9 @@ GameScreenManager::~GameScreenManager()
 
     delete mShaderHandler;
     mShaderHandler = nullptr;
+
+    delete mInputHandler;
+    mInputHandler = nullptr;
 
     Cleanup();
 }
@@ -81,6 +95,9 @@ void GameScreenManager::Render()
 
 void GameScreenManager::Update(const float deltaTime)
 {
+    if (mInputHandler)
+        mInputHandler->Update();
+
     if (mCurrentScreen)
         mCurrentScreen->Update(deltaTime);
 }
@@ -317,15 +334,15 @@ void GameScreenManager::SwitchToWindow(ScreenTypes screenType, ShaderHandler& sh
     {
     default:
     case ScreenTypes::MAIN_MENU:
-        mCurrentScreen = new GameScreen_MainMenu(shaderHandler);
+        mCurrentScreen = new GameScreen_MainMenu(shaderHandler, *mInputHandler);
     break;
 
     case ScreenTypes::EDITOR:
-        mCurrentScreen = new GameScreen_Editor(shaderHandler);
+        mCurrentScreen = new GameScreen_Editor(shaderHandler, *mInputHandler);
     break;
 
     case ScreenTypes::IN_GAME:
-        mCurrentScreen = new GameScreen_InGame(shaderHandler);
+        mCurrentScreen = new GameScreen_InGame(shaderHandler, *mInputHandler);
     break;
     }
 }

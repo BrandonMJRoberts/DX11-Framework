@@ -4,6 +4,7 @@
 #include <d3d11_1.h> // DirectX include
 
 #include "GameScreen.h"
+#include "../Input/InputHandler.h"
 
 const float clearColour[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
 
@@ -47,6 +48,7 @@ private:
 	unsigned int GetRefreshRate();
 
 	ShaderHandler* mShaderHandler;
+	InputHandler*  mInputHandler;
 
 	// DirectX required variables //
 	HINSTANCE               mInstanceHandle;     // Handle to the of directX?

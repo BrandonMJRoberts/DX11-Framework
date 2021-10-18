@@ -8,7 +8,7 @@
 class GameScreen_MainMenu final : public GameScreen
 {
 public:
-	GameScreen_MainMenu(ShaderHandler& shaderHandler);
+	GameScreen_MainMenu(ShaderHandler& shaderHandler, InputHandler& inputHandler);
 	~GameScreen_MainMenu();
 
 	void Render() override;
