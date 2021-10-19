@@ -318,6 +318,32 @@ Vector3D& Vector3D::operator*=(const int& factor)
 
 // ------------------------------------------------------------------------------------------------
 
+Vector3D Vector3D::operator*(const DirectX::XMFLOAT3X3& matrix)
+{
+	Vector3D returnVector = Vector3D::zero;
+
+	returnVector.x = (x * matrix._11) + (y * matrix._21) + (z * matrix._31);
+	returnVector.y = (x * matrix._12) + (y * matrix._22) + (z * matrix._32);
+	returnVector.z = (x * matrix._13) + (y * matrix._23) + (z * matrix._33);
+
+	return returnVector;
+}
+
+// ------------------------------------------------------------------------------------------------
+
+Vector3D Vector3D::operator*=(const DirectX::XMFLOAT3X3& matrix)
+{
+	Vector3D currentState = *this;
+
+	x = (currentState.x * matrix._11) + (currentState.y * matrix._21) + (currentState.z * matrix._31);
+	y = (currentState.x * matrix._12) + (currentState.y * matrix._22) + (currentState.z * matrix._32);
+	z = (currentState.x * matrix._13) + (currentState.y * matrix._23) + (currentState.z * matrix._33);
+
+	return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+
 Vector3D Vector3D::operator/(const float& factor)
 {
 	return Vector3D(x / factor, y / factor, z / factor);

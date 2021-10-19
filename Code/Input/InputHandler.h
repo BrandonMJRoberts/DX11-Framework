@@ -23,6 +23,7 @@ public:
 	Vector2D GetMousePosition() { return Vector2D((float)mMouseX, (float)mMouseY); }
 	bool     GetIsMouseButtonPressed(unsigned char buttonToCheck);
 	char     GetScrollWheelFrameDelta();
+	Vector2D GetMouseMovementDelta();
 
 private:
 	RAWINPUTDEVICE mKeyboard; 
@@ -34,6 +35,7 @@ private:
 	static char                 mMouseButtons[6];
 	static int                  mMouseX;
 	static int                  mMouseY;
+	static Vector2D             mMouseDelta;
 
 	int mScreenWidth;
 	int mScreenHeight;

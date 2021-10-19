@@ -15,6 +15,9 @@ public:
 	void ReCalculateViewMatrix() override;
 
 private:
+	const float kMaxDistance = 15.0f;
+	const float kMinDistance = 2.0f;
+
 	void ReCalculatePosition();
 
 	Vector3D mFocalPoint;

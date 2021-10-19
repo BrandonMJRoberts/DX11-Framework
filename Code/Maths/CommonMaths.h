@@ -76,6 +76,9 @@ public:
 	Vector3D operator*(const int& factor);      // Multiply (int)
 	Vector3D& operator*=(const int& factor);     // Multiply equals (int)
 
+	Vector3D operator*(const DirectX::XMFLOAT3X3& matrix); // Matrix multiplication
+	Vector3D operator*=(const DirectX::XMFLOAT3X3& matrix); // Matrix multiplication
+
 	Vector3D operator/(const float& factor);    // Divide (float)
 	Vector3D& operator/=(const float& factor);   // Divide equals (float)
 
@@ -152,6 +155,30 @@ public:
 	static Vector4D zero;
 
 	float x, y, z, w;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------- //
+
+struct MatrixMaths
+{
+public:
+
+	static DirectX::XMFLOAT3X3 AxisRotationMatrix(Vector3D axis, float angle)
+	{
+		// Pre-calculate values that can be expensive
+		float cosAngle = cosf(angle);
+		float sinAngle = sinf(angle);
+		float oneMinusCos = 1.0f - cosAngle;
+		//float oneMinusSin = 1.0f - sinAngle;
+
+		// Calculate the Rodrigues rotation matrix
+		DirectX::XMFLOAT3X3 returnMatrix = { cosAngle + ((axis.x * axis.x) * oneMinusCos),           ((axis.x * axis.y) * oneMinusCos) - (axis.z * sinAngle),  ((axis.x * axis.z) * oneMinusCos) + (axis.y * sinAngle),
+										   ((axis.y * axis.x) * oneMinusCos) + (axis.z * sinAngle),  cosAngle + ((axis.y * axis.y) * oneMinusCos),            ((axis.y * axis.z * oneMinusCos) - (axis.x * sinAngle)),
+											(axis.z * axis.x * oneMinusCos) - (axis.y * sinAngle),   (axis.z * axis.y * oneMinusCos) + (axis.x * sinAngle),    cosAngle + ((axis.z * axis.z) * oneMinusCos) };
+
+		// Return the matrix back
+		return returnMatrix;
+	}
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------- //

@@ -8,6 +8,7 @@ unsigned char InputHandler::mKeyboardState[256];
 int			  InputHandler::mMouseX = 0;
 int			  InputHandler::mMouseY = 0;
 char          InputHandler::mMouseButtons[6];
+Vector2D      InputHandler::mMouseDelta = Vector2D::zero;
 
 void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
 {
@@ -58,6 +59,8 @@ void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
 		}
 		else if (rawInput->header.dwType == RIM_TYPEMOUSE) 
 		{
+			mMouseDelta = Vector2D(rawInput->data.mouse.lLastX, rawInput->data.mouse.lLastY);
+
 			mMouseX += rawInput->data.mouse.lLastX;
 			mMouseY += rawInput->data.mouse.lLastY;
 
@@ -207,6 +210,16 @@ char InputHandler::GetScrollWheelFrameDelta()
 
 	// Reset the scroll
 	mMouseButtons[5] = 0;
+
+	return returnVal;
+}
+
+// -------------------------------------------------------------------------------- //
+
+Vector2D InputHandler::GetMouseMovementDelta()
+{
+	Vector2D returnVal   = mMouseDelta;
+	         mMouseDelta = Vector2D::zero;
 
 	return returnVal;
 }

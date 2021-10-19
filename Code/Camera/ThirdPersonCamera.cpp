@@ -36,41 +36,41 @@ void ThirdPersonCamera::Update(const float deltaTime)
 	{
 		// ---------------------------------------------------------------------------------------------------
 
-		//// Left/right
-		//if (mInputHandler->GetIsKeyPressed(DIK_A))
-		//{
-		//	mFocalPoint += (mRight * -mMovementSpeed) * deltaTime;
-		//}
-		//else if (mInputHandler->GetIsKeyPressed(DIK_D))
-		//{
-		//	mFocalPoint += (mRight * mMovementSpeed) * deltaTime;
-		//}
+		// Left/right
+		if (mInputHandler->GetIsKeyPressed('A'))
+		{
+			mFocalPoint += (mRight * -mMovementSpeed) * deltaTime;
+		}
+		else if (mInputHandler->GetIsKeyPressed('D'))
+		{
+			mFocalPoint += (mRight * mMovementSpeed) * deltaTime;
+		}
 
-		//// Up/down
-		//if (mInputHandler->GetIsKeyPressed(DIK_SPACE))
-		//{
-		//	mFocalPoint += (Vector3D::worldUp * mMovementSpeed) * deltaTime;
-		//}
-		//else if (mInputHandler->GetIsKeyPressed(DIK_LSHIFT))
-		//{
-		//	mFocalPoint += (Vector3D::worldUp * -mMovementSpeed) * deltaTime;
-		//}
+		// Up/down
+		if (mInputHandler->GetIsKeyPressed(VK_SPACE))
+		{
+			mFocalPoint += (Vector3D::worldUp * mMovementSpeed) * deltaTime;
+		}
+		else if (mInputHandler->GetIsKeyPressed(VK_LSHIFT))
+		{
+			mFocalPoint += (Vector3D::worldUp * -mMovementSpeed) * deltaTime;
+		}
 
 
-		//// As we need to restrict the movement to the X/Z plane we need to adjust the facing direction
-		//Vector3D facingDirection = mUp.Cross(mRight);
-		//facingDirection.y        = 0.0f;
-		//facingDirection.Normalise();
+		// As we need to restrict the movement to the X/Z plane we need to adjust the facing direction
+		Vector3D facingDirection = mUp.Cross(mRight);
+		facingDirection.y        = 0.0f;
+		facingDirection.Normalise();
 
-		//// Now for forward/backward
-		//if (mInputHandler->GetIsKeyPressed(DIK_W))
-		//{
-		//	mFocalPoint += (facingDirection * mMovementSpeed) * deltaTime;
-		//}
-		//else if (mInputHandler->GetIsKeyPressed(DIK_S))
-		//{
-		//	mFocalPoint += (facingDirection * -mMovementSpeed) * deltaTime;
-		//}
+		// Now for forward/backward
+		if (mInputHandler->GetIsKeyPressed('W'))
+		{
+			mFocalPoint += (facingDirection * mMovementSpeed) * deltaTime;
+		}
+		else if (mInputHandler->GetIsKeyPressed('S'))
+		{
+			mFocalPoint += (facingDirection * -mMovementSpeed) * deltaTime;
+		}
 
 		// Now re-calculate the position of the camera after the changes have been made
 		ReCalculatePosition();
@@ -79,7 +79,69 @@ void ThirdPersonCamera::Update(const float deltaTime)
 
 		// Now check to see if the player is rotating the camera around the focal point
 
-		//if(mInputHandler->)
+		// Check for the right mouse button press
+		if (mInputHandler->GetIsMouseButtonPressed(1))
+		{
+			// Now check to see if the player is moving the mouse
+			Vector2D mouseDelta = mInputHandler->GetMouseMovementDelta();
+
+			// Rotate the facing direction around the world up by the rotation amount
+			if (mouseDelta.x != 0.0f)
+			{
+				constexpr float angle = DirectX::XMConvertToRadians(45.0f);
+
+				// Construct the rotation matrix
+				DirectX::XMFLOAT3X3 rotationMatrix = {cosf(angle),  0.0f,  sinf(angle),
+				                                      0.0f,         1.0f,  0.0f,
+				                                      -sinf(angle), 0.0f,  cosf(angle)};
+
+				// Calculate the offset vector
+				Vector3D offsetVector = mPosition - mFocalPoint;
+
+				// Now multiply the offset vector by the rotation matrix
+				offsetVector *= rotationMatrix;
+
+				// Now re-calculate the position
+				mPosition = mFocalPoint + offsetVector;
+			}
+
+			// Rotate the view up/down around the local right axis
+			if (mouseDelta.y != 0.0f)
+			{
+				// Construct the rotation matrix
+				DirectX::XMFLOAT3X3 rotationMatrix = MatrixMaths::AxisRotationMatrix(mRight, 0.1f * deltaTime);
+
+				// Calculate the offset vector
+				Vector3D offsetVector = mPosition - mFocalPoint;
+
+				// Apply the rotation to the offset
+				offsetVector *= rotationMatrix;
+
+				// Now re-calculate the position
+				mPosition = mFocalPoint + offsetVector;
+			}
+		}
+
+		// Now check to see if the player has scrolled the mouse wheel in/out
+		int wheelDelta = mInputHandler->GetScrollWheelFrameDelta();
+		if (wheelDelta != 0)
+		{
+			// Change the distance 
+			if (wheelDelta > 0)
+			{
+				mDistanceFromFocalPoint += deltaTime * 2.0f;
+
+				if (mDistanceFromFocalPoint > kMaxDistance)
+					mDistanceFromFocalPoint = kMaxDistance;
+			}
+			else
+			{
+				mDistanceFromFocalPoint -= deltaTime * 2.0f;
+
+				if (mDistanceFromFocalPoint < kMinDistance)
+					mDistanceFromFocalPoint = kMinDistance;
+			}
+		}
 
 		// ---------------------------------------------------------------------------------------------------
 	}
