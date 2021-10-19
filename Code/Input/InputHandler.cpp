@@ -1,17 +1,133 @@
 #include "InputHandler.h"
 
+#include <iostream>
+
+// -------------------------------------------------------------------------------- //
+
+unsigned char InputHandler::mKeyboardState[256];
+int			  InputHandler::mMouseX = 0;
+int			  InputHandler::mMouseY = 0;
+char          InputHandler::mMouseButtons[6];
+
+void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
+{
+	switch (message)
+	{
+	default:
+		return;
+
+	case WM_INPUT:
+		UINT dwSize = 0;
+
+		if(GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER)) == -1)
+		{
+			return;
+		}
+
+		LPBYTE lpb = new BYTE[dwSize];
+		if (lpb == NULL)
+		{
+			return;
+		}
+
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+		{
+			// An error has occured as the size returned doesnt match 
+			delete[] lpb;
+			return;
+		}
+
+
+		// Convert the data into the correct format
+		RAWINPUT* rawInput = (RAWINPUT*)lpb;
+
+		// If we are dealing with a keyboard
+		if (rawInput->header.dwType == RIM_TYPEKEYBOARD)
+		{
+			UINT keyID = MapVirtualKey(rawInput->data.keyboard.VKey, MAPVK_VK_TO_CHAR);
+
+			// First check to see if the message is a key down
+			if (rawInput->data.keyboard.Flags == RI_KEY_MAKE) // Press
+			{
+				mKeyboardState[keyID] = 1;
+			}
+			else if (rawInput->data.keyboard.Flags == RI_KEY_BREAK) // Release
+			{
+				mKeyboardState[keyID] = 0;
+			}
+		}
+		else if (rawInput->header.dwType == RIM_TYPEMOUSE) 
+		{
+			mMouseX += rawInput->data.mouse.lLastX;
+			mMouseY += rawInput->data.mouse.lLastY;
+
+			switch (rawInput->data.mouse.usButtonFlags)
+			{
+			// Button 1
+			case RI_MOUSE_BUTTON_1_DOWN:
+				mMouseButtons[0] = 1;
+			break;
+
+			case RI_MOUSE_BUTTON_1_UP:
+				mMouseButtons[0] = 0;
+			break;
+
+			// Button 2
+			case RI_MOUSE_BUTTON_2_DOWN:
+				mMouseButtons[1] = 1;
+				break;
+
+			case RI_MOUSE_BUTTON_2_UP:
+				mMouseButtons[1] = 0;
+			break;
+
+			// Button 3
+			case RI_MOUSE_BUTTON_3_DOWN:
+				mMouseButtons[2] = 1;
+			break;
+
+			case RI_MOUSE_BUTTON_3_UP:
+				mMouseButtons[2] = 0;
+			break;
+
+			// Button 4
+			case RI_MOUSE_BUTTON_4_DOWN:
+				mMouseButtons[3] = 1;
+			break;
+
+			case RI_MOUSE_BUTTON_4_UP:
+				mMouseButtons[3] = 0;
+			break;
+
+			// Button 5
+			case RI_MOUSE_BUTTON_5_DOWN:
+				mMouseButtons[4] = 1;
+			break;
+
+			case RI_MOUSE_BUTTON_5_UP:
+				mMouseButtons[4] = 0;
+			break;
+
+			// Mouse wheel
+			case RI_MOUSE_WHEEL:
+				// Apply the delta
+				mMouseButtons[5] += rawInput->data.mouse.usButtonData;
+			break;
+			}
+		}
+
+		delete[] lpb;
+	return;
+	}
+}
+
 // -------------------------------------------------------------------------------- //
 
 InputHandler::InputHandler() 
-	: mDirectInput(nullptr)
-	, mKeyboard(nullptr)
-	, mMouse(nullptr)
-	, mMouseState()
-	, mScreenWidth(0)
+	: mScreenWidth(0)
 	, mScreenHeight(0)
-	, mMouseX(0)
-	, mMouseY(0)
-	, mKeyboardState()
+	, mKeyboard()
+	, mMouse()
 {
 
 }
@@ -20,26 +136,7 @@ InputHandler::InputHandler()
 
 InputHandler::~InputHandler()
 {
-	// Free up the keyboard
-	if (mKeyboard)
-	{
-		mKeyboard->Unacquire();
-		mKeyboard->Release();
-		mKeyboard = nullptr;
-	}
-
-	if (mMouse)
-	{
-		mMouse->Unacquire();
-		mMouse->Release();
-		mMouse = nullptr;
-	}
-
-	if (mDirectInput)
-	{
-		mDirectInput->Release();
-		mDirectInput = nullptr;
-	}
+	
 }
 
 // -------------------------------------------------------------------------------- //
@@ -49,183 +146,69 @@ bool InputHandler::Init(HINSTANCE instance, HWND windowInstance, int width, int 
 	if (!instance || !windowInstance)
 		return false;
 
-	HRESULT result;
-
 	mMouseX       = 0;
 	mMouseY       = 0;
 	mScreenHeight = height;
 	mScreenWidth  = width;
 
-	// Create the direct input system
-	result = DirectInput8Create(instance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&mDirectInput, NULL);
+	// ------------------------------------------------------------------------------------------
 
-	// Error checking
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Initialse the keyboard input device
-	result = mDirectInput->CreateDevice(GUID_SysKeyboard, &mKeyboard, NULL);
-
-	// Error checking
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Now set the data format
-	result = mKeyboard->SetDataFormat(&c_dfDIKeyboard);
-
-	// Error checking
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Set the cooperative level for the keyboard
-	result = mKeyboard->SetCooperativeLevel(windowInstance, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-
-	// Error checking
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Now the keyboard has been setup we can aquire it
-	result = mKeyboard->Acquire();
-
-	// Error checking
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Now setup the mouse
-	result = mDirectInput->CreateDevice(GUID_SysMouse, &mMouse, NULL);
-
-	// Error checking
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	result = mMouse->SetDataFormat(&c_dfDIMouse);
+	// Setup the mouse
+	mMouse.usUsagePage = 0x01;
+	mMouse.usUsage     = 0x02;
+	mMouse.dwFlags     = RIDEV_INPUTSINK;
+	mMouse.hwndTarget  = windowInstance;
 	
-	// Error checking
-	if (FAILED(result))
+	// Now the keyboard
+	mKeyboard.usUsagePage = 0x01;
+	mKeyboard.usUsage     = 0x06;
+	mKeyboard.dwFlags     = RIDEV_NOLEGACY;
+	mKeyboard.hwndTarget  = windowInstance;
+
+	if (!RegisterRawInputDevices(&mKeyboard, 1, sizeof(mKeyboard)))
 	{
+		// Failed to register the keyboard
 		return false;
 	}
 
-	result = mMouse->SetCooperativeLevel(windowInstance, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-
-	// Error checking
-	if (FAILED(result))
+	if (!RegisterRawInputDevices(&mMouse, 1, sizeof(mMouse)))
 	{
+		// Failed to register the mouse
 		return false;
 	}
 
-	result = mMouse->Acquire();
-
-	// Error checking
-	if (FAILED(result))
-	{
-		return false;
-	}
+	// ------------------------------------------------------------------------------------------
 
 	return true;
-}
-
-// -------------------------------------------------------------------------------- //
-
-bool InputHandler::Update()
-{
-	if (!ReadKeyboard())
-	{
-		return false;
-	}
-
-	if (!ReadMouse())
-	{
-		return false;
-	}
-
-	ProcessInput();
-
-	// Return we have handled the input
-	return true;
-}
-
-// -------------------------------------------------------------------------------- //
-
-bool InputHandler::ReadKeyboard()
-{
-	HRESULT result;
-
-	// Read the keyboard state
-	result = mKeyboard->GetDeviceState(sizeof(mKeyboardState), (LPVOID)&mKeyboardState);
-
-	if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
-	{
-		// If the keyboard has lost focus or has not been aquired then we need to get it back
-		mKeyboard->Acquire();
-	}
-	else
-		return false;
-
-	return true;
-}
-
-// -------------------------------------------------------------------------------- //
-
-bool InputHandler::ReadMouse()
-{
-	HRESULT result;
-
-	// Read the mouse data
-	result = mMouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&mMouseState);
-
-	if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
-	{
-		mMouse->Acquire();
-	}
-	else
-		return false;
-
-	return true;
-}
-
-// -------------------------------------------------------------------------------- //
-
-void InputHandler::ProcessInput()
-{
-	// The mouse state stored is an offset from the prior frame, so apply the change
-	mMouseX += mMouseState.lX;
-	mMouseY += mMouseState.lY;
-
-	// Cap the mouse to the screen
-	if (mMouseX < 0) 
-		mMouseX = 0;
-	else if (mMouseX > mScreenWidth)
-		mMouseX = mScreenWidth;
-
-	if (mMouseY < 0)
-		mMouseY = 0;
-	else if (mMouseY > mScreenHeight)
-		mMouseY = mScreenHeight;
 }
 
 // -------------------------------------------------------------------------------- //
 
 bool InputHandler::GetIsKeyPressed(unsigned char keyToCheck)
 {
-	if (mKeyboardState[keyToCheck] & 0x80)
-	{
-		return true;
-	}
+	return mKeyboardState[keyToCheck];
+}
 
-	return false;
+// -------------------------------------------------------------------------------- //
+
+bool InputHandler::GetIsMouseButtonPressed(unsigned char buttonToCheck)
+{
+	if (buttonToCheck > 4)
+		return false;
+
+	return mMouseButtons[buttonToCheck];
+}
+
+// -------------------------------------------------------------------------------- //
+
+char InputHandler::GetScrollWheelFrameDelta()
+{
+	char returnVal = mMouseButtons[5];
+
+	// Reset the scroll
+	mMouseButtons[5] = 0;
+
+	return returnVal;
 }
 
 // -------------------------------------------------------------------------------- //

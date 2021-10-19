@@ -34,7 +34,7 @@ void GameScreen_MainMenu::Render()
 
 void GameScreen_MainMenu::Update(const float deltaTime)
 {
-	if (mInputHandler.GetIsKeyPressed(DIK_F))
+	if (mInputHandler.GetIsMouseButtonPressed(4))
 	{
 		testCube->move(deltaTime);
 	}

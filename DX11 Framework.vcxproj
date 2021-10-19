@@ -387,6 +387,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Code\Camera\FirstPersonCamera.cpp" />
+    <ClCompile Include="Code\Camera\ThirdPersonCamera.cpp" />
+    <ClCompile Include="Code\Camera\BaseCamera.cpp" />
     <ClCompile Include="Code\Collisions\TrackCollision.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_Editor.cpp" />
@@ -404,6 +407,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Code\Camera\FirstPersonCamera.h" />
+    <ClInclude Include="Code\Camera\ThirdPersonCamera.h" />
+    <ClInclude Include="Code\Camera\BaseCamera.h" />
     <ClInclude Include="Code\Collisions\TrackCollision.h" />
     <ClInclude Include="Code\GameScreens\GameScreen.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_Editor.h" />

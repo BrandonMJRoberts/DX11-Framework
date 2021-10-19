@@ -95,9 +95,6 @@ void GameScreenManager::Render()
 
 void GameScreenManager::Update(const float deltaTime)
 {
-    if (mInputHandler)
-        mInputHandler->Update();
-
     if (mCurrentScreen)
         mCurrentScreen->Update(deltaTime);
 }
@@ -115,11 +112,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         hdc = BeginPaint(hWnd, &ps);
         EndPaint(hWnd, &ps);
-        break;
+    break;
 
     case WM_DESTROY:
         PostQuitMessage(0);
-        break;
+    break;
+
+    case WM_INPUT:
+        InputHandler::HandleWindowsInput(message, lParam);
+    break;
 
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -329,6 +330,9 @@ void GameScreenManager::SwitchToWindow(ScreenTypes screenType, ShaderHandler& sh
         delete mCurrentScreen;
         mCurrentScreen = nullptr;
     }
+
+    if (!mInputHandler)
+        return;
 
     switch (screenType)
     {

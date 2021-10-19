@@ -47,6 +47,9 @@ public:
 
 	DirectX::XMFLOAT2 ConvertToDirectXFloat2();
 
+	static Vector2D worldUp;
+	static Vector2D zero;
+
 	float x, y;
 };
 
@@ -95,6 +98,8 @@ public:
 
 	DirectX::XMFLOAT3 ConvertToDirectXFloat3();
 
+	static Vector3D worldUp;
+	static Vector3D zero;
 
 	float x, y, z;
 };
@@ -143,6 +148,8 @@ public:
 
 	DirectX::XMFLOAT4 ConvertToDirectXFloat4();
 
+	static Vector4D worldUp;
+	static Vector4D zero;
 
 	float x, y, z, w;
 };
