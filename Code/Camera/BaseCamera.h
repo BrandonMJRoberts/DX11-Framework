@@ -9,7 +9,16 @@ class BaseCamera abstract
 {
 public:
 	         BaseCamera();
-			 BaseCamera(InputHandler* inputHandler, Vector3D startPos, Vector3D right, Vector3D up, float FOV, float nearPlane = 0.01f, float farPlane = 100.0f, float aspect = 16.0f / 9.0f, float movementSpeed = 1.0f);
+			 BaseCamera(InputHandler* inputHandler, 
+				        Vector3D      startPos, 
+				        Vector3D      right,  
+				        Vector3D      up, 
+				        float         FOV, 
+				        float         nearPlane     = 0.01f,  
+				        float         farPlane      = 100.0f, 
+				        float         aspect        = 16.0f / 9.0f, 
+				        float         movementSpeed = 1.0f,
+				        float         rotationSpeed = 0.1f);
 	virtual ~BaseCamera();
 
 	virtual void Update(const float deltaTime);
@@ -40,6 +49,8 @@ protected:
 
 	float    mAspectRatio;
 	float    mMovementSpeed;
+
+	float    mRotationSpeed;
 };
 
 #endif

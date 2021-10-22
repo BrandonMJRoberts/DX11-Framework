@@ -11,7 +11,17 @@ GameScreen_MainMenu::GameScreen_MainMenu(ShaderHandler& shaderHandler, InputHand
 
 	testCube2 = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 3.0f));
 
-	mCamera = new ThirdPersonCamera(&inputHandler, Vector3D::zero, 10.0f, Vector3D(1.0f, 0.0f, 0.0f), Vector3D::worldUp, DirectX::XMConvertToRadians(45.0f), 0.01f, 100.0f);
+	mCamera = new ThirdPersonCamera(&inputHandler, 
+		                            Vector3D(3.0f, 0.0f, 0.0f),  
+		                            10.0f, 
+		                            Vector3D(1.0f, 0.0f, 0.0f), 
+		                            Vector3D::worldUp, 
+		                            DirectX::XMConvertToRadians(60.0f), 
+		                            0.01f, 
+		                            100.0f, 
+		                            16.0f / 9.0f, 
+		                            0.1f,  
+		                            DirectX::XMConvertToRadians(10.0f));
 }
 
 // ------------------------------------------------------------------- //
@@ -33,10 +43,10 @@ GameScreen_MainMenu::~GameScreen_MainMenu()
 void GameScreen_MainMenu::Render()
 {
 	if (testCube)
-		testCube->Render();
+		testCube->Render(mCamera);
 
 	if (testCube2)
-		testCube2->Render();
+		testCube2->Render(mCamera);
 }
 
 // ------------------------------------------------------------------- //

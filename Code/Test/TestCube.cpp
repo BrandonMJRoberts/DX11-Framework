@@ -1,6 +1,7 @@
 #include "TestCube.h"
 
 #include "../GameScreens/ScreenManager.h"
+#include "../Camera/ThirdPersonCamera.h"
 
 // ---------------------------------------------------------------- //
 
@@ -22,10 +23,6 @@ TestCube::TestCube(ShaderHandler& shaderHandler, Vector3D position)
 	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f);
 	DirectX::XMVECTOR at  = DirectX::XMVectorSet(0.0f, 0.0f,  0.0f, 0.0f);
 	DirectX::XMVECTOR up  = DirectX::XMVectorSet(0.0f, 1.0f,  0.0f, 0.0f);
-
-	DirectX::XMStoreFloat4x4(&viewMat, DirectX::XMMatrixLookAtLH(eye, at, up));
-
-	DirectX::XMStoreFloat4x4(&projectionMat, DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, GameScreenManager::ScreenWidth / (float)GameScreenManager::ScreenHeight, 0.01f, 100.0f));
 
 	// ------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -134,16 +131,25 @@ TestCube::~TestCube()
 
 // ---------------------------------------------------------------- //
 
-void TestCube::Render()
+void TestCube::Render(BaseCamera* camera)
 {
+	if (!camera)
+		return;
+
+	// Get the local stored world matrix for this object
 	DirectX::XMMATRIX world      = DirectX::XMLoadFloat4x4(&modelMat);
-	DirectX::XMMATRIX view       = DirectX::XMLoadFloat4x4(&viewMat);
-	DirectX::XMMATRIX projection = DirectX::XMLoadFloat4x4(&projectionMat);
 
 	ConstantBuffer cb;
-	cb.mWorld      = XMMatrixTranspose(world);
-	cb.mView       = XMMatrixTranspose(view);
-	cb.mProjection = XMMatrixTranspose(projection);
+	cb.mWorld = XMMatrixTranspose(world);
+
+	// Get the view and projection matrixes from the camera and transpose them before passing into the shader
+	DirectX::XMMATRIX view;
+					  view     = DirectX::XMLoadFloat4x4(&camera->GetViewMatrix());
+	                  cb.mView = DirectX::XMMatrixTranspose(view);
+
+	DirectX::XMMATRIX projection;
+					  projection     = DirectX::XMLoadFloat4x4(&camera->GetPerspectiveMatrix());
+					  cb.mProjection = DirectX::XMMatrixTranspose(projection);
 
 	mShaderHandler.UpdateSubresource(mConstantBuffer, 0, nullptr, &cb, 0, 0);
 
@@ -161,9 +167,6 @@ void TestCube::Render()
 
 void TestCube::Update(const float deltaTime)
 {
-	//DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixAffineTransformation(DirectX::XMVectorSet(10.0f, 10.0f, 10.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	//DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixRotationZ(deltaTime) * DirectX::XMMatrixRotationY(deltaTime));
-
 	// Make sure that the cube's position is always where it is internally stored
 	DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z));
 }

@@ -3,7 +3,7 @@
 
 #include "BaseCamera.h"
 
-class FirstPersonCamera : BaseCamera
+class FirstPersonCamera : public BaseCamera
 {
 public:
 	FirstPersonCamera();

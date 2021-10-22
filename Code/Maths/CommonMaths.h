@@ -163,6 +163,16 @@ struct MatrixMaths
 {
 public:
 
+	static DirectX::XMFLOAT3X3 Identity3X3;
+	static DirectX::XMFLOAT4X4 Identity4X4;
+
+	// ---------------------------------------------------------------------------------------------------------
+
+	static DirectX::XMFLOAT3X3 Convert4X4RotationMatrixTo3X3(DirectX::XMFLOAT4X4& matrix)
+	{
+
+	}
+
 	// ---------------------------------------------------------------------------------------------------------
 
 	static DirectX::XMFLOAT3X3 AxisRotationMatrix(Vector3D axis, float angle)
@@ -215,6 +225,16 @@ public:
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
+
+	static DirectX::XMFLOAT4X4 Convert3X3To4X4(DirectX::XMFLOAT3X3& matrix)
+	{
+		DirectX::XMFLOAT4X4 returnMatrix = {matrix._11, matrix._21, matrix._31, 0.0f,
+		                                    matrix._12, matrix._22, matrix._32, 0.0f,
+		                                    matrix._13, matrix._23, matrix._33, 0.0f,
+		                                    0.0f,       0.0f,       0.0f,       1.0f};
+
+		return returnMatrix;
+	}
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------- //

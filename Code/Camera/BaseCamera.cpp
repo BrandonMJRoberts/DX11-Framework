@@ -14,13 +14,15 @@ BaseCamera::BaseCamera()
 	, mPerspectiveMatrix()
 	, mInputHandler(nullptr)
 	, mMovementSpeed(1.0f)
+	, mRotationSpeed(0.1f)
 {
-
+	//ReCalculateViewMatrix();
+	//ReCalculatePerspectiveMatrix();
 }
 
 // ------------------------------------------------------------ //
 
-BaseCamera::BaseCamera(InputHandler* inputHandler, Vector3D startPos, Vector3D right, Vector3D up, float FOV, float nearPlane, float farPlane, float aspect, float movementSpeed)
+BaseCamera::BaseCamera(InputHandler* inputHandler, Vector3D startPos, Vector3D right, Vector3D up, float FOV, float nearPlane, float farPlane, float aspect, float movementSpeed, float rotationSpeed)
 	: mViewMatrix()
 	, mPosition(startPos)
 	, mRight(right.Normalise())
@@ -32,8 +34,10 @@ BaseCamera::BaseCamera(InputHandler* inputHandler, Vector3D startPos, Vector3D r
 	, mPerspectiveMatrix()
 	, mInputHandler(inputHandler)
 	, mMovementSpeed(movementSpeed)
+	, mRotationSpeed(rotationSpeed)
 {
-
+	//ReCalculateViewMatrix();
+	//ReCalculatePerspectiveMatrix();
 }
 
 // ------------------------------------------------------------ //
@@ -55,7 +59,7 @@ void BaseCamera::Update(const float deltaTime)
 void BaseCamera::ReCalculateViewMatrix()
 {
 	// Calculate view matrix
-	Vector3D viewDir    = mUp.Cross(mRight);
+	Vector3D viewDir    = mRight.Cross(mUp);
 	Vector3D focalPoint = mPosition + viewDir;
 
 	DirectX::XMStoreFloat4x4(&mViewMatrix, DirectX::XMMatrixLookAtLH(DirectX::XMVectorSet(mPosition.x, mPosition.y, mPosition.z, 0.0f), 
@@ -68,7 +72,7 @@ void BaseCamera::ReCalculateViewMatrix()
 void BaseCamera::ReCalculatePerspectiveMatrix()
 {
 	// We are going to be mainly using perspective so re-calculate the view matrix of a perspective view
-	DirectX::XMStoreFloat4x4(&mPerspectiveMatrix, DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(mFOV), mAspectRatio, mNearPlane, mFarPlane));
+	DirectX::XMStoreFloat4x4(&mPerspectiveMatrix, DirectX::XMMatrixPerspectiveFovLH(mFOV, mAspectRatio, mNearPlane, mFarPlane));
 }
 
 // ------------------------------------------------------------ //

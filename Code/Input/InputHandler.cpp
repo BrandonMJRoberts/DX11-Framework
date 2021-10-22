@@ -78,7 +78,7 @@ void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
 			// Button 2
 			case RI_MOUSE_BUTTON_2_DOWN:
 				mMouseButtons[1] = 1;
-				break;
+			break;
 
 			case RI_MOUSE_BUTTON_2_UP:
 				mMouseButtons[1] = 0;
@@ -113,8 +113,9 @@ void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
 
 			// Mouse wheel
 			case RI_MOUSE_WHEEL:
-				// Apply the delta
-				mMouseButtons[5] += rawInput->data.mouse.usButtonData;
+
+				// Each notch on the mouse represents a scroll wheel delta of 120 (microsoft set number), so if the wheel is being scrolled faster then it will be in multiples of 120
+				mMouseButtons[5] += (char)((short)rawInput->data.mouse.usButtonData / (short)120);
 			break;
 			}
 		}

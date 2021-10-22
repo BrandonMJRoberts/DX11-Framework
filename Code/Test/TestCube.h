@@ -4,6 +4,8 @@
 #include "../Shaders/ShaderHandler.h"
 #include "../Maths/CommonMaths.h"
 
+class BaseCamera;
+
 // ------------------------------------------------------------- //
 
 struct SimpleVertex
@@ -27,7 +29,7 @@ public:
 	TestCube(ShaderHandler& shaderHandler, Vector3D position);
 	~TestCube();
 
-	void Render();
+	void Render(BaseCamera* camera);
 	void Update(const float deltaTime);
 
 	void move(const float deltaTime);
@@ -44,8 +46,8 @@ private:
 	Vector3D            mPosition;
 
 	DirectX::XMFLOAT4X4 modelMat;
-	DirectX::XMFLOAT4X4 viewMat;
-	DirectX::XMFLOAT4X4 projectionMat;
+	//DirectX::XMFLOAT4X4 viewMat;
+	//DirectX::XMFLOAT4X4 projectionMat;
 };
 
 // ------------------------------------------------------------- //
