@@ -163,22 +163,58 @@ struct MatrixMaths
 {
 public:
 
+	// ---------------------------------------------------------------------------------------------------------
+
 	static DirectX::XMFLOAT3X3 AxisRotationMatrix(Vector3D axis, float angle)
 	{
 		// Pre-calculate values that can be expensive
-		float cosAngle = cosf(angle);
-		float sinAngle = sinf(angle);
+		float cosAngle    = cosf(angle);
+		float sinAngle    = sinf(angle);
 		float oneMinusCos = 1.0f - cosAngle;
-		//float oneMinusSin = 1.0f - sinAngle;
 
 		// Calculate the Rodrigues rotation matrix
-		DirectX::XMFLOAT3X3 returnMatrix = { cosAngle + ((axis.x * axis.x) * oneMinusCos),           ((axis.x * axis.y) * oneMinusCos) - (axis.z * sinAngle),  ((axis.x * axis.z) * oneMinusCos) + (axis.y * sinAngle),
-										   ((axis.y * axis.x) * oneMinusCos) + (axis.z * sinAngle),  cosAngle + ((axis.y * axis.y) * oneMinusCos),            ((axis.y * axis.z * oneMinusCos) - (axis.x * sinAngle)),
-											(axis.z * axis.x * oneMinusCos) - (axis.y * sinAngle),   (axis.z * axis.y * oneMinusCos) + (axis.x * sinAngle),    cosAngle + ((axis.z * axis.z) * oneMinusCos) };
+		DirectX::XMFLOAT3X3 returnMatrix = {  cosAngle                        + ((axis.x * axis.x) * oneMinusCos),           ((axis.x * axis.y) * oneMinusCos) - (axis.z * sinAngle),                           ((axis.x * axis.z) * oneMinusCos) + (axis.y * sinAngle),
+										    ((axis.y * axis.x) * oneMinusCos) + (axis.z * sinAngle),                          cosAngle                         + ((axis.y * axis.y) * oneMinusCos),            ((axis.y * axis.z   * oneMinusCos) - (axis.x * sinAngle)),
+											 (axis.z * axis.x  * oneMinusCos) - (axis.y * sinAngle),                         (axis.z * axis.y * oneMinusCos)   + (axis.x * sinAngle),                            cosAngle                         + ((axis.z * axis.z) * oneMinusCos) };
 
 		// Return the matrix back
 		return returnMatrix;
 	}
+
+	// ---------------------------------------------------------------------------------------------------------
+
+	static DirectX::XMFLOAT3X3 GetXAxisRotationMatrix(float angle)
+	{
+		DirectX::XMFLOAT3X3 rotationMatrix = { 1.0f,  0.0f,          0.0f,
+		                                       0.0f,  cosf(angle),  -sinf(angle),
+		                                       0.0f,  sinf(angle),   cosf(angle)};
+
+		return rotationMatrix;
+	}
+
+	// ---------------------------------------------------------------------------------------------------------
+
+	static DirectX::XMFLOAT3X3 GetYAxisRotationMatrix(float angle)
+	{
+		DirectX::XMFLOAT3X3 rotationMatrix = { cosf(angle),  0.0f,  sinf(angle),
+											   0.0f,         1.0f,  0.0f,
+											  -sinf(angle),  0.0f,  cosf(angle) };
+
+		return rotationMatrix;
+	}
+
+	// ---------------------------------------------------------------------------------------------------------
+
+	static DirectX::XMFLOAT3X3 GetZAxisRotationMatrix(float angle)
+	{
+		DirectX::XMFLOAT3X3 rotationMatrix = { cosf(angle),  -sinf(angle),  0.0f,
+											   sinf(angle),   cosf(angle),  0.0f,
+											   0.0f,          0.0f,         1.0f};
+
+		return rotationMatrix;
+	}
+
+	// ---------------------------------------------------------------------------------------------------------
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------- //

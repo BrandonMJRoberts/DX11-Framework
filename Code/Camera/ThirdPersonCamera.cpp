@@ -90,16 +90,11 @@ void ThirdPersonCamera::Update(const float deltaTime)
 			{
 				constexpr float angle = DirectX::XMConvertToRadians(45.0f);
 
-				// Construct the rotation matrix
-				DirectX::XMFLOAT3X3 rotationMatrix = {cosf(angle),  0.0f,  sinf(angle),
-				                                      0.0f,         1.0f,  0.0f,
-				                                      -sinf(angle), 0.0f,  cosf(angle)};
-
 				// Calculate the offset vector
 				Vector3D offsetVector = mPosition - mFocalPoint;
 
 				// Now multiply the offset vector by the rotation matrix
-				offsetVector *= rotationMatrix;
+				offsetVector *= MatrixMaths::GetYAxisRotationMatrix(0.1f * deltaTime);
 
 				// Now re-calculate the position
 				mPosition = mFocalPoint + offsetVector;
@@ -108,14 +103,11 @@ void ThirdPersonCamera::Update(const float deltaTime)
 			// Rotate the view up/down around the local right axis
 			if (mouseDelta.y != 0.0f)
 			{
-				// Construct the rotation matrix
-				DirectX::XMFLOAT3X3 rotationMatrix = MatrixMaths::AxisRotationMatrix(mRight, 0.1f * deltaTime);
-
 				// Calculate the offset vector
 				Vector3D offsetVector = mPosition - mFocalPoint;
 
 				// Apply the rotation to the offset
-				offsetVector *= rotationMatrix;
+				offsetVector *= MatrixMaths::AxisRotationMatrix(mRight, 0.1f * deltaTime);
 
 				// Now re-calculate the position
 				mPosition = mFocalPoint + offsetVector;
