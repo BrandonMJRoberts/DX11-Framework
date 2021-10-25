@@ -27,7 +27,7 @@ void GameScreen::Render()
 
 void GameScreen::Update(const float deltaTime)
 {
-
+	UNREFERENCED_PARAMETER(deltaTime);
 }
 
 // ------------------------------------------------------------- //

@@ -9,8 +9,8 @@
 
 #include <iostream>
 
-const int GameScreenManager::ScreenWidth  = 640;
-const int GameScreenManager::ScreenHeight = 480;
+const int GameScreenManager::ScreenWidth  = 960;
+const int GameScreenManager::ScreenHeight = 540;
 
 // -------------------------------------------------------------------------- //
 

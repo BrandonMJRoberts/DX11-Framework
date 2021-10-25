@@ -3,6 +3,11 @@
 
 #include <DirectXMath.h>
 
+#define TWOPI  6.283185307f
+#define PI     3.141592654f
+#define PIDIV2 1.570796327f
+#define PIDIV4 0.7853981634f
+
 // ---------------------------------------------------------------------------------------------------------------------------- //
 
 struct Vector2D final
@@ -170,7 +175,11 @@ public:
 
 	static DirectX::XMFLOAT3X3 Convert4X4RotationMatrixTo3X3(DirectX::XMFLOAT4X4& matrix)
 	{
+		DirectX::XMFLOAT3X3 returnMat = { matrix._11, matrix._21, matrix._31,
+		                                  matrix._12, matrix._22, matrix._32,
+		                                  matrix._13, matrix._23, matrix._33};
 
+		return returnMat;
 	}
 
 	// ---------------------------------------------------------------------------------------------------------

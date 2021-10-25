@@ -27,7 +27,7 @@ FirstPersonCamera::~FirstPersonCamera()
 
 void FirstPersonCamera::Update(const float deltaTime)
 {
-
+	UNREFERENCED_PARAMETER(deltaTime);
 }
 
 // ----------------------------------------------------------------- //

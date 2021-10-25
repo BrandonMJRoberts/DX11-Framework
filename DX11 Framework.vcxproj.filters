@@ -89,7 +89,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
     <ClCompile Include="Code\Track\TrackPiece.cpp">
       <Filter>Source\Track</Filter>
     </ClCompile>
@@ -144,7 +143,6 @@
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application.h" />
     <ClInclude Include="Code\GameScreens\GameScreen.h">
       <Filter>Headers\GameScreens</Filter>
     </ClInclude>
@@ -192,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="Code\Camera\ThirdPersonCamera.h">
       <Filter>Headers\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Headers\Maths</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

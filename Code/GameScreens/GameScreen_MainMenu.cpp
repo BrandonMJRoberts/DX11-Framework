@@ -18,10 +18,10 @@ GameScreen_MainMenu::GameScreen_MainMenu(ShaderHandler& shaderHandler, InputHand
 		                            Vector3D::worldUp, 
 		                            DirectX::XMConvertToRadians(60.0f), 
 		                            0.01f, 
-		                            100.0f, 
+		                            800.0f, 
 		                            16.0f / 9.0f, 
 		                            0.1f,  
-		                            DirectX::XMConvertToRadians(10.0f));
+		                            0.2f);
 }
 
 // ------------------------------------------------------------------- //

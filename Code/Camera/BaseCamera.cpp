@@ -51,7 +51,7 @@ BaseCamera::~BaseCamera()
 
 void BaseCamera::Update(const float deltaTime)
 {
-
+	UNREFERENCED_PARAMETER(deltaTime);
 }
 
 // ------------------------------------------------------------ //

@@ -386,7 +386,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
     <ClCompile Include="Code\Camera\FirstPersonCamera.cpp" />
     <ClCompile Include="Code\Camera\ThirdPersonCamera.cpp" />
     <ClCompile Include="Code\Camera\BaseCamera.cpp" />
@@ -406,7 +405,6 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
     <ClInclude Include="Code\Camera\FirstPersonCamera.h" />
     <ClInclude Include="Code\Camera\ThirdPersonCamera.h" />
     <ClInclude Include="Code\Camera\BaseCamera.h" />
@@ -423,6 +421,7 @@
     <ClInclude Include="Code\Test\TestCube.h" />
     <ClInclude Include="Code\Track\TrackPiece.h" />
     <ClInclude Include="Code\Track\TrackPieceFactory.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="resource.h" />
     <ResourceCompile Include="DX11 Framework.rc" />
   </ItemGroup>

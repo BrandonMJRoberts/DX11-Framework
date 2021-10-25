@@ -167,6 +167,8 @@ void TestCube::Render(BaseCamera* camera)
 
 void TestCube::Update(const float deltaTime)
 {
+	UNREFERENCED_PARAMETER(deltaTime);
+
 	// Make sure that the cube's position is always where it is internally stored
 	DirectX::XMStoreFloat4x4(&modelMat, DirectX::XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z));
 }
