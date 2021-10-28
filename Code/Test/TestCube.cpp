@@ -143,12 +143,14 @@ void TestCube::Render(BaseCamera* camera)
 	cb.mWorld = XMMatrixTranspose(world);
 
 	// Get the view and projection matrixes from the camera and transpose them before passing into the shader
-	DirectX::XMMATRIX view;
-					  view     = DirectX::XMLoadFloat4x4(&camera->GetViewMatrix());
-	                  cb.mView = DirectX::XMMatrixTranspose(view);
+	DirectX::XMMATRIX   view;
+	DirectX::XMFLOAT4X4 view4X4  = camera->GetViewMatrix();
+					    view     = DirectX::XMLoadFloat4x4(&view4X4);
+	                    cb.mView = DirectX::XMMatrixTranspose(view);
 
 	DirectX::XMMATRIX projection;
-					  projection     = DirectX::XMLoadFloat4x4(&camera->GetPerspectiveMatrix());
+	DirectX::XMFLOAT4X4 persp        = camera->GetPerspectiveMatrix();
+					  projection     = DirectX::XMLoadFloat4x4(&persp);
 					  cb.mProjection = DirectX::XMMatrixTranspose(projection);
 
 	mShaderHandler.UpdateSubresource(mConstantBuffer, 0, nullptr, &cb, 0, 0);

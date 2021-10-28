@@ -87,6 +87,9 @@
     <Filter Include="Source\Input">
       <UniqueIdentifier>{8a1f8c2e-34bd-466f-9d9c-790b7a022627}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Editor\Grid">
+      <UniqueIdentifier>{48c6fa51-b57d-47d0-8664-5f186cc26daf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Track\TrackPiece.cpp">
@@ -137,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="Code\Camera\ThirdPersonCamera.cpp">
       <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Editor\Grid\Grid.cpp">
+      <Filter>Source\Editor\Grid</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,7 +197,10 @@
     <ClInclude Include="Code\Camera\ThirdPersonCamera.h">
       <Filter>Headers\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Constants.h">
+    <ClInclude Include="Code\Editor\Grid\Grid.h">
+      <Filter>Headers\Editor\Grid</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Maths\Constants.h">
       <Filter>Headers\Maths</Filter>
     </ClInclude>
   </ItemGroup>

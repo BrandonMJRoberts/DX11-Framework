@@ -34,7 +34,7 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
     {
         Cleanup();
         return;
-    }
+    }  
 
     // Create the shader handler to be a wrapper around all needed shader functionality - pass this into things instead of the device handle
     mShaderHandler = new ShaderHandler(mDeviceHandle, mDeviceContextHandle);
@@ -50,7 +50,7 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
     }
 
     if(mShaderHandler)
-        SwitchToWindow(ScreenTypes::MAIN_MENU, *mShaderHandler);
+        SwitchToWindow(ScreenTypes::EDITOR, *mShaderHandler);
     else
     {
         std::cout << "Shader handler failed to initialise!" << std::endl;

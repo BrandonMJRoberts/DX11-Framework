@@ -16,10 +16,7 @@ public:
 	void Update(const float deltaTime) override;
 
 private:
-	ThirdPersonCamera* mCamera;
 
-	TestCube* testCube;
-	TestCube* testCube2;
 };
 
 #endif

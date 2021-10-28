@@ -322,3 +322,20 @@ bool ShaderHandler::UpdateSubresource(ID3D11Resource* destResource, unsigned int
 }
 
 // ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture2D** texture)
+{
+    if (!mDeviceHandle)
+        return;
+
+    mDeviceHandle->CreateTexture2D(description, initialData, texture);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindTexture(ID3D11Texture2D* textureToBind)
+{
+    
+}
+
+// ------------------------------------------------------------------------------------------ //

@@ -60,21 +60,30 @@ enum class TrackPieceType : unsigned int
 		JUMP_UP,
 		JUMP_DOWN,
 
+		EMPTY,
+
 		MAX
 };
 
 // -------------------------------------------------------------------- //
 
-static class TrackPieceFactory final
+class TrackPieceFactory final
 {
 public:
-	TrackPieceFactory(ShaderHandler& shaderHander);
-	~TrackPieceFactory();
+	static TrackPieceFactory* GetInstance();
 
-	TrackPiece* CreateTrackPiece(TrackPieceType pieceToMake);
+	void               SetNewShaderHandler(ShaderHandler* shaderHandler);
+
+	void               Init(ShaderHandler* shaderHander);
+	TrackPiece*        CreateTrackPiece(TrackPieceType pieceToMake);
 
 private:
-	ShaderHandler&                     mShaderHandler;
+	TrackPieceFactory(ShaderHandler* shaderHander);
+	~TrackPieceFactory();
+
+	static TrackPieceFactory*          mInstance;
+
+	static ShaderHandler*              mShaderHandler;
 
 	const std::vector<std::string>     kFilePathsToModels;
 	const std::vector<std::string>     kFilePathsToCollisionData;

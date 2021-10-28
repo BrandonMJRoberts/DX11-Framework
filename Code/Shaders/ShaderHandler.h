@@ -4,6 +4,8 @@
 #include <windows.h>
 
 #include <d3d11_1.h>
+#include <d3d9types.h>
+
 #include <directxmath.h>
 #include <string>
 
@@ -53,6 +55,10 @@ public:
 	// Draw calls
 	bool DrawIndexed(unsigned int numberOfIndicies, unsigned int startIndexLocation, int baseVertexLocation);
 
+	// Texture creation
+	void CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture2D** texture);
+
+	void BindTexture(ID3D11Texture2D* textureToBind);
 
 private:
 	// Shader compilation 
