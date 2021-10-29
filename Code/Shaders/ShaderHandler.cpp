@@ -442,3 +442,59 @@ void ShaderHandler::SetNoDepthStencilBuffer()
 }
 
 // ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::DisableColourBufferRendering()
+{
+   
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::EnableColourBufferRendering()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::DisableDepthBufferingRendering()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::EnableDepthBufferingRendering()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::DisableStencilBufferingRendering()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::EnableStencilBufferingRendering()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::DisableDepthStencilBufferRendering()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::EnableDepthStencilBufferRendering()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------ //

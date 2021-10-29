@@ -73,8 +73,19 @@ public:
 	// Binding render targets for offscreen rendering functionality
 	void SetRenderTargets(unsigned int numberToBind, ID3D11RenderTargetView* const* renderTargetViewsToBind, ID3D11DepthStencilView* depthStencilViewToBind);
 	void SetDefaultRenderTarget();
-	void SetNoRenderTarget();
 	void SetNoDepthStencilBuffer();
+
+	void DisableColourBufferRendering();
+	void EnableColourBufferRendering();
+
+	void DisableDepthBufferingRendering();
+	void EnableDepthBufferingRendering();
+
+	void DisableStencilBufferingRendering();
+	void EnableStencilBufferingRendering();
+
+	void DisableDepthStencilBufferRendering();
+	void EnableDepthStencilBufferRendering();
 
 	void ClearRenderTargetView(ID3D11RenderTargetView* renderTargetToClear, const float colour[4]);
 	void ClearDepthStencilView(ID3D11DepthStencilView* depthStencilViewToClear, unsigned int clearFlags, float depth, UINT8 stencil);
