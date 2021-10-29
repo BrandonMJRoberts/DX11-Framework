@@ -56,13 +56,13 @@ private:
 	D3D_DRIVER_TYPE         mDriverType;         // The driver type
 	D3D_FEATURE_LEVEL       mFeatureLevel;       // The feature level of directX
 
-	ID3D11DepthStencilView* mDepthStencilView;
-	ID3D11Texture2D*        mDepthStencilBuffer;
+	ID3D11DepthStencilView* mDepthStencilView;   // The depth/stencil view that acts as a depth buffer
 
 	ID3D11Device*           mDeviceHandle;       // The device
 	ID3D11DeviceContext*    mDeviceContextHandle;// The context of the window
+
 	IDXGISwapChain*         mSwapChain;          // The chain that allows for the back and front buffers to swap
-	ID3D11RenderTargetView* mRenderTargetView;   // The render target
+	ID3D11RenderTargetView* mBackBuffer;         // The render target
 };
 
 // ----------------------------------------------------------------- //

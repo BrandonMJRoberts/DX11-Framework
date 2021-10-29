@@ -22,15 +22,25 @@ struct VertexShaderReturnData
 class ShaderHandler final
 {
 public:
-	ShaderHandler(ID3D11Device* deviceHandle, ID3D11DeviceContext* deviceContextHandle);
+	ShaderHandler(ID3D11Device* deviceHandle, ID3D11DeviceContext* deviceContextHandle, ID3D11RenderTargetView* defaultBackBuffer, ID3D11DepthStencilView* defaultDepthBuffer);
 	~ShaderHandler();
+
+	// -----------------------------------------
 
 	// Create the actual shaders of each type
 	VertexShaderReturnData CompileVertexShader(WCHAR* filePathToOverallShader, LPCSTR nameOfVertexMainFunction);
 	ID3D11PixelShader*     CompilePixelShader(WCHAR* filePathToOverallShader, LPCSTR nameOfPixelMainFunction);
 
+	// Current Shader Setter
+	bool				   SetVertexShader(ID3D11VertexShader* vertexShader);
+	bool				   SetPixelShader(ID3D11PixelShader* pixelShader);
+
+	// -----------------------------------------
+
 	// Setting how the device will be accessing from shader buffers
 	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob);
+
+	// -----------------------------------------
 
 	// Buffer creation
 	bool CreateBuffer(D3D11_USAGE usageType, D3D11_BIND_FLAG bindFlags, D3D11_CPU_ACCESS_FLAG  CPUAccessFlag, void* bufferData, unsigned int bytesInBuffer, ID3D11Buffer** returnBuffer);
@@ -39,26 +49,40 @@ public:
 	bool BindVertexBuffersToRegisters(unsigned int startSlot, unsigned int numberOfBuffers, ID3D11Buffer* const* buffers, const unsigned int* strides, const unsigned int* offsets);
 	bool BindIndexBuffersToRegisters(ID3D11Buffer* indexBuffer, DXGI_FORMAT format, unsigned int offset);
 
-	bool UpdateSubresource(ID3D11Resource* destResource, unsigned int destSubResource, const D3D11_BOX* destBox, const void* sourceData, unsigned int sourceRowPitch, unsigned int sourceDepthPitch);
-
-	// Data topology type setter
-	bool SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY topology);
-
-	// Current Shader Setter
-	bool SetVertexShader(ID3D11VertexShader* vertexShader);
-	bool SetPixelShader(ID3D11PixelShader* pixelShader);
-
 	// Constant buffer setter
 	bool SetVertexShaderConstantBufferData(unsigned int startSlot, unsigned int numberOfbuffers, ID3D11Buffer* const* buffers);
 	bool SetPixelShaderConstantBufferData(unsigned int startSlot, unsigned int numberOfbuffers, ID3D11Buffer* const* buffers);
 
-	// Draw calls
-	bool DrawIndexed(unsigned int numberOfIndicies, unsigned int startIndexLocation, int baseVertexLocation);
+	bool UpdateSubresource(ID3D11Resource* destResource, unsigned int destSubResource, const D3D11_BOX* destBox, const void* sourceData, unsigned int sourceRowPitch, unsigned int sourceDepthPitch);
+
+	// -----------------------------------------
+
+	// Data topology type setter
+	bool SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY topology);
+
+	// -----------------------------------------
 
 	// Texture creation
-	void CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture2D** texture);
+	bool CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture2D** texture);
+	bool CreateRenderTargetView(ID3D11Resource* renderTargetTexture, const D3D11_RENDER_TARGET_VIEW_DESC* renderTargetViewDesc, ID3D11RenderTargetView** renderTargetView);
+	bool CreateShaderResourceView(ID3D11Resource* shaderResourceTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC* shaderResourceViewDesc, ID3D11ShaderResourceView** shaderResourceView);
+	bool CreateDepthStencilView(ID3D11Resource* depthStencilTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* description, ID3D11DepthStencilView** depthStencilView);
 
-	void BindTexture(ID3D11Texture2D* textureToBind);
+	// -----------------------------------------
+
+	// Binding render targets for offscreen rendering functionality
+	void SetRenderTargets(unsigned int numberToBind, ID3D11RenderTargetView* const* renderTargetViewsToBind, ID3D11DepthStencilView* depthStencilViewToBind);
+	void SetDefaultRenderTarget();
+	void ClearRenderTargetView(ID3D11RenderTargetView* renderTargetToClear, const float colour[4]);
+	void ClearDepthStencilView(ID3D11DepthStencilView* depthStencilViewToClear, unsigned int clearFlags, float depth, UINT8 stencil);
+
+	// -----------------------------------------
+
+	// Draw calls
+	bool DrawIndexed(unsigned int numberOfIndicies, unsigned int startIndexLocation, int baseVertexLocation);
+	bool DrawInstanced(unsigned int numberOfInstancesToDraw);
+
+	// -----------------------------------------
 
 private:
 	// Shader compilation 
@@ -67,6 +91,9 @@ private:
 
 	ID3D11Device*        mDeviceHandle;   // Device handle - used for creating the input layout for shaders
 	ID3D11DeviceContext* mDeviceContext;  // The device context - used for setting the input layout for the shaders
+
+	ID3D11RenderTargetView* mDefaultBackBuffer;
+	ID3D11DepthStencilView* mDefaultDepthStencilBuffer;
 };
 
 // ----------------------------------------------------------------------------------------------- /

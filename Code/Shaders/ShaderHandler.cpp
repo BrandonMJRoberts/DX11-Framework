@@ -5,19 +5,21 @@
 
 // ------------------------------------------------------------------------------------------ //
 
-ShaderHandler::ShaderHandler(ID3D11Device* deviceHandle, ID3D11DeviceContext* deviceContextHandle)
+ShaderHandler::ShaderHandler(ID3D11Device* deviceHandle, ID3D11DeviceContext* deviceContextHandle, ID3D11RenderTargetView* defaultBackBuffer, ID3D11DepthStencilView* defaultDepthBuffer)
     : mDeviceHandle(deviceHandle)
     , mDeviceContext(deviceContextHandle)
+    , mDefaultBackBuffer(defaultBackBuffer)
+    , mDefaultDepthStencilBuffer(defaultDepthBuffer)
 {
-
+    
 }
 
 // ------------------------------------------------------------------------------------------ //
 
 ShaderHandler::~ShaderHandler()
 {
-    mDeviceHandle  = nullptr;
-    mDeviceContext = nullptr;
+    mDeviceHandle      = nullptr;
+    mDeviceContext     = nullptr;
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -323,19 +325,110 @@ bool ShaderHandler::UpdateSubresource(ID3D11Resource* destResource, unsigned int
 
 // ------------------------------------------------------------------------------------------ //
 
-void ShaderHandler::CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture2D** texture)
+bool ShaderHandler::CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture2D** texture)
 {
     if (!mDeviceHandle)
-        return;
+        return false;
 
-    mDeviceHandle->CreateTexture2D(description, initialData, texture);
+    HRESULT hr;
+
+    hr = mDeviceHandle->CreateTexture2D(description, initialData, texture);
+
+    return (!FAILED(hr));
 }
 
 // ------------------------------------------------------------------------------------------ //
 
-void ShaderHandler::BindTexture(ID3D11Texture2D* textureToBind)
+void ShaderHandler::SetRenderTargets(unsigned int numberToBind, ID3D11RenderTargetView* const* renderTargetViewsToBind, ID3D11DepthStencilView* depthStencilViewToBind)
 {
-    
+    // Check the context exists
+    if (!mDeviceContext)
+        return;
+
+    // Check we are not trying to bind too many 
+    if (numberToBind > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT)
+        return;
+
+    // Bind the render targets
+    mDeviceContext->OMSetRenderTargets(numberToBind, renderTargetViewsToBind, depthStencilViewToBind);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::SetDefaultRenderTarget()
+{
+    // Check the context exists
+    if (!mDeviceContext)
+        return;
+
+    // Re-bind our stored default back buffer and depth buffer
+    mDeviceContext->OMSetRenderTargets(1, &mDefaultBackBuffer, mDefaultDepthStencilBuffer);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::DrawInstanced(unsigned int numberOfInstancesToDraw)
+{
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::CreateRenderTargetView(ID3D11Resource* renderTargetTexture, const D3D11_RENDER_TARGET_VIEW_DESC* renderTargetViewDesc, ID3D11RenderTargetView** renderTargetView)
+{
+    if (!mDeviceHandle)
+        return false;
+
+    mDeviceHandle->CreateRenderTargetView(renderTargetTexture, renderTargetViewDesc, renderTargetView);
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::CreateShaderResourceView(ID3D11Resource* shaderResourceTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC* shaderResourceViewDesc, ID3D11ShaderResourceView** shaderResourceView)
+{
+    if (!mDeviceHandle)
+        return false;
+
+    // Create the resource view
+    mDeviceHandle->CreateShaderResourceView(shaderResourceTexture, shaderResourceViewDesc, shaderResourceView);
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::ClearRenderTargetView(ID3D11RenderTargetView* renderTargetToClear, const float colour[4])
+{
+    if (!mDeviceContext || !renderTargetToClear)
+        return;
+
+    mDeviceContext->ClearRenderTargetView(renderTargetToClear, colour);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::ClearDepthStencilView(ID3D11DepthStencilView* depthStencilViewToClear, unsigned int clearFlags, float depth, UINT8 stencil)
+{
+    if (!mDeviceContext || !depthStencilViewToClear)
+        return;
+
+    mDeviceContext->ClearDepthStencilView(depthStencilViewToClear, clearFlags, depth, stencil);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::CreateDepthStencilView(ID3D11Resource* depthStencilTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* description, ID3D11DepthStencilView** depthStencilView)
+{
+    if (!mDeviceHandle)
+        return false;
+
+    HRESULT hr;
+
+    hr = mDeviceHandle->CreateDepthStencilView(depthStencilTexture, description, depthStencilView);
+
+    return (!FAILED(hr));
 }
 
 // ------------------------------------------------------------------------------------------ //

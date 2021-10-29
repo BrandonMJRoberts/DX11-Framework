@@ -52,7 +52,12 @@ private:
 	std::vector<GridPiece> mVisibleGridPieces;
 
 	ShaderHandler&         mShaderHandler;
-	ID3D11Texture2D*       mOcclusionTexture;
+
+	// Texture for the occlusion text
+	ID3D11Texture2D*          mOcclusionTexture;
+	ID3D11RenderTargetView*   mRenderTargetViewOcclusion; // The render target view
+	ID3D11ShaderResourceView* mShaderResourceViewOcclusion; // The shader resource view
+	ID3D11DepthStencilView*   mDepthStencilViewOcclusion;
 };
 
 // ------------------------------------------------------------------------ //

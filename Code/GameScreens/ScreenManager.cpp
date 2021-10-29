@@ -20,8 +20,7 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
     , mDeviceHandle(nullptr)
     , mDeviceContextHandle(nullptr)
     , mSwapChain(nullptr)
-    , mRenderTargetView(nullptr)
-    , mDepthStencilBuffer(nullptr)
+    , mBackBuffer(nullptr)
     , mDepthStencilView(nullptr)
     , mInputHandler(nullptr)
 {
@@ -37,7 +36,7 @@ GameScreenManager::GameScreenManager(HINSTANCE hInstance, int nCmdShow)
     }  
 
     // Create the shader handler to be a wrapper around all needed shader functionality - pass this into things instead of the device handle
-    mShaderHandler = new ShaderHandler(mDeviceHandle, mDeviceContextHandle);
+    mShaderHandler = new ShaderHandler(mDeviceHandle, mDeviceContextHandle, mBackBuffer, mDepthStencilView);
     mInputHandler  = new InputHandler();
 
     if (mInputHandler)
@@ -78,7 +77,7 @@ GameScreenManager::~GameScreenManager()
 void GameScreenManager::Render()
 {
     // Clear the screen
-    mDeviceContextHandle->ClearRenderTargetView(mRenderTargetView, clearColour);
+    mDeviceContextHandle->ClearRenderTargetView(mBackBuffer, clearColour);
 
     // Clear the depth and stencil buffers
     mDeviceContextHandle->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -211,6 +210,7 @@ bool GameScreenManager::InitDevice()
 
     // ----------------------------------------------------------------------------------------- 
 
+    // Swap chain definition
     DXGI_SWAP_CHAIN_DESC sd;
     ZeroMemory(&sd, sizeof(sd));
     sd.BufferCount                        = 1;
@@ -249,29 +249,37 @@ bool GameScreenManager::InitDevice()
 
     // ----------------------------------------------------------------------------------------- 
 
-    // Create a render target view
+    // Get the back buffer from the swap chain
     ID3D11Texture2D* pBackBuffer = nullptr;
                      hr          = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 
     if (FAILED(hr))
         return false;
 
-    hr = mDeviceHandle->CreateRenderTargetView(pBackBuffer, nullptr, &mRenderTargetView);
+    // Create a render target view from the back buffer
+    hr = mDeviceHandle->CreateRenderTargetView(pBackBuffer, nullptr, &mBackBuffer);
+
+    // Release the temperary texture data as we dont need it anymore
     pBackBuffer->Release();
 
     if (FAILED(hr))
         return false;
 
+    // Now setup the depth/stencil buffer
     if (SetupDepthStencil())
     {
-        mDeviceContextHandle->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+        // Set the render target along with the depth/stencil buffer we created
+        mDeviceContextHandle->OMSetRenderTargets(1, &mBackBuffer, mDepthStencilView);
     }
     else
     {
-        mDeviceContextHandle->OMSetRenderTargets(1, &mRenderTargetView, nullptr);
+        // Set the render target but with no depth/stencil buffer
+        mDeviceContextHandle->OMSetRenderTargets(1, &mBackBuffer, nullptr);
     }
 
-    // Setup the viewport
+    // ----------------------------------------------------------------------------------------- 
+
+    // Setup the viewport for this bound render target
     D3D11_VIEWPORT vp;
     vp.Width    = (FLOAT)ScreenWidth;
     vp.Height   = (FLOAT)ScreenHeight;
@@ -279,7 +287,11 @@ bool GameScreenManager::InitDevice()
     vp.MaxDepth = 1.0f;
     vp.TopLeftX = 0;
     vp.TopLeftY = 0;
+
+    // Apply the viewport change
     mDeviceContextHandle->RSSetViewports(1, &vp);
+
+    // ----------------------------------------------------------------------------------------- 
 
     return true;
 }
@@ -312,13 +324,12 @@ void GameScreenManager::Cleanup()
 {
     if (mDeviceContextHandle) mDeviceContextHandle->ClearState();
 
-    if (mRenderTargetView)    mRenderTargetView->Release();
+    if (mBackBuffer)          mBackBuffer->Release();
     if (mSwapChain)           mSwapChain->Release();
     if (mDeviceContextHandle) mDeviceContextHandle->Release();
     if (mDeviceHandle)        mDeviceHandle->Release();
 
     if (mDepthStencilView)     mDepthStencilView->Release();
-    if (mDepthStencilBuffer)   mDepthStencilBuffer->Release();
 }
 
 // -------------------------------------------------------------------------- //
@@ -358,11 +369,11 @@ bool GameScreenManager::SetupDepthStencil()
     // Define the texture
     D3D11_TEXTURE2D_DESC depthStencilDesc;
 
-    depthStencilDesc.Width     = ScreenWidth;
-    depthStencilDesc.Height    = ScreenHeight;
-    depthStencilDesc.MipLevels = 1;
-    depthStencilDesc.ArraySize = 1;
-    depthStencilDesc.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthStencilDesc.Width              = ScreenWidth;
+    depthStencilDesc.Height             = ScreenHeight;
+    depthStencilDesc.MipLevels          = 1;
+    depthStencilDesc.ArraySize          = 1;
+    depthStencilDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;
     depthStencilDesc.SampleDesc.Count   = 1;
     depthStencilDesc.SampleDesc.Quality = 0;
     depthStencilDesc.Usage              = D3D11_USAGE_DEFAULT;
@@ -370,11 +381,20 @@ bool GameScreenManager::SetupDepthStencil()
     depthStencilDesc.CPUAccessFlags     = 0;
     depthStencilDesc.MiscFlags          = 0;
 
-    // Create the texture and the view
-    mDeviceHandle->CreateTexture2D(&depthStencilDesc, nullptr, &mDepthStencilBuffer);
+    // Create the tempoary texture so we can create a depthStencil view from it
+    ID3D11Texture2D* depthStencilBuffer = nullptr;
 
-    if (mDepthStencilBuffer)
-        mDeviceHandle->CreateDepthStencilView(mDepthStencilBuffer, nullptr, &mDepthStencilView);
+    // Create the texture for this depth buffer
+    mDeviceHandle->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencilBuffer);
+
+    // Create the depthStencilView from the texture created above
+    if (depthStencilBuffer)
+    {
+        mDeviceHandle->CreateDepthStencilView(depthStencilBuffer, nullptr, &mDepthStencilView);
+
+        depthStencilBuffer->Release();
+        depthStencilBuffer = nullptr;
+    }
     else
     {
         return false;

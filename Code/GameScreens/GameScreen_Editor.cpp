@@ -7,7 +7,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, testCube(nullptr)
 	, testCube2(nullptr)
 	, mCamera(nullptr)
-	, mGrid()
+	, mGrid(shaderHandler)
 {
 	testCube = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
@@ -51,7 +51,7 @@ void GameScreen_Editor::Render()
 	if (testCube2)
 		testCube2->Render(mCamera);
 
-	mGrid.Render();
+	mGrid.Render(mCamera);
 }
 
 // ------------------------------------------------------------------- //
@@ -74,7 +74,7 @@ void GameScreen_Editor::Update(const float deltaTime)
 		testCube2->Update(deltaTime);
 	}
 
-	mGrid.Update();
+	mGrid.Update(deltaTime);
 }
 
 // ------------------------------------------------------------------- //
