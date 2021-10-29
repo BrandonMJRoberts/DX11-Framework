@@ -432,3 +432,13 @@ bool ShaderHandler::CreateDepthStencilView(ID3D11Resource* depthStencilTexture, 
 }
 
 // ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::SetNoDepthStencilBuffer()
+{
+    if (!mDeviceContext)
+        return;
+
+    mDeviceContext->OMSetRenderTargets(1, &mDefaultBackBuffer, nullptr);
+}
+
+// ------------------------------------------------------------------------------------------ //
