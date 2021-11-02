@@ -8,6 +8,8 @@
 
 #include "../Editor/Grid/Grid.h"
 
+#include "../Post Processing/PostProcessing.h"
+
 class GameScreen_Editor final : public GameScreen
 {
 public:
@@ -18,6 +20,8 @@ public:
 	void Update(const float deltaTime) override;
 
 private:
+	PostProcessing* mPostProcessing;
+
 	// Internal grid for the track
 	EditorGrid         mGrid;
 

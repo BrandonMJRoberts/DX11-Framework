@@ -10,6 +10,12 @@ ShaderHandler::ShaderHandler(ID3D11Device* deviceHandle, ID3D11DeviceContext* de
     , mDeviceContext(deviceContextHandle)
     , mDefaultBackBuffer(defaultBackBuffer)
     , mDefaultDepthStencilBuffer(defaultDepthBuffer)
+
+    , mCurrentRenderBuffer(defaultBackBuffer)
+    , mCurrentDepthStencilBuffer(defaultDepthBuffer)
+
+    , mPriorRenderBuffer(defaultBackBuffer)
+    , mPriorDepthStencilBuffer(defaultDepthBuffer)
 {
     
 }
@@ -98,21 +104,12 @@ ID3D11PixelShader* ShaderHandler::CompilePixelShader(WCHAR* filePathToOverallSha
 // ------------------------------------------------------------------------------------------ //
 
 // Setting how the device will be accessing from shader buffers - when 
-bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob)
+bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray)
 {
-    // Define the input layout for the data
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	UINT numElements = ARRAYSIZE(layout);
-
     // Create the input layout
     ID3D11InputLayout* vertexLayout;
     HRESULT hr;
-    hr = mDeviceHandle->CreateInputLayout(layout, numElements, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &vertexLayout);
+    hr = mDeviceHandle->CreateInputLayout(layout, numberOfElementsInArray, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &vertexLayout);
     if (FAILED(hr))
     {
         vertexShaderBlob->Release();
@@ -349,6 +346,12 @@ void ShaderHandler::SetRenderTargets(unsigned int numberToBind, ID3D11RenderTarg
     if (numberToBind > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT)
         return;
 
+    mPriorRenderBuffer        = mCurrentRenderBuffer;
+    mPriorDepthStencilBuffer  = mCurrentDepthStencilBuffer;
+
+    mCurrentRenderBuffer       = renderTargetViewsToBind[0];
+    mCurrentDepthStencilBuffer = depthStencilViewToBind;
+
     // Bind the render targets
     mDeviceContext->OMSetRenderTargets(numberToBind, renderTargetViewsToBind, depthStencilViewToBind);
 }
@@ -361,8 +364,36 @@ void ShaderHandler::SetDefaultRenderTarget()
     if (!mDeviceContext)
         return;
 
+    mPriorRenderBuffer         = mCurrentRenderBuffer;
+    mPriorDepthStencilBuffer   = mCurrentDepthStencilBuffer;
+
+    mCurrentRenderBuffer       = mDefaultBackBuffer;
+    mCurrentDepthStencilBuffer = mDefaultDepthStencilBuffer;
+
     // Re-bind our stored default back buffer and depth buffer
     mDeviceContext->OMSetRenderTargets(1, &mDefaultBackBuffer, mDefaultDepthStencilBuffer);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::SetPriorRenderTarget()
+{
+    if (!mDeviceContext)
+        return;
+
+    mDeviceContext->OMSetRenderTargets(1, &mPriorRenderBuffer, mPriorDepthStencilBuffer);
+
+    ID3D11RenderTargetView* tempRenderBuffer;
+    ID3D11DepthStencilView* tempDepthStencilBuffer;
+
+    tempRenderBuffer           = mCurrentRenderBuffer;
+    tempDepthStencilBuffer     = mCurrentDepthStencilBuffer;
+
+    mCurrentRenderBuffer       = mPriorRenderBuffer;
+    mCurrentDepthStencilBuffer = mPriorDepthStencilBuffer;
+
+    mPriorRenderBuffer         = tempRenderBuffer;
+    mPriorDepthStencilBuffer   = tempDepthStencilBuffer;
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -495,6 +526,28 @@ void ShaderHandler::DisableDepthStencilBufferRendering()
 void ShaderHandler::EnableDepthStencilBufferRendering()
 {
 
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::Draw(unsigned int vertexCount, unsigned int vertexStartLocation)
+{
+    if (!mDeviceContext)
+        return false;
+
+    mDeviceContext->Draw(vertexCount, vertexStartLocation);
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews, ID3D11ShaderResourceView** shaderResourceViews)
+{
+    if (!mDeviceContext)
+        return;
+
+    mDeviceContext->PSGetShaderResources(startSlot, numberOfViews, shaderResourceViews);
 }
 
 // ------------------------------------------------------------------------------------------ //

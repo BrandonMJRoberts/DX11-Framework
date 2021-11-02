@@ -38,7 +38,7 @@ public:
 	// -----------------------------------------
 
 	// Setting how the device will be accessing from shader buffers
-	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob);
+	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray);
 
 	// -----------------------------------------
 
@@ -54,6 +54,8 @@ public:
 	bool SetPixelShaderConstantBufferData(unsigned int startSlot, unsigned int numberOfbuffers, ID3D11Buffer* const* buffers);
 
 	bool UpdateSubresource(ID3D11Resource* destResource, unsigned int destSubResource, const D3D11_BOX* destBox, const void* sourceData, unsigned int sourceRowPitch, unsigned int sourceDepthPitch);
+
+	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews, ID3D11ShaderResourceView** shaderResourceViews);
 
 	// -----------------------------------------
 
@@ -73,6 +75,8 @@ public:
 	// Binding render targets for offscreen rendering functionality
 	void SetRenderTargets(unsigned int numberToBind, ID3D11RenderTargetView* const* renderTargetViewsToBind, ID3D11DepthStencilView* depthStencilViewToBind);
 	void SetDefaultRenderTarget();
+	void SetPriorRenderTarget();
+
 	void SetNoDepthStencilBuffer();
 
 	void DisableColourBufferRendering();
@@ -93,6 +97,7 @@ public:
 	// -----------------------------------------
 
 	// Draw calls
+	bool Draw(unsigned int vertexCount, unsigned int vertexStartLocation);
 	bool DrawIndexed(unsigned int numberOfIndicies, unsigned int startIndexLocation, int baseVertexLocation);
 	bool DrawInstanced(unsigned int numberOfInstancesToDraw);
 
@@ -108,6 +113,12 @@ private:
 
 	ID3D11RenderTargetView* mDefaultBackBuffer;
 	ID3D11DepthStencilView* mDefaultDepthStencilBuffer;
+
+	ID3D11RenderTargetView* mCurrentRenderBuffer;
+	ID3D11DepthStencilView* mCurrentDepthStencilBuffer;
+
+	ID3D11RenderTargetView* mPriorRenderBuffer;
+	ID3D11DepthStencilView* mPriorDepthStencilBuffer;
 };
 
 // ----------------------------------------------------------------------------------------------- /

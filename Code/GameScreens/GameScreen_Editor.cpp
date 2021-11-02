@@ -8,6 +8,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, testCube2(nullptr)
 	, mCamera(nullptr)
 	, mGrid(shaderHandler)
+	, mPostProcessing(nullptr)
 {
 	testCube = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
@@ -24,6 +25,9 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 									16.0f / 9.0f,
 									0.1f,
 									0.2f);
+
+	// Now setup the post processing stuff
+	mPostProcessing = new PostProcessing(shaderHandler);
 }
 
 // --------------------------------------------------------- //
@@ -38,20 +42,41 @@ GameScreen_Editor::~GameScreen_Editor()
 
 	delete testCube2;
 	testCube2 = nullptr;
+
+	delete mPostProcessing;
+	mPostProcessing = nullptr;
 }
 
 // --------------------------------------------------------- //
 
-
 void GameScreen_Editor::Render()
 {
+	if (!mPostProcessing)
+		return;
+
+	// First clear the previous data from the post processing render target
+	mPostProcessing->ClearRenderTarget();
+
+	// Bind the post processing final image so we are rendering to that render target
+	mPostProcessing->BindRenderTarget();
+
+	// ------------------------------------------------------------------------------------------- //
+
+	// Render the test cubes
 	if (testCube)
 		testCube->Render(mCamera);
 
 	if (testCube2)
 		testCube2->Render(mCamera);
 
+	// Now render the grid for the track
 	mGrid.Render(mCamera);
+
+	// ------------------------------------------------------------------------------------------- //
+
+	mPostProcessing->Render();
+
+	// ------------------------------------------------------------------------------------------- //
 }
 
 // ------------------------------------------------------------------- //

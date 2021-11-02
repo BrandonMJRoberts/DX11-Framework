@@ -8,21 +8,6 @@ class BaseCamera;
 
 // ------------------------------------------------------------- //
 
-struct SimpleVertex
-{
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT4 colour;
-};
-
-struct ConstantBuffer
-{
-	DirectX::XMMATRIX mWorld;
-	DirectX::XMMATRIX mView;
-	DirectX::XMMATRIX mProjection;
-};
-
-// ------------------------------------------------------------- //
-
 class TestCube
 {
 public:
@@ -39,6 +24,7 @@ private:
 
 	ID3D11PixelShader*  mPixelShader;
 	ID3D11VertexShader* mVertexShader;
+
 	ID3D11Buffer*       mVertexBuffer;
 	ID3D11Buffer*       mIndexBuffer;
 	ID3D11Buffer*       mConstantBuffer;
@@ -46,8 +32,6 @@ private:
 	Vector3D            mPosition;
 
 	DirectX::XMFLOAT4X4 modelMat;
-	//DirectX::XMFLOAT4X4 viewMat;
-	//DirectX::XMFLOAT4X4 projectionMat;
 };
 
 // ------------------------------------------------------------- //

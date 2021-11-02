@@ -2,6 +2,7 @@
 
 #include "../GameScreens/ScreenManager.h"
 #include "../Camera/ThirdPersonCamera.h"
+#include "../Maths/Commons.h"
 
 // ---------------------------------------------------------------- //
 
@@ -19,11 +20,6 @@ TestCube::TestCube(ShaderHandler& shaderHandler, Vector3D position)
 	// Matricies
 	DirectX::XMStoreFloat4x4(&modelMat,DirectX::XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z));
 
-	// Would normally be through a camera but this is for a test
-	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f);
-	DirectX::XMVECTOR at  = DirectX::XMVectorSet(0.0f, 0.0f,  0.0f, 0.0f);
-	DirectX::XMVECTOR up  = DirectX::XMVectorSet(0.0f, 1.0f,  0.0f, 0.0f);
-
 	// ------------------------------------------------------------------------------------------------------------------------------------- 
 
 	// Shaders
@@ -33,7 +29,13 @@ TestCube::TestCube(ShaderHandler& shaderHandler, Vector3D position)
 	mPixelShader = shaderHandler.CompilePixelShader(L"DX11 Framework.fx", "PS");
 
 	// Now setup the input layout
-	if(!shaderHandler.SetDeviceInputLayout(returnData.Blob))
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	if(!shaderHandler.SetDeviceInputLayout(returnData.Blob, layout, 2))
 		return;
 
 	// Vertex data
@@ -127,6 +129,24 @@ TestCube::~TestCube()
 		mPixelShader->Release();
 		mPixelShader = nullptr;
 	}
+
+	if (mConstantBuffer)
+	{
+		mConstantBuffer->Release();
+		mConstantBuffer = nullptr;
+	}
+
+	if (mIndexBuffer)
+	{
+		mIndexBuffer->Release();
+		mIndexBuffer = nullptr;
+	}
+
+	if (mVertexBuffer)
+	{
+		mVertexBuffer->Release();
+		mVertexBuffer = nullptr;
+	}
 }
 
 // ---------------------------------------------------------------- //
@@ -162,6 +182,7 @@ void TestCube::Render(BaseCamera* camera)
 	mShaderHandler.SetPixelShader(mPixelShader);
 	mShaderHandler.SetPixelShaderConstantBufferData(0, 1, &mConstantBuffer);
 
+	// Draw
 	mShaderHandler.DrawIndexed(36, 0, 0);
 }
 

@@ -90,6 +90,12 @@
     <Filter Include="Source\Editor\Grid">
       <UniqueIdentifier>{48c6fa51-b57d-47d0-8664-5f186cc26daf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Post Processing">
+      <UniqueIdentifier>{cf406e2a-ec5a-4c8b-9e48-2009675e5c2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Post Processing">
+      <UniqueIdentifier>{c05e8b2b-5a58-44e5-8d11-cf2fe8510990}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Track\TrackPiece.cpp">
@@ -143,6 +149,12 @@
     </ClCompile>
     <ClCompile Include="Code\Editor\Grid\Grid.cpp">
       <Filter>Source\Editor\Grid</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Post Processing\PostProcessing.cpp">
+      <Filter>Source\Post Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Post Processing\Clouds.cpp">
+      <Filter>Source\Post Processing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +215,15 @@
     <ClInclude Include="Code\Maths\Constants.h">
       <Filter>Headers\Maths</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Post Processing\PostProcessing.h">
+      <Filter>Headers\Post Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Post Processing\Clouds.h">
+      <Filter>Headers\Post Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Maths\Commons.h">
+      <Filter>Headers\Maths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11 Framework.rc">
@@ -211,6 +232,9 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DX11 Framework.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PostProcessingFinalRender.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

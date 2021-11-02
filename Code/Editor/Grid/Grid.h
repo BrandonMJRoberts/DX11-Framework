@@ -54,9 +54,10 @@ private:
 	ShaderHandler&         mShaderHandler;
 
 	// Texture for the occlusion text
-	ID3D11Texture2D*          mOcclusionTexture;
-	ID3D11RenderTargetView*   mRenderTargetViewOcclusion; // The render target view
-	ID3D11ShaderResourceView* mShaderResourceViewOcclusion; // The shader resource view
+	ID3D11Texture2D*          mOcclusionTexture;            // The actual texture
+	ID3D11RenderTargetView*   mRenderTargetViewOcclusion;   // Used to bind the texture to be rendered to 
+	ID3D11ShaderResourceView* mShaderResourceViewOcclusion; // Used to pass the texture into shaders
+
 	ID3D11DepthStencilView*   mDepthStencilViewOcclusion;
 };
 

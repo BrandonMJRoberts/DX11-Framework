@@ -68,6 +68,7 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	if (!mShaderHandler.CreateTexture2D(&depthStencilDesc, nullptr, &tempDepthTexture))
 		return;
 
+
 	// Create the depth stencil view
 	if (!mShaderHandler.CreateDepthStencilView(tempDepthTexture, nullptr, &mDepthStencilViewOcclusion))
 		return;
@@ -197,9 +198,10 @@ void EditorGrid::Render(BaseCamera* camera)
 {
 	// First bind the correct texture for the draw calls
 	mShaderHandler.SetRenderTargets(1, &mRenderTargetViewOcclusion, mDepthStencilViewOcclusion);
+	//mShaderHandler.SetRenderTargets(0, NULL, mDepthStencilViewOcclusion);
 
 	// Now clear the render target from the prior frame
-	mShaderHandler.ClearRenderTargetView(mRenderTargetViewOcclusion, Constants::COLOUR_BLACK);
+	//mShaderHandler.ClearRenderTargetView(mRenderTargetViewOcclusion, Constants::COLOUR_BLACK);
 	mShaderHandler.ClearDepthStencilView(mDepthStencilViewOcclusion, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
 	// First find what elements of the grid are visible
@@ -221,7 +223,7 @@ void EditorGrid::Render(BaseCamera* camera)
 	}
 
 	// Now re-bind the previous render targets from before this function
-	mShaderHandler.SetDefaultRenderTarget();
+	mShaderHandler.SetPriorRenderTarget();
 
 	// Now render what can be seen to the actual back buffer
 	for (unsigned int i = 0; i < mVisibleGridPieces.size(); i++)
