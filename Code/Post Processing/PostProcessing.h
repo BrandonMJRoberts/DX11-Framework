@@ -42,6 +42,12 @@ private:
 	ID3D11PixelShader*  mPixelShader;
 	ID3D11VertexShader* mVertexShader;
 
+	ID3D11InputLayout*  mShaderInputLayout;
+	ID3D11SamplerState* mTextureSamplerState;
+
+	ID3D11Buffer*       mVertexBuffer;
+	ID3D11Buffer*       mIndexBuffer;
+
 	// The access to DirectX functionality
 	ShaderHandler&      mShaderHandler;
 };

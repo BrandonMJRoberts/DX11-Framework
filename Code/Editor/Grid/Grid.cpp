@@ -32,7 +32,7 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 
 	// Now create the render target view through a description
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDescription;
-	renderTargetViewDescription.Format             = desc.Format;
+	renderTargetViewDescription.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	renderTargetViewDescription.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDescription.Texture2D.MipSlice = 0;
 
@@ -40,7 +40,7 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	mShaderHandler.CreateRenderTargetView(mOcclusionTexture, &renderTargetViewDescription, &mRenderTargetViewOcclusion);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format                    = desc.Format;
+	shaderResourceViewDesc.Format                    = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;

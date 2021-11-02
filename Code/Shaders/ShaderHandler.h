@@ -38,7 +38,11 @@ public:
 	// -----------------------------------------
 
 	// Setting how the device will be accessing from shader buffers
-	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray);
+	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray, ID3D11InputLayout** vertexLayout);
+	void SetInputLayout(ID3D11InputLayout* vertexLayout);
+
+	bool CreateSamplerState(D3D11_SAMPLER_DESC* samplerDescription, ID3D11SamplerState** samplerState);
+	void BindSamplerState(unsigned int startSlot, unsigned int count, ID3D11SamplerState* const* samplerState);
 
 	// -----------------------------------------
 
@@ -97,7 +101,6 @@ public:
 	// -----------------------------------------
 
 	// Draw calls
-	bool Draw(unsigned int vertexCount, unsigned int vertexStartLocation);
 	bool DrawIndexed(unsigned int numberOfIndicies, unsigned int startIndexLocation, int baseVertexLocation);
 	bool DrawInstanced(unsigned int numberOfInstancesToDraw);
 

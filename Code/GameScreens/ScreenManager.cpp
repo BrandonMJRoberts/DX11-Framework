@@ -76,11 +76,14 @@ GameScreenManager::~GameScreenManager()
 
 void GameScreenManager::Render()
 {
-    // Clear the screen
+    // Clear the screen's colour buffer
     mDeviceContextHandle->ClearRenderTargetView(mBackBuffer, clearColour);
 
-    // Clear the depth and stencil buffers
+    // Clear the depth and stencil buffer
     mDeviceContextHandle->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+    // Set the default render target
+    mDeviceContextHandle->OMSetRenderTargets(1, &mBackBuffer, mDepthStencilView);
 
     // Render the current screen
     if(mCurrentScreen)

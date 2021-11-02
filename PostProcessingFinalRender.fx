@@ -21,14 +21,9 @@ VS_OUTPUT VS( float4 Pos : POSITION, float2 TextureCoord : TEXCOORD)
     return output;
 }
 
-// The texture being passed into the shader
-Texture2D finalScreenRenderImage;
 
-// Set the sampler state
-SamplerState sampler1
-{
-    Filter = MIN_MAG_MIP_LINEAR;
-};
+Texture2D     finalScreenRenderImage      : register(t0); // The texture being passed into the shader
+SamplerState sampler1                     : register(s0);// Set the sampler state
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader

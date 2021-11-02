@@ -13,7 +13,10 @@ PostProcessing::PostProcessing(ShaderHandler& shaderHandler)
 	  mClouds(nullptr),
 	  mPixelShader(nullptr),
 	  mVertexShader(nullptr),
-	  mShaderHandler(shaderHandler)
+	  mShaderHandler(shaderHandler),
+	  mShaderInputLayout(nullptr),
+	  mTextureSamplerState(nullptr),
+	  mIndexBuffer(nullptr)
 {
 	LoadInShaders();
 
@@ -22,7 +25,7 @@ PostProcessing::PostProcessing(ShaderHandler& shaderHandler)
 	SetupRenderTextures();
 
 	// Create the clouds
-	mClouds = new VolumetricClouds();
+	//mClouds = new VolumetricClouds();
 }
 
 // ------------------------------------------------------------------ 
@@ -73,27 +76,52 @@ PostProcessing::~PostProcessing()
 		mVertexShader->Release();
 		mVertexShader = nullptr;
 	}
+
+	if (mShaderInputLayout)
+	{
+		mShaderInputLayout->Release();
+		mShaderInputLayout = nullptr;
+	}
+
+	if (mTextureSamplerState)
+	{
+		mTextureSamplerState->Release();
+		mTextureSamplerState = nullptr;
+	}
+
+	if (mIndexBuffer)
+	{
+		mIndexBuffer->Release();
+		mIndexBuffer = nullptr;
+	}
 }
 
 // ------------------------------------------------------------------ 
 
 void PostProcessing::RenderFinal()
 {
-	// Re-bind the default render target
+	// Re-bind the default render target so we can render to it
 	mShaderHandler.SetDefaultRenderTarget();
+
+	mShaderHandler.SetInputLayout(mShaderInputLayout);
 
 	// Set the shaders we are going to use
 	mShaderHandler.SetVertexShader(mVertexShader);
 	mShaderHandler.SetPixelShader(mPixelShader);
 
-	// Bind the default render buffer for this render
-	mShaderHandler.SetDefaultRenderTarget();
-
 	// Bind the texture to the shader
 	mShaderHandler.BindTextureToShaders(0, 1, &mShaderResourceViewPostProcessing);
+	mShaderHandler.BindSamplerState(0, 1, &mTextureSamplerState);
+
+	UINT stride = sizeof(TextureVertex);
+	UINT offset = 0;
+
+	// Bind the vertex buffer to the correct registers
+	mShaderHandler.BindVertexBuffersToRegisters(0, 1, &mVertexBuffer, &stride, &offset);
+	mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 	// Now draw the final screen
-	mShaderHandler.Draw(6, 0);
+	mShaderHandler.DrawIndexed(6, 0, 0);
 
 	// Unbind the shaders
 	mShaderHandler.SetVertexShader(NULL);
@@ -114,7 +142,7 @@ void PostProcessing::RenderVolumetricClouds()
 void PostProcessing::Render()
 {
 	// Render the post processing stuff - starting with clouds
-	RenderVolumetricClouds();
+	//RenderVolumetricClouds();
 
 
 
@@ -141,7 +169,7 @@ void PostProcessing::ClearRenderTarget()
 		return;
 
 	mShaderHandler.ClearRenderTargetView(mRenderTargetViewPostProcessing, Constants::COLOUR_BLACK);
-	mShaderHandler.ClearDepthStencilView(mDepthStencilViewPostProcessing, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	mShaderHandler.ClearDepthStencilView(mDepthStencilViewPostProcessing, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 // ------------------------------------------------------------------ 
@@ -157,12 +185,15 @@ void PostProcessing::LoadInShaders()
 	// Define how the data should be passed into the shader
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	if (!mShaderHandler.SetDeviceInputLayout(returnData.Blob, layout, 2))
+	if (!mShaderHandler.SetDeviceInputLayout(returnData.Blob, layout, 2, &mShaderInputLayout))
 		return;
+
+	mShaderHandler.SetVertexShader(mVertexShader);
+	mShaderHandler.SetPixelShader(mPixelShader);
 }
 
 // ------------------------------------------------------------------ 
@@ -194,7 +225,7 @@ void PostProcessing::SetupRenderTextures()
 
 	// Now create the render target view through a description
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDescription;
-	renderTargetViewDescription.Format             = desc.Format;
+	renderTargetViewDescription.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	renderTargetViewDescription.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDescription.Texture2D.MipSlice = 0;
 
@@ -202,7 +233,7 @@ void PostProcessing::SetupRenderTextures()
 	mShaderHandler.CreateRenderTargetView(mPostProcessingTexture, &renderTargetViewDescription, &mRenderTargetViewPostProcessing);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format                    = desc.Format;
+	shaderResourceViewDesc.Format                    = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
@@ -244,12 +275,31 @@ void PostProcessing::SetupRenderTextures()
 	if (!mShaderHandler.CreateDepthStencilView(tempDepthTexture, &depthDesc, &mDepthStencilViewPostProcessing))
 		return;
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc = shaderResourceViewDesc;
+	resourceDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+
 	// Now create the shader resource from it - so that we can pass it into shaders later on
-	mShaderHandler.CreateShaderResourceView(tempDepthTexture, &shaderResourceViewDesc, &mDepthTextureResourceView);
+	mShaderHandler.CreateShaderResourceView(tempDepthTexture, &resourceDesc, &mDepthTextureResourceView);
 
 	// Release the temp texture's memory 
 	tempDepthTexture->Release();
 	tempDepthTexture = nullptr;
+
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter     = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+	samplerDesc.AddressU   = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV   = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW   = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MinLOD     = 0;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+
+	mShaderHandler.CreateSamplerState(&samplerDesc, &mTextureSamplerState);
 }
 
 // ------------------------------------------------------------------ 
@@ -259,26 +309,38 @@ void PostProcessing::SetupBuffers()
 	// Define the verticies we need for this to work
 	TextureVertex verticies[] =
 	{
-		{DirectX::XMFLOAT3(-1.0f,  1.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 0.0f)},
-		{DirectX::XMFLOAT3( 1.0f,  1.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f)},
-		{DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 1.0f)},
-
-		{DirectX::XMFLOAT3( 1.0f,  1.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f)},
-		{DirectX::XMFLOAT3( 1.0f, -1.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f)},
-		{DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 1.0f)}
+		{DirectX::XMFLOAT3(-1.0f,  1.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 0.0f)}, // Top left
+		{DirectX::XMFLOAT3( 1.0f,  1.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f)}, // Top Right
+		{DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 1.0f)}, // Bottom left
+		{DirectX::XMFLOAT3( 1.0f, -1.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f)}  // Bottom right
 	};
 
-	ID3D11Buffer* vertexBuffer;
-
 	// Create the vertex buffer
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, verticies, sizeof(TextureVertex) * 6, &vertexBuffer))
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, verticies, sizeof(TextureVertex) * 4, &mVertexBuffer))
 		return;
 
 	UINT stride = sizeof(TextureVertex);
 	UINT offset = 0;
 
 	// Bind the vertex buffer to the correct registers
-	if (!mShaderHandler.BindVertexBuffersToRegisters(0, 1, &vertexBuffer, &stride, &offset))
+	if (!mShaderHandler.BindVertexBuffersToRegisters(0, 1, &mVertexBuffer, &stride, &offset))
+		return;
+
+	WORD indicies[] =
+	{
+		// Front
+		0,1,2,
+		1,3,2
+	};
+
+	// Create the index buffer
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, indicies, sizeof(WORD) * 6, &mIndexBuffer))
+		return;
+
+	if (!mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R16_UINT, 0))
+		return;
+
+	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
 		return;
 }
 

@@ -104,12 +104,11 @@ ID3D11PixelShader* ShaderHandler::CompilePixelShader(WCHAR* filePathToOverallSha
 // ------------------------------------------------------------------------------------------ //
 
 // Setting how the device will be accessing from shader buffers - when 
-bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray)
+bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray, ID3D11InputLayout** vertexLayout)
 {
     // Create the input layout
-    ID3D11InputLayout* vertexLayout;
     HRESULT hr;
-    hr = mDeviceHandle->CreateInputLayout(layout, numberOfElementsInArray, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &vertexLayout);
+    hr = mDeviceHandle->CreateInputLayout(layout, numberOfElementsInArray, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), vertexLayout);
     if (FAILED(hr))
     {
         vertexShaderBlob->Release();
@@ -120,10 +119,16 @@ bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT
     vertexShaderBlob->Release();
     vertexShaderBlob = nullptr;
 
+    return true;
+}
+
+void ShaderHandler::SetInputLayout(ID3D11InputLayout* vertexLayout)
+{
+    if (!mDeviceContext)
+        return;
+
     // Set the input layout
     mDeviceContext->IASetInputLayout(vertexLayout);
-
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -422,8 +427,15 @@ bool ShaderHandler::CreateShaderResourceView(ID3D11Resource* shaderResourceTextu
     if (!mDeviceHandle)
         return false;
 
+    HRESULT hr;
+
     // Create the resource view
-    mDeviceHandle->CreateShaderResourceView(shaderResourceTexture, shaderResourceViewDesc, shaderResourceView);
+    hr = mDeviceHandle->CreateShaderResourceView(shaderResourceTexture, shaderResourceViewDesc, shaderResourceView);
+
+    if (FAILED(hr))
+    {
+        return false;
+    }
 
     return true;
 }
@@ -530,24 +542,39 @@ void ShaderHandler::EnableDepthStencilBufferRendering()
 
 // ------------------------------------------------------------------------------------------ //
 
-bool ShaderHandler::Draw(unsigned int vertexCount, unsigned int vertexStartLocation)
+void ShaderHandler::BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews, ID3D11ShaderResourceView** shaderResourceViews)
 {
     if (!mDeviceContext)
+        return;
+
+    mDeviceContext->PSSetShaderResources(startSlot, numberOfViews, shaderResourceViews);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::CreateSamplerState(D3D11_SAMPLER_DESC* samplerDescription, ID3D11SamplerState** samplerState)
+{
+    if (!mDeviceHandle)
         return false;
 
-    mDeviceContext->Draw(vertexCount, vertexStartLocation);
+    HRESULT hr;
+
+    hr = mDeviceHandle->CreateSamplerState(samplerDescription, samplerState);
+
+    if (FAILED(hr))
+        return false;
 
     return true;
 }
 
 // ------------------------------------------------------------------------------------------ //
 
-void ShaderHandler::BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews, ID3D11ShaderResourceView** shaderResourceViews)
+void ShaderHandler::BindSamplerState(unsigned int startSlot, unsigned int count, ID3D11SamplerState* const* samplerState)
 {
-    if (!mDeviceContext)
+    if (!mDeviceHandle)
         return;
 
-    mDeviceContext->PSGetShaderResources(startSlot, numberOfViews, shaderResourceViews);
+    mDeviceContext->PSSetSamplers(startSlot, count, samplerState);
 }
 
 // ------------------------------------------------------------------------------------------ //

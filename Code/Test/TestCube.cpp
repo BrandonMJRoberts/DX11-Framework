@@ -14,6 +14,7 @@ TestCube::TestCube(ShaderHandler& shaderHandler, Vector3D position)
 	, mIndexBuffer(nullptr)
 	, mVertexBuffer(nullptr)
 	, mPosition(position)
+	, mShaderInputLayout(nullptr)
 {
 	// ------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -35,7 +36,7 @@ TestCube::TestCube(ShaderHandler& shaderHandler, Vector3D position)
 		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	if(!shaderHandler.SetDeviceInputLayout(returnData.Blob, layout, 2))
+	if(!shaderHandler.SetDeviceInputLayout(returnData.Blob, layout, 2, &mShaderInputLayout))
 		return;
 
 	// Vertex data
@@ -181,6 +182,15 @@ void TestCube::Render(BaseCamera* camera)
 
 	mShaderHandler.SetPixelShader(mPixelShader);
 	mShaderHandler.SetPixelShaderConstantBufferData(0, 1, &mConstantBuffer);
+
+	UINT stride = sizeof(SimpleVertex);
+	UINT offset = 0;
+
+	// Set what buffers we are going to be using for this render
+	mShaderHandler.BindVertexBuffersToRegisters(0, 1, &mVertexBuffer, &stride, &offset);
+	mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	mShaderHandler.SetInputLayout(mShaderInputLayout);
 
 	// Draw
 	mShaderHandler.DrawIndexed(36, 0, 0);

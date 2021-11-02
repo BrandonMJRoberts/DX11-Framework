@@ -54,11 +54,11 @@ void GameScreen_Editor::Render()
 	if (!mPostProcessing)
 		return;
 
-	// First clear the previous data from the post processing render target
-	mPostProcessing->ClearRenderTarget();
-
 	// Bind the post processing final image so we are rendering to that render target
 	mPostProcessing->BindRenderTarget();
+
+	// First clear the previous data from the post processing render target
+	mPostProcessing->ClearRenderTarget();
 
 	// ------------------------------------------------------------------------------------------- //
 
@@ -70,7 +70,7 @@ void GameScreen_Editor::Render()
 		testCube2->Render(mCamera);
 
 	// Now render the grid for the track
-	mGrid.Render(mCamera);
+	//mGrid.Render(mCamera);
 
 	// ------------------------------------------------------------------------------------------- //
 
