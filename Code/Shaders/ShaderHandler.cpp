@@ -578,3 +578,22 @@ void ShaderHandler::BindSamplerState(unsigned int startSlot, unsigned int count,
 }
 
 // ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::SetViewport(float width, float height, float minDepth, float maxDepth, unsigned int topLeftX, unsigned int topLeftY)
+{
+    if (!mDeviceContext)
+        return;
+
+    D3D11_VIEWPORT vp;
+    vp.Width    = width;
+    vp.Height   = height;
+    vp.MinDepth = minDepth;
+    vp.MaxDepth = maxDepth;
+    vp.TopLeftX = topLeftX;
+    vp.TopLeftY = topLeftY;
+
+    // Apply the viewport change
+    mDeviceContext->RSSetViewports(1, &vp);
+}
+
+// ------------------------------------------------------------------------------------------ //

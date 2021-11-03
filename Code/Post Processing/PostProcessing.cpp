@@ -1,6 +1,7 @@
 #include "PostProcessing.h"
 #include "../Maths/Commons.h"
 #include "../Maths/Constants.h"
+#include "../GameScreens/ScreenManager.h"
 
 // ------------------------------------------------------------------ 
 
@@ -25,7 +26,7 @@ PostProcessing::PostProcessing(ShaderHandler& shaderHandler)
 	SetupRenderTextures();
 
 	// Create the clouds
-	//mClouds = new VolumetricClouds();
+	mClouds = new VolumetricClouds();
 }
 
 // ------------------------------------------------------------------ 
@@ -103,6 +104,9 @@ void PostProcessing::RenderFinal()
 	// Re-bind the default render target so we can render to it
 	mShaderHandler.SetDefaultRenderTarget();
 
+	// Set the correct viewport
+	mShaderHandler.SetViewport(GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 0.0f, 1.0f, 0, 0);
+
 	mShaderHandler.SetInputLayout(mShaderInputLayout);
 
 	// Set the shaders we are going to use
@@ -142,7 +146,7 @@ void PostProcessing::RenderVolumetricClouds()
 void PostProcessing::Render()
 {
 	// Render the post processing stuff - starting with clouds
-	//RenderVolumetricClouds();
+	RenderVolumetricClouds();
 
 
 
@@ -206,8 +210,8 @@ void PostProcessing::SetupRenderTextures()
 
 	// First create the texture
 	D3D11_TEXTURE2D_DESC desc;
-	desc.Width              = 1920;
-	desc.Height             = 1080;
+	desc.Width              = GameScreenManager::ScreenWidth;
+	desc.Height             = GameScreenManager::ScreenHeight;
 	desc.MipLevels          = 1;
 	desc.ArraySize          = 1;
 	desc.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -246,8 +250,8 @@ void PostProcessing::SetupRenderTextures()
 	// Depth texture setup
 
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width              = 1920;
-	depthStencilDesc.Height				= 1080;
+	depthStencilDesc.Width              = GameScreenManager::ScreenWidth;
+	depthStencilDesc.Height				= GameScreenManager::ScreenHeight;
     depthStencilDesc.MipLevels          = 1;
     depthStencilDesc.ArraySize          = 1;
     depthStencilDesc.Format             = DXGI_FORMAT_R24G8_TYPELESS;

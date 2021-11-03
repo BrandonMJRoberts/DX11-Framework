@@ -106,6 +106,8 @@ public:
 
 	// -----------------------------------------
 
+	void SetViewport(float width, float height, float minDepth, float maxDepth, unsigned int topLeftX = 0, unsigned int topLeftY = 0);
+
 private:
 	// Shader compilation 
 	bool CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
