@@ -12,13 +12,14 @@ struct VertexData final
 {
 	DirectX::XMFLOAT3 vertexPosition;
 	DirectX::XMFLOAT3 normal;
-	DirectX::XMFLOAT4 colour;
+	DirectX::XMFLOAT2 textureCoord;
 };
 
 // -------------------------------------------------------------- //
 
 class ShaderHandler;
 
+// A model is an OBJ model as I am not supporting any other model types
 class Model final
 {
 public:
@@ -27,6 +28,10 @@ public:
 
 	bool LoadInModelFromFile(std::string filePath);
 	void RemoveAllPriorDataStored();
+
+	// Render functionality
+	void RenderGeometry();
+	void FullRender();
 
 private:
 	ShaderHandler& mShaderHandler;

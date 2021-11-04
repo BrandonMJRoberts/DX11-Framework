@@ -50,6 +50,8 @@ public:
 	float    Length();        // Calculates the length of the vector
 	float    LengthSquared(); // Calculates the length squared of the vector
 
+	void LoopAroundOne();
+
 	DirectX::XMFLOAT2 ConvertToDirectXFloat2();
 
 	static Vector2D worldUp;

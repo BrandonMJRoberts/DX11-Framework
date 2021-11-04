@@ -237,5 +237,11 @@
     <FxCompile Include="PostProcessingFinalRender.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="CloudsFinalPass.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="CloudsInitialPass.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
