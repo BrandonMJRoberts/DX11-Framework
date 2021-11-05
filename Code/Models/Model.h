@@ -44,7 +44,12 @@ class ShaderHandler;
 class Model final
 {
 public:
-	Model(ShaderHandler& shaderHandler, std::string filePathToLoadFrom = "");
+	Model(ShaderHandler&      shaderHandler, 
+	      std::string         filePathToLoadFrom = "", 
+	      ID3D11VertexShader* geometryRenderVertexShader = nullptr, 
+	      ID3D11PixelShader*  geometryRenderPixelShader = nullptr,
+	      ID3D11VertexShader* fullRenderVertexShader = nullptr,
+	      ID3D11PixelShader*  fullRenderPixelShader = nullptr);
 	~Model();
 
 	bool LoadInModelFromFile(std::string filePath);
@@ -54,9 +59,13 @@ public:
 	void RenderGeometry();
 	void FullRender();
 
+	void SetShadersForFullRender(ID3D11VertexShader* vertexShader, ID3D11PixelShader* pixelShader);
+	void SetShadersForGeometryRender(ID3D11VertexShader* vertexShader, ID3D11PixelShader* pixelShader);
+
 private:
 	ShaderHandler& mShaderHandler;
 
+	// .obj loader helper functions
 	Vector3D ExtractThreeDataPointsFromLine(std::string& line);
 	Vector2D ExtractTwoDataPointsFromLine(std::string& line);
 
@@ -64,8 +73,16 @@ private:
 
 	void     ExtractFaceIndexDataFromFile(std::string& line, Vector3D indexDataFromFile[3]);
 
-	// Vertex and index data
+	// Internal model data - stored as faces, each holding three verticies each
 	FaceData* mFaceData;
+
+	// Shaders used to render the model - are passed in either when the model is created, or at some later point
+	ID3D11VertexShader* mFullRenderVertexShader;
+	ID3D11PixelShader*  mFullRenderPixelShader;
+
+	// These are useful for things like depth buffer passes and occlusion checks
+	ID3D11VertexShader* mGeometryRenderVertexShader;
+	ID3D11PixelShader*  mGeometryRenderPixelShader;
 };
 
 // -------------------------------------------------------------- //

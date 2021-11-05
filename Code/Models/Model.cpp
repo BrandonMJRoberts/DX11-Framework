@@ -6,9 +6,18 @@
 
 // --------------------------------------------------------- //
 
-Model::Model(ShaderHandler& shaderHandler, std::string filePathToLoadFrom)
-	: mShaderHandler(shaderHandler)
+Model::Model(ShaderHandler&      shaderHandler, 
+	         std::string         filePathToLoadFrom, 
+	         ID3D11VertexShader* geometryRenderVertexShader, 
+	         ID3D11PixelShader*  geometryRenderPixelShader, 
+	         ID3D11VertexShader* fullRenderVertexShader, 
+	         ID3D11PixelShader*  fullRenderPixelShader)
+	:   mShaderHandler(shaderHandler)
 	  , mFaceData(nullptr)
+	  , mFullRenderVertexShader(geometryRenderVertexShader)
+	  , mFullRenderPixelShader(geometryRenderPixelShader)
+	  , mGeometryRenderVertexShader(fullRenderVertexShader)
+	  , mGeometryRenderPixelShader(fullRenderPixelShader)
 {
 	// First clear all data stored
 	RemoveAllPriorDataStored();
@@ -22,6 +31,30 @@ Model::Model(ShaderHandler& shaderHandler, std::string filePathToLoadFrom)
 
 Model::~Model()
 {
+	if (mFullRenderVertexShader)
+	{
+		mFullRenderVertexShader->Release();
+		mFullRenderVertexShader = nullptr;
+	}
+
+	if (mFullRenderPixelShader)
+	{
+		mFullRenderPixelShader->Release();
+		mFullRenderPixelShader = nullptr;
+	}
+
+	if (mGeometryRenderVertexShader)
+	{
+		mGeometryRenderVertexShader->Release();
+		mGeometryRenderVertexShader = nullptr;
+	}
+
+	if (mGeometryRenderPixelShader)
+	{
+		mGeometryRenderPixelShader->Release();
+		mGeometryRenderPixelShader = nullptr;
+	}
+
 	RemoveAllPriorDataStored();
 }
 
@@ -153,14 +186,16 @@ void Model::RemoveAllPriorDataStored()
 
 void Model::RenderGeometry()
 {
-
+	if (!mGeometryRenderVertexShader || !mGeometryRenderPixelShader)
+		return;
 }
 
 // --------------------------------------------------------- //
 
 void Model::FullRender()
 {
-
+	if (!mFullRenderVertexShader || !mFullRenderPixelShader)
+		return;
 }
 
 // --------------------------------------------------------- //
@@ -315,6 +350,56 @@ void     Model::ExtractFaceIndexDataFromFile(std::string& line, Vector3D indexDa
 				}
 			}
 		}
+	}
+}
+
+// --------------------------------------------------------- //
+
+void Model::SetShadersForFullRender(ID3D11VertexShader* vertexShader, ID3D11PixelShader* pixelShader)
+{
+	if (vertexShader)
+	{
+		if (mFullRenderVertexShader)
+		{
+			mFullRenderVertexShader->Release();
+		}
+
+		mFullRenderVertexShader = vertexShader;
+	}
+
+	if (pixelShader)
+	{
+		if (mFullRenderPixelShader)
+		{
+			mFullRenderPixelShader->Release();
+		}
+
+		mFullRenderPixelShader = pixelShader;
+	}
+}
+
+// --------------------------------------------------------- //
+
+void Model::SetShadersForGeometryRender(ID3D11VertexShader* vertexShader, ID3D11PixelShader* pixelShader)
+{
+	if (vertexShader)
+	{
+		if (mGeometryRenderVertexShader)
+		{
+			mGeometryRenderVertexShader->Release();
+		}
+
+		mGeometryRenderVertexShader = vertexShader;
+	}
+
+	if (pixelShader)
+	{
+		if (mGeometryRenderPixelShader)
+		{
+			mGeometryRenderPixelShader->Release();
+		}
+
+		mGeometryRenderPixelShader = pixelShader;
 	}
 }
 
