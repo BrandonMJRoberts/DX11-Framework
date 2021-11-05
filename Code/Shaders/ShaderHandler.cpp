@@ -403,8 +403,13 @@ void ShaderHandler::SetPriorRenderTarget()
 
 // ------------------------------------------------------------------------------------------ //
 
-bool ShaderHandler::DrawInstanced(unsigned int numberOfInstancesToDraw)
+bool ShaderHandler::DrawInstanced(unsigned int vertexCountPerInstance, unsigned int numberOfInstancesToDraw, unsigned int startVertexLocation, unsigned int startInstanceLocation)
 {
+    if (!mDeviceContext)
+        return;
+
+    mDeviceContext->DrawInstanced(vertexCountPerInstance, numberOfInstancesToDraw, startVertexLocation, startInstanceLocation);
+
     return true;
 }
 

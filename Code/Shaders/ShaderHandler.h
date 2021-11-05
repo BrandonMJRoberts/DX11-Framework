@@ -102,7 +102,7 @@ public:
 
 	// Draw calls
 	bool DrawIndexed(unsigned int numberOfIndicies, unsigned int startIndexLocation, int baseVertexLocation);
-	bool DrawInstanced(unsigned int numberOfInstancesToDraw);
+	bool DrawInstanced(unsigned int vertexCountPerInstance, unsigned int numberOfInstancesToDraw, unsigned int startVertexLocation, unsigned int startInstanceLocation);
 
 	// -----------------------------------------
 
