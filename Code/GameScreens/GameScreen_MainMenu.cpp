@@ -26,7 +26,7 @@ void GameScreen_MainMenu::Render()
 
 void GameScreen_MainMenu::Update(const float deltaTime)
 {
-	
+	UNREFERENCED_PARAMETER(deltaTime);
 }
 
 // ------------------------------------------------------------------- //

@@ -3,11 +3,13 @@
 
 #include "Texture.h"
 
+// -------------------------------------------------------------------------------------------------- //
+
 class RenderBuffer final
 {
 public:
 	RenderBuffer() = delete;
-	RenderBuffer(ShaderHandler& shaderHandler, float width, float height, unsigned int mipLevels, unsigned int arraySize, DXGI_FORMAT format, D3D11_USAGE usage);
+	RenderBuffer(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, DXGI_FORMAT format, D3D11_USAGE usage);
 	~RenderBuffer();
 
 	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews);
@@ -27,5 +29,36 @@ private:
 
 	ShaderHandler& mShaderHandler;
 };
+
+// -------------------------------------------------------------------------------------------------- //
+
+class DepthStencilBuffer final
+{
+public:
+	DepthStencilBuffer() = delete;
+	DepthStencilBuffer(ShaderHandler& shaderHandler, 
+	                   unsigned int   width, 
+	                   unsigned int   height,
+	                   unsigned int   mipLevels, 
+	                   unsigned int   arraySize, 
+	                   DXGI_FORMAT    format, 
+	                   D3D11_USAGE    usage,
+	                   DXGI_FORMAT    depthStencilViewFormat,
+                       DXGI_FORMAT    shaderResourceViewFormat);
+	~DepthStencilBuffer();
+
+	ID3D11DepthStencilView* GetDepthStencilView() { return mDepthStencilView; }
+
+private:
+	Texture2D* mTexture2D;
+
+	// So it can be bound to render buffers
+	ID3D11DepthStencilView* mDepthStencilView;
+
+	// So it can be bound to shaders as a texture
+	ID3D11ShaderResourceView* mShaderResourceView;
+};
+
+// -------------------------------------------------------------------------------------------------- //
 
 #endif

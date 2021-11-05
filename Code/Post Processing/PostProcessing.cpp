@@ -6,16 +6,15 @@
 // ------------------------------------------------------------------ 
 
 PostProcessing::PostProcessing(ShaderHandler& shaderHandler)
-	: mDepthStencilViewPostProcessing(nullptr),
-	  mDepthTextureResourceView(nullptr),
-	  mClouds(nullptr),
+	: mClouds(nullptr),
 	  mPixelShader(nullptr),
 	  mVertexShader(nullptr),
 	  mShaderHandler(shaderHandler),
 	  mShaderInputLayout(nullptr),
 	  mIndexBuffer(nullptr),
 	  mPostProcessingRenderBuffer(nullptr),
-	  mSamplerState(nullptr)
+	  mSamplerState(nullptr),
+	  mDepthStencilBuffer(nullptr)
 {
 	LoadInShaders();
 
@@ -37,17 +36,8 @@ PostProcessing::~PostProcessing()
 	delete mPostProcessingRenderBuffer;
 	mPostProcessingRenderBuffer = nullptr;
 
-	if (mDepthStencilViewPostProcessing)
-	{
-		mDepthStencilViewPostProcessing->Release();
-		mDepthStencilViewPostProcessing = nullptr;
-	}
-
-	if (mDepthTextureResourceView)
-	{
-		mDepthTextureResourceView->Release();
-		mDepthTextureResourceView = nullptr;
-	}
+	delete mDepthStencilBuffer;
+	mDepthStencilBuffer = nullptr;
 
 	if (mPixelShader)
 	{
@@ -96,8 +86,8 @@ void PostProcessing::RenderFinal()
 	if(mPostProcessingRenderBuffer)
 		mPostProcessingRenderBuffer->BindTextureToShaders(0, 1);
 
-	if(mSamplerState)
-		mSamplerState->BindSamplerState(0, 1);
+//	if(mSamplerState)
+	//	mSamplerState->BindSamplerState(0, 1);
 
 	UINT stride = sizeof(TextureVertex);
 	UINT offset = 0;
@@ -140,21 +130,21 @@ void PostProcessing::Render()
 
 void PostProcessing::BindRenderTarget()
 {
-	if (mPostProcessingRenderBuffer && !mDepthStencilViewPostProcessing)
+	if (!mPostProcessingRenderBuffer || !mDepthStencilBuffer)
 		return;
 
 	// Bind the render target and depth buffer
-	mPostProcessingRenderBuffer->BindRenderTargetAsActive(mDepthStencilViewPostProcessing);
+	mPostProcessingRenderBuffer->BindRenderTargetAsActive(mDepthStencilBuffer->GetDepthStencilView());
 }
 
 // ------------------------------------------------------------------ 
 
 void PostProcessing::ClearRenderTarget()
 {
-	if (mPostProcessingRenderBuffer && !mDepthStencilViewPostProcessing)
+	if (!mPostProcessingRenderBuffer || !mDepthStencilBuffer)
 		return;
 
-	mPostProcessingRenderBuffer->ClearRenderBuffer(mDepthStencilViewPostProcessing); 
+	mPostProcessingRenderBuffer->ClearRenderBuffer(mDepthStencilBuffer->GetDepthStencilView());
 }
 
 // ------------------------------------------------------------------ 
@@ -185,57 +175,11 @@ void PostProcessing::LoadInShaders()
 
 void PostProcessing::SetupRenderTextures()
 {
+	// Create the render buffer
 	mPostProcessingRenderBuffer = new RenderBuffer(mShaderHandler, GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 1, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
 
-	// ------------------------------------------------------------------------------------------------- //
-
-	// Depth texture setup
-
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width              = GameScreenManager::ScreenWidth;
-	depthStencilDesc.Height				= GameScreenManager::ScreenHeight;
-    depthStencilDesc.MipLevels          = 1;
-    depthStencilDesc.ArraySize          = 1;
-    depthStencilDesc.Format             = DXGI_FORMAT_R24G8_TYPELESS;
-    depthStencilDesc.SampleDesc.Count   = 1;
-    depthStencilDesc.SampleDesc.Quality = 0;
-    depthStencilDesc.Usage              = D3D11_USAGE_DEFAULT;
-    depthStencilDesc.BindFlags          = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-    depthStencilDesc.CPUAccessFlags     = 0;
-    depthStencilDesc.MiscFlags          = 0;
-
-	// Now create the depth / stencil view
-	ID3D11Texture2D* tempDepthTexture = nullptr;
-
-	// Create the texture
-	if (!mShaderHandler.CreateTexture2D(&depthStencilDesc, nullptr, &tempDepthTexture))
-		return;
-	
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
-	depthDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthDesc.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthDesc.Flags              = 0;
-	depthDesc.Texture2D.MipSlice = 0;
-
-	// Create the depth stencil view
-	if (!mShaderHandler.CreateDepthStencilView(tempDepthTexture, &depthDesc, &mDepthStencilViewPostProcessing))
-		return;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format                    = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc = shaderResourceViewDesc;
-	resourceDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-
-	// Now create the shader resource from it - so that we can pass it into shaders later on
-	mShaderHandler.CreateShaderResourceView(tempDepthTexture, &resourceDesc, &mDepthTextureResourceView);
-
-	// Release the temp texture's memory 
-	tempDepthTexture->Release();
-	tempDepthTexture = nullptr;
+	// Create the depth stencil buffer
+	mDepthStencilBuffer = new DepthStencilBuffer(mShaderHandler, GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 1, 1, DXGI_FORMAT_R24G8_TYPELESS, D3D11_USAGE_DEFAULT, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
 	// Create the sampler state
 	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);

@@ -16,6 +16,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	testCube2 = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 3.0f));
 
+	carTest = new Model(shaderHandler, "Models/Car/Car.obj");
+
 	mCamera = new ThirdPersonCamera(&inputHandler,
 									Vector3D(3.0f, 0.0f, 0.0f),
 									10.0f,
@@ -27,8 +29,6 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 									16.0f / 9.0f,
 									0.1f,
 									0.2f);
-
-	carTest = new Model(mShaderHandler, "Models/Car/Car.obj");
 
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);

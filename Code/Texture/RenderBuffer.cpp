@@ -4,7 +4,7 @@
 
 // ------------------------------------------------------------------ //
 
-RenderBuffer::RenderBuffer(ShaderHandler& shaderHandler, float width, float height, unsigned int mipLevels, unsigned int arraySize, DXGI_FORMAT format, D3D11_USAGE usage)
+RenderBuffer::RenderBuffer(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, DXGI_FORMAT format, D3D11_USAGE usage)
 	: mTexture2D(nullptr)
 	, mRenderTargetView(nullptr)
 	, mShaderResourceView(nullptr)
@@ -19,7 +19,8 @@ RenderBuffer::RenderBuffer(ShaderHandler& shaderHandler, float width, float heig
 	desc.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
 	desc.Texture2D.MipSlice = 0;
 
-	shaderHandler.CreateRenderTargetView(mTexture2D->GetInternalTexture(), &desc, &mRenderTargetView);
+	if (!shaderHandler.CreateRenderTargetView(mTexture2D->GetInternalTexture(), &desc, &mRenderTargetView))
+		return;
 
 	// Now create the shader resource view
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -28,7 +29,8 @@ RenderBuffer::RenderBuffer(ShaderHandler& shaderHandler, float width, float heig
 	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 
-	shaderHandler.CreateShaderResourceView(mTexture2D->GetInternalTexture(), &shaderResourceViewDesc, &mShaderResourceView);
+	if (!shaderHandler.CreateShaderResourceView(mTexture2D->GetInternalTexture(), &shaderResourceViewDesc, &mShaderResourceView))
+		return;
 }
 
 // ------------------------------------------------------------------ //
@@ -85,3 +87,65 @@ void RenderBuffer::ClearRenderBuffer(ID3D11DepthStencilView* depthStencilViewToC
 }
 
 // ------------------------------------------------------------------ //
+// Depth stencil buffer
+// ------------------------------------------------------------------ // 
+
+
+DepthStencilBuffer::DepthStencilBuffer(ShaderHandler& shaderHandler, 
+	                                   unsigned int   width, 
+	                                   unsigned int   height,
+	                                   unsigned int   mipLevels, 
+	                                   unsigned int   arraySize, 
+	                                   DXGI_FORMAT    format, 
+	                                   D3D11_USAGE    usage,
+	                                   DXGI_FORMAT    depthStencilViewFormat,
+                                       DXGI_FORMAT    shaderResourceViewFormat)
+	: mTexture2D(nullptr)
+	, mDepthStencilView(nullptr)
+	, mShaderResourceView(nullptr)
+{
+	// Create the texture
+	mTexture2D = new Texture2D(shaderHandler, width, height, mipLevels, arraySize, usage, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, format);
+
+	// Now create the depth stencil view
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
+	depthDesc.Format             = depthStencilViewFormat;
+	depthDesc.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthDesc.Flags              = 0;
+	depthDesc.Texture2D.MipSlice = 0;
+
+	if (!shaderHandler.CreateDepthStencilView(mTexture2D->GetInternalTexture(), &depthDesc, &mDepthStencilView))
+		return;
+
+	// Now create the shader resource view
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	shaderResourceViewDesc.Format                    = shaderResourceViewFormat;
+	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+
+	if (!shaderHandler.CreateShaderResourceView(mTexture2D->GetInternalTexture(), &shaderResourceViewDesc, &mShaderResourceView))
+		return;
+}
+
+// ------------------------------------------------------------------ // 
+
+DepthStencilBuffer::~DepthStencilBuffer()
+{
+	delete mTexture2D;
+	mTexture2D = nullptr;
+
+	if (mDepthStencilView)
+	{
+		mDepthStencilView->Release();
+		mDepthStencilView = nullptr;
+	}
+
+	if (mShaderResourceView)
+	{
+		mShaderResourceView->Release();
+		mShaderResourceView = nullptr;
+	}
+}
+
+// ------------------------------------------------------------------ // 
