@@ -14,6 +14,9 @@ public:
 	TrackPiece(Model& model, TrackCollision& collision);
 	~TrackPiece();
 
+	void RenderGeometry();
+	void RenderFull();
+
 private:
 	DirectX::XMUINT3  mGridPosition;
 	DirectX::XMFLOAT3 mFacingDirection;

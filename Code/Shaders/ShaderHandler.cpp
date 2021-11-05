@@ -341,6 +341,20 @@ bool ShaderHandler::CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D
 
 // ------------------------------------------------------------------------------------------ //
 
+bool ShaderHandler::CreateTexture3D(D3D11_TEXTURE3D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture3D** texture)
+{
+    if (mDeviceHandle)
+        return false;
+
+    HRESULT hr;
+
+    hr = mDeviceHandle->CreateTexture3D(description, initialData, texture);
+
+    return (!FAILED(hr));
+}
+
+// ------------------------------------------------------------------------------------------ //
+
 void ShaderHandler::SetRenderTargets(unsigned int numberToBind, ID3D11RenderTargetView* const* renderTargetViewsToBind, ID3D11DepthStencilView* depthStencilViewToBind)
 {
     // Check the context exists
@@ -406,7 +420,7 @@ void ShaderHandler::SetPriorRenderTarget()
 bool ShaderHandler::DrawInstanced(unsigned int vertexCountPerInstance, unsigned int numberOfInstancesToDraw, unsigned int startVertexLocation, unsigned int startInstanceLocation)
 {
     if (!mDeviceContext)
-        return;
+        return false;
 
     mDeviceContext->DrawInstanced(vertexCountPerInstance, numberOfInstancesToDraw, startVertexLocation, startInstanceLocation);
 
@@ -594,8 +608,8 @@ void ShaderHandler::SetViewport(float width, float height, float minDepth, float
     vp.Height   = height;
     vp.MinDepth = minDepth;
     vp.MaxDepth = maxDepth;
-    vp.TopLeftX = topLeftX;
-    vp.TopLeftY = topLeftY;
+    vp.TopLeftX = (FLOAT)topLeftX;
+    vp.TopLeftY = (FLOAT)topLeftY;
 
     // Apply the viewport change
     mDeviceContext->RSSetViewports(1, &vp);

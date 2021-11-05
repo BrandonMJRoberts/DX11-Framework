@@ -329,7 +329,7 @@ void     Model::ExtractFaceIndexDataFromFile(std::string& line, Vector3D indexDa
 				if (line[j] == '/' || line[j] == ' ' || j == line.length())
 				{
 					subString         = line.substr(i, j - i);
-					data[dataIndex++] = std::stoi(subString);
+					data[dataIndex++] = (float)std::stoi(subString);
 
 					i = j + 1;
 

@@ -403,6 +403,8 @@
     <ClCompile Include="Code\Post Processing\PostProcessing.cpp" />
     <ClCompile Include="Code\Shaders\ShaderHandler.cpp" />
     <ClCompile Include="Code\Test\TestCube.cpp" />
+    <ClCompile Include="Code\Texture\RenderBuffer.cpp" />
+    <ClCompile Include="Code\Texture\Texture.cpp" />
     <ClCompile Include="Code\Track\TrackPiece.cpp" />
     <ClCompile Include="Code\Track\TrackPieceFactory.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -427,6 +429,8 @@
     <ClInclude Include="Code\Post Processing\PostProcessing.h" />
     <ClInclude Include="Code\Shaders\ShaderHandler.h" />
     <ClInclude Include="Code\Test\TestCube.h" />
+    <ClInclude Include="Code\Texture\RenderBuffer.h" />
+    <ClInclude Include="Code\Texture\Texture.h" />
     <ClInclude Include="Code\Track\TrackPiece.h" />
     <ClInclude Include="Code\Track\TrackPieceFactory.h" />
     <ClInclude Include="resource.h" />

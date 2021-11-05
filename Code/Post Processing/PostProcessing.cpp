@@ -105,7 +105,7 @@ void PostProcessing::RenderFinal()
 	mShaderHandler.SetDefaultRenderTarget();
 
 	// Set the correct viewport
-	mShaderHandler.SetViewport(GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 0.0f, 1.0f, 0, 0);
+	mShaderHandler.SetViewport((float)GameScreenManager::ScreenWidth, (float)GameScreenManager::ScreenHeight, 0.0f, 1.0f, 0, 0);
 
 	mShaderHandler.SetInputLayout(mShaderInputLayout);
 

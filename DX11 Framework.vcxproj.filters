@@ -99,6 +99,12 @@
     <Filter Include="Models">
       <UniqueIdentifier>{1de9f813-4394-46ab-afaa-8f21bfe64d5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Texture">
+      <UniqueIdentifier>{956d34e5-b60b-4428-889f-a2141745b0da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Texture">
+      <UniqueIdentifier>{695ae988-2a8a-4c93-98e3-69fd1cb6dea4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Track\TrackPiece.cpp">
@@ -158,6 +164,12 @@
     </ClCompile>
     <ClCompile Include="Code\Post Processing\Clouds.cpp">
       <Filter>Source\Post Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Texture\RenderBuffer.cpp">
+      <Filter>Source\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Texture\Texture.cpp">
+      <Filter>Source\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +238,12 @@
     </ClInclude>
     <ClInclude Include="Code\Maths\Commons.h">
       <Filter>Headers\Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Texture\RenderBuffer.h">
+      <Filter>Headers\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Texture\Texture.h">
+      <Filter>Headers\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
