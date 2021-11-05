@@ -158,6 +158,21 @@ bool     Vector2D::operator==(const Vector2D other)
 
 // ------------------------------------------------------------------------------------------------
 
+float&   Vector2D::operator[](unsigned int index)
+{
+	switch (index)
+	{
+	default:
+	case 0:
+		return x;
+
+	case 1:
+		return y;
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
+
 float    Vector2D::Dot(const Vector2D& other)
 {
 	return (x * other.x) + (y * other.y);
@@ -414,6 +429,24 @@ bool     Vector3D::operator==(const Vector3D other)
 
 // ------------------------------------------------------------------------------------------------
 
+float&   Vector3D::operator[](unsigned int index)
+{
+	switch (index)
+	{
+	default:
+	case 0:
+		return x;
+
+	case 1:
+		return y;
+
+	case 2:
+		return z;
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
+
 float    Vector3D::Dot(const Vector3D& other)
 {
 	return (x * other.x) + (y * other.y) + (z * other.z);
@@ -645,6 +678,27 @@ bool     Vector4D::operator==(const Vector4D other)
 		return true;
 
 	return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+
+float&    Vector4D::operator[](unsigned int index)
+{
+	switch (index)
+	{
+	default:
+	case 0:
+		return x;
+
+	case 1:
+		return y;
+
+	case 2:
+		return z;
+
+	case 3:
+		return w;
+	}
 }
 
 // ------------------------------------------------------------------------------------------------

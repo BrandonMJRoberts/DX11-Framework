@@ -455,7 +455,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Object Include="Models\Car\Car.obj" />
+    <Object Include="Models\Car\Car.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

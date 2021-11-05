@@ -28,7 +28,7 @@ SamplerState sampler1                     : register(s0);// Set the sampler stat
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float4 PS( VS_OUTPUT input ) : SV_Target
+float4 PS(VS_OUTPUT input) : SV_Target
 {
     // Do the texture lookup and return it back
     return finalScreenRenderImage.Sample(sampler1, input.textureCoord);

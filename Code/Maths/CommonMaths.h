@@ -41,6 +41,8 @@ public:
 
 	bool     operator==(const Vector2D other);
 
+	float&   operator[](unsigned int index);
+
 	//------------------------ Functionality functions ------------------------//
 	float    Dot(const Vector2D& other);
 
@@ -96,6 +98,8 @@ public:
 
 	bool     operator==(const Vector3D other);
 
+	float&   operator[](unsigned int index);
+
 	//------------------------ Functionality functions ------------------------//
 	float    Dot(const Vector3D& other);
 	Vector3D Cross(const Vector3D& other);
@@ -146,6 +150,8 @@ public:
 	void     operator=(const Vector4D& other);  // Setter
 
 	bool     operator==(const Vector4D other);
+
+	float&   operator[](unsigned int index);
 
 	//------------------------ Functionality functions ------------------------//
 	float    Dot(const Vector4D& other);

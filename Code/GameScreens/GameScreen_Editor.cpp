@@ -1,5 +1,7 @@
 #include "GameScreen_Editor.h"
 
+#include "../Models/Model.h"
+
 // --------------------------------------------------------- //
 
 GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler& inputHandler) 
@@ -26,6 +28,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 									0.1f,
 									0.2f);
 
+	carTest = new Model(mShaderHandler, "Models/Car/Car.obj");
+
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);
 }
@@ -45,6 +49,9 @@ GameScreen_Editor::~GameScreen_Editor()
 
 	delete mPostProcessing;
 	mPostProcessing = nullptr;
+
+	delete carTest;
+	carTest = nullptr;
 }
 
 // --------------------------------------------------------- //
