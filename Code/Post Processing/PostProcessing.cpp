@@ -6,18 +6,16 @@
 // ------------------------------------------------------------------ 
 
 PostProcessing::PostProcessing(ShaderHandler& shaderHandler)
-	: mPostProcessingTexture(nullptr),
-	  mRenderTargetViewPostProcessing(nullptr),
-	  mShaderResourceViewPostProcessing(nullptr),
-	  mDepthStencilViewPostProcessing(nullptr),
+	: mDepthStencilViewPostProcessing(nullptr),
 	  mDepthTextureResourceView(nullptr),
 	  mClouds(nullptr),
 	  mPixelShader(nullptr),
 	  mVertexShader(nullptr),
 	  mShaderHandler(shaderHandler),
 	  mShaderInputLayout(nullptr),
-	  mTextureSamplerState(nullptr),
-	  mIndexBuffer(nullptr)
+	  mIndexBuffer(nullptr),
+	  mPostProcessingRenderBuffer(nullptr),
+	  mSamplerState(nullptr)
 {
 	LoadInShaders();
 
@@ -36,23 +34,8 @@ PostProcessing::~PostProcessing()
 	delete mClouds;
 	mClouds = nullptr;
 
-	if (mPostProcessingTexture)
-	{
-		mPostProcessingTexture->Release();
-		mPostProcessingTexture = nullptr;
-	}
-
-	if (mRenderTargetViewPostProcessing)
-	{
-		mRenderTargetViewPostProcessing->Release();
-		mRenderTargetViewPostProcessing = nullptr;
-	}
-
-	if (mShaderResourceViewPostProcessing)
-	{
-		mShaderResourceViewPostProcessing->Release();
-		mShaderResourceViewPostProcessing = nullptr;
-	}
+	delete mPostProcessingRenderBuffer;
+	mPostProcessingRenderBuffer = nullptr;
 
 	if (mDepthStencilViewPostProcessing)
 	{
@@ -84,11 +67,8 @@ PostProcessing::~PostProcessing()
 		mShaderInputLayout = nullptr;
 	}
 
-	if (mTextureSamplerState)
-	{
-		mTextureSamplerState->Release();
-		mTextureSamplerState = nullptr;
-	}
+	delete mSamplerState;
+	mSamplerState = nullptr;
 
 	if (mIndexBuffer)
 	{
@@ -113,9 +93,11 @@ void PostProcessing::RenderFinal()
 	mShaderHandler.SetVertexShader(mVertexShader);
 	mShaderHandler.SetPixelShader(mPixelShader);
 
-	// Bind the texture to the shader
-	mShaderHandler.BindTextureToShaders(0, 1, &mShaderResourceViewPostProcessing);
-	mShaderHandler.BindSamplerState(0, 1, &mTextureSamplerState);
+	if(mPostProcessingRenderBuffer)
+		mPostProcessingRenderBuffer->BindTextureToShaders(0, 1);
+
+	if(mSamplerState)
+		mSamplerState->BindSamplerState(0, 1);
 
 	UINT stride = sizeof(TextureVertex);
 	UINT offset = 0;
@@ -158,22 +140,21 @@ void PostProcessing::Render()
 
 void PostProcessing::BindRenderTarget()
 {
-	if (!mRenderTargetViewPostProcessing || !mDepthStencilViewPostProcessing)
+	if (mPostProcessingRenderBuffer && !mDepthStencilViewPostProcessing)
 		return;
 
 	// Bind the render target and depth buffer
-	mShaderHandler.SetRenderTargets(1, &mRenderTargetViewPostProcessing, mDepthStencilViewPostProcessing);
+	mPostProcessingRenderBuffer->BindRenderTargetAsActive(mDepthStencilViewPostProcessing);
 }
 
 // ------------------------------------------------------------------ 
 
 void PostProcessing::ClearRenderTarget()
 {
-	if (!mRenderTargetViewPostProcessing || !mDepthStencilViewPostProcessing)
+	if (mPostProcessingRenderBuffer && !mDepthStencilViewPostProcessing)
 		return;
 
-	mShaderHandler.ClearRenderTargetView(mRenderTargetViewPostProcessing, Constants::COLOUR_BLACK);
-	mShaderHandler.ClearDepthStencilView(mDepthStencilViewPostProcessing, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	mPostProcessingRenderBuffer->ClearRenderBuffer(mDepthStencilViewPostProcessing); 
 }
 
 // ------------------------------------------------------------------ 
@@ -204,46 +185,7 @@ void PostProcessing::LoadInShaders()
 
 void PostProcessing::SetupRenderTextures()
 {
-	// ------------------------------------------------------------------------------------------------- //
-
-	// Colour buffer setup
-
-	// First create the texture
-	D3D11_TEXTURE2D_DESC desc;
-	desc.Width              = GameScreenManager::ScreenWidth;
-	desc.Height             = GameScreenManager::ScreenHeight;
-	desc.MipLevels          = 1;
-	desc.ArraySize          = 1;
-	desc.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	desc.SampleDesc.Count   = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage              = D3D11_USAGE_DEFAULT;
-	desc.BindFlags          = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags     = 0;
-	desc.MiscFlags          = 0;
-
-	if (!mShaderHandler.CreateTexture2D(&desc, nullptr, &mPostProcessingTexture))
-	{
-		return;
-	}
-
-	// Now create the render target view through a description
-	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDescription;
-	renderTargetViewDescription.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	renderTargetViewDescription.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDescription.Texture2D.MipSlice = 0;
-
-	// This should return back the render target view into the final parameter
-	mShaderHandler.CreateRenderTargetView(mPostProcessingTexture, &renderTargetViewDescription, &mRenderTargetViewPostProcessing);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format                    = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-
-	// This should return back the shader resource view into the final parameter
-	mShaderHandler.CreateShaderResourceView(mPostProcessingTexture, &shaderResourceViewDesc, &mShaderResourceViewPostProcessing);
+	mPostProcessingRenderBuffer = new RenderBuffer(mShaderHandler, GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 1, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
 
 	// ------------------------------------------------------------------------------------------------- //
 
@@ -279,6 +221,12 @@ void PostProcessing::SetupRenderTextures()
 	if (!mShaderHandler.CreateDepthStencilView(tempDepthTexture, &depthDesc, &mDepthStencilViewPostProcessing))
 		return;
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	shaderResourceViewDesc.Format                    = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+
 	D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc = shaderResourceViewDesc;
 	resourceDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 
@@ -289,21 +237,8 @@ void PostProcessing::SetupRenderTextures()
 	tempDepthTexture->Release();
 	tempDepthTexture = nullptr;
 
-	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter     = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-	samplerDesc.AddressU   = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV   = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW   = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MinLOD     = 0;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-
-	mShaderHandler.CreateSamplerState(&samplerDesc, &mTextureSamplerState);
+	// Create the sampler state
+	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);
 }
 
 // ------------------------------------------------------------------ 

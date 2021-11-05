@@ -20,8 +20,8 @@ enum class TextureStates
 class Texture2D final
 {
 public:
-	Texture2D();
-	Texture2D(ShaderHandler& shaderHandler, float width, float height, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat);
+	Texture2D() = delete;
+	Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat);
 	~Texture2D();
 
 	void LoadTextureInFromFile(std::string& filePath);
@@ -37,8 +37,8 @@ private:
 class Texture3D final
 {
 public:
-	Texture3D();
-	Texture3D(ShaderHandler& shaderHandler, float width, float height, float depth, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat);
+	Texture3D() = delete;
+	Texture3D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int depth, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat);
 	~Texture3D();
 
 	void LoadTextureInFromFile(std::string& filePath);
@@ -54,11 +54,28 @@ private:
 class SamplerState final
 {
 public:
-	SamplerState();
+	SamplerState() = delete;
+	SamplerState(ShaderHandler              shaderHandler,
+		         D3D11_FILTER               filter, 
+		         D3D11_TEXTURE_ADDRESS_MODE wrapU, 
+		         D3D11_TEXTURE_ADDRESS_MODE wrapV, 
+		         D3D11_TEXTURE_ADDRESS_MODE wrapW, 
+		         float                      mipLODBias,
+		         unsigned int               minLOD,
+		         unsigned int               maxAnisotropy,
+		         float                      borderColour0,
+		         float                      borderColour1, 
+		         float                      borderColour2, 
+		         float                      borderColour3, 
+		         D3D11_COMPARISON_FUNC      comparisonFunction);
 	~SamplerState();
+
+	void BindSamplerState(unsigned int startSlot, unsigned int count);
 
 private:
 	ID3D11SamplerState* mInternalState;
+
+	ShaderHandler& mShaderHandler;
 };
 
 #endif

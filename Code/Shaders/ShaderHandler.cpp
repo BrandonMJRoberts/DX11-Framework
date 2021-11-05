@@ -590,7 +590,7 @@ bool ShaderHandler::CreateSamplerState(D3D11_SAMPLER_DESC* samplerDescription, I
 
 void ShaderHandler::BindSamplerState(unsigned int startSlot, unsigned int count, ID3D11SamplerState* const* samplerState)
 {
-    if (!mDeviceHandle)
+    if (!mDeviceContext)
         return;
 
     mDeviceContext->PSSetSamplers(startSlot, count, samplerState);
