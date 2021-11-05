@@ -51,4 +51,14 @@ private:
 
 // ---------------------------------------------------------------- //
 
+class SamplerState final
+{
+public:
+	SamplerState();
+	~SamplerState();
+
+private:
+	ID3D11SamplerState* mInternalState;
+};
+
 #endif
