@@ -96,6 +96,9 @@
     <Filter Include="Source\Post Processing">
       <UniqueIdentifier>{c05e8b2b-5a58-44e5-8d11-cf2fe8510990}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{1de9f813-4394-46ab-afaa-8f21bfe64d5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Track\TrackPiece.cpp">
@@ -243,5 +246,10 @@
     <FxCompile Include="CloudsInitialPass.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Models\Car\Car.obj">
+      <Filter>Models</Filter>
+    </Object>
   </ItemGroup>
 </Project>
