@@ -44,7 +44,8 @@ public:
 	                   DXGI_FORMAT    format, 
 	                   D3D11_USAGE    usage,
 	                   DXGI_FORMAT    depthStencilViewFormat,
-                       DXGI_FORMAT    shaderResourceViewFormat);
+		               bool           isShaderResource,
+                       DXGI_FORMAT    shaderResourceViewFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 	~DepthStencilBuffer();
 
 	ID3D11DepthStencilView* GetDepthStencilView() { return mDepthStencilView; }
@@ -57,6 +58,8 @@ private:
 
 	// So it can be bound to shaders as a texture
 	ID3D11ShaderResourceView* mShaderResourceView;
+
+	bool mIsShaderResource;
 };
 
 // -------------------------------------------------------------------------------------------------- //

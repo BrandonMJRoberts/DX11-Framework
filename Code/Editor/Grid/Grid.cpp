@@ -5,77 +5,16 @@
 // ------------------------------------------------------------------------ //
 
 EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
-	: mOcclusionTexture(nullptr)
+	: mOcclusionRenderBuffer(nullptr)
 	, mShaderHandler(shaderHandler)
+	, mDepthStencilBufferOcclusion(nullptr)
 {
 	// Make sure that the grid is empty
 	ClearGrid();
 
-	// First create the texture
-	D3D11_TEXTURE2D_DESC desc;
-	desc.Width              = 320;
-	desc.Height             = 240;
-	desc.MipLevels          = 1;
-	desc.ArraySize          = 1;
-	desc.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	desc.SampleDesc.Count   = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage              = D3D11_USAGE_DEFAULT;
-	desc.BindFlags          = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags     = 0;
-	desc.MiscFlags          = 0;
+	mOcclusionRenderBuffer = new RenderBuffer(shaderHandler, 320, 240, 1, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
 
-	if (!mShaderHandler.CreateTexture2D(&desc, nullptr, &mOcclusionTexture) && mOcclusionTexture)
-	{
-		return;
-	}
-
-	// Now create the render target view through a description
-	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDescription;
-	renderTargetViewDescription.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	renderTargetViewDescription.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDescription.Texture2D.MipSlice = 0;
-
-	// This should return back the render target view into the final parameter
-	mShaderHandler.CreateRenderTargetView(mOcclusionTexture, &renderTargetViewDescription, &mRenderTargetViewOcclusion);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format                    = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-
-	// This should return back the shader resource view into the final parameter
-	mShaderHandler.CreateShaderResourceView(mOcclusionTexture, &shaderResourceViewDesc, &mShaderResourceViewOcclusion);
-
-	// Now create the depth / stencil view
-	ID3D11Texture2D* tempDepthTexture = nullptr;
-
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width              = 320;
-	depthStencilDesc.Height				= 240;
-    depthStencilDesc.MipLevels          = 1;
-    depthStencilDesc.ArraySize          = 1;
-    depthStencilDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    depthStencilDesc.SampleDesc.Count   = 1;
-    depthStencilDesc.SampleDesc.Quality = 0;
-    depthStencilDesc.Usage              = D3D11_USAGE_DEFAULT;
-    depthStencilDesc.BindFlags          = D3D11_BIND_DEPTH_STENCIL;
-    depthStencilDesc.CPUAccessFlags     = 0;
-    depthStencilDesc.MiscFlags          = 0;
-
-	// Create the texture
-	if (!mShaderHandler.CreateTexture2D(&depthStencilDesc, nullptr, &tempDepthTexture))
-		return;
-
-
-	// Create the depth stencil view
-	if (!mShaderHandler.CreateDepthStencilView(tempDepthTexture, nullptr, &mDepthStencilViewOcclusion))
-		return;
-
-	// Release the temp texture
-	tempDepthTexture->Release();
-	tempDepthTexture = nullptr;
+	mDepthStencilBufferOcclusion = new DepthStencilBuffer(shaderHandler, 320, 240, 1, 1, DXGI_FORMAT_D24_UNORM_S8_UINT, D3D11_USAGE_DEFAULT, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
 }
 
 // ------------------------------------------------------------------------ //
@@ -86,29 +25,11 @@ EditorGrid::~EditorGrid()
 
 	mVisibleGridPieces.clear();
 
-	if (mOcclusionTexture)
-	{
-		mOcclusionTexture->Release();
-		mOcclusionTexture = nullptr;
-	}
+	delete mOcclusionRenderBuffer;
+	mOcclusionRenderBuffer = nullptr;
 
-	if (mRenderTargetViewOcclusion)
-	{
-		mRenderTargetViewOcclusion->Release();
-		mRenderTargetViewOcclusion = nullptr;
-	}
-
-	if (mShaderResourceViewOcclusion)
-	{
-		mShaderResourceViewOcclusion->Release();
-		mShaderResourceViewOcclusion = nullptr;
-	}
-
-	if (mDepthStencilViewOcclusion)
-	{
-		mDepthStencilViewOcclusion->Release();
-		mDepthStencilViewOcclusion = nullptr;
-	}
+	delete mDepthStencilBufferOcclusion;
+	mDepthStencilBufferOcclusion = nullptr;
 }
 
 // ------------------------------------------------------------------------ //
@@ -197,12 +118,13 @@ void EditorGrid::Update(const float deltaTime)
 void EditorGrid::Render(BaseCamera* camera)
 {
 	// First bind the correct texture for the draw calls
-	mShaderHandler.SetRenderTargets(1, &mRenderTargetViewOcclusion, mDepthStencilViewOcclusion);
-	//mShaderHandler.SetRenderTargets(0, NULL, mDepthStencilViewOcclusion);
-
-	// Now clear the render target from the prior frame
-	//mShaderHandler.ClearRenderTargetView(mRenderTargetViewOcclusion, Constants::COLOUR_BLACK);
-	mShaderHandler.ClearDepthStencilView(mDepthStencilViewOcclusion, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	if (mOcclusionRenderBuffer && mDepthStencilBufferOcclusion)
+	{
+		mOcclusionRenderBuffer->BindRenderTargetAsActive(mDepthStencilBufferOcclusion->GetDepthStencilView());
+		mOcclusionRenderBuffer->ClearRenderBuffer(mDepthStencilBufferOcclusion->GetDepthStencilView());
+	}
+	else 
+		return;
 	
 	// First find what elements of the grid are visible
 	// Do this by rendering to a occlusion test

@@ -86,8 +86,8 @@ void PostProcessing::RenderFinal()
 	if(mPostProcessingRenderBuffer)
 		mPostProcessingRenderBuffer->BindTextureToShaders(0, 1);
 
-//	if(mSamplerState)
-	//	mSamplerState->BindSamplerState(0, 1);
+	if(mSamplerState)
+		mSamplerState->BindSamplerState(0, 1);
 
 	UINT stride = sizeof(TextureVertex);
 	UINT offset = 0;
@@ -179,7 +179,7 @@ void PostProcessing::SetupRenderTextures()
 	mPostProcessingRenderBuffer = new RenderBuffer(mShaderHandler, GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 1, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
 
 	// Create the depth stencil buffer
-	mDepthStencilBuffer = new DepthStencilBuffer(mShaderHandler, GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 1, 1, DXGI_FORMAT_R24G8_TYPELESS, D3D11_USAGE_DEFAULT, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+	mDepthStencilBuffer = new DepthStencilBuffer(mShaderHandler, GameScreenManager::ScreenWidth, GameScreenManager::ScreenHeight, 1, 1, DXGI_FORMAT_R24G8_TYPELESS, D3D11_USAGE_DEFAULT, DXGI_FORMAT_D24_UNORM_S8_UINT, true, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
 	// Create the sampler state
 	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);

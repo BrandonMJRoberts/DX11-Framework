@@ -99,13 +99,23 @@ DepthStencilBuffer::DepthStencilBuffer(ShaderHandler& shaderHandler,
 	                                   DXGI_FORMAT    format, 
 	                                   D3D11_USAGE    usage,
 	                                   DXGI_FORMAT    depthStencilViewFormat,
+	                                   bool           isShaderResource,
                                        DXGI_FORMAT    shaderResourceViewFormat)
 	: mTexture2D(nullptr)
 	, mDepthStencilView(nullptr)
 	, mShaderResourceView(nullptr)
+	, mIsShaderResource(isShaderResource)
 {
 	// Create the texture
-	mTexture2D = new Texture2D(shaderHandler, width, height, mipLevels, arraySize, usage, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, format);
+	unsigned int flags = D3D11_BIND_DEPTH_STENCIL;
+
+	if (mIsShaderResource)
+		flags |= D3D11_BIND_SHADER_RESOURCE;
+
+	mTexture2D = new Texture2D(shaderHandler, width, height, mipLevels, arraySize, usage, flags, format);
+
+	if (!mTexture2D)
+		return;
 
 	// Now create the depth stencil view
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
@@ -117,15 +127,18 @@ DepthStencilBuffer::DepthStencilBuffer(ShaderHandler& shaderHandler,
 	if (!shaderHandler.CreateDepthStencilView(mTexture2D->GetInternalTexture(), &depthDesc, &mDepthStencilView))
 		return;
 
-	// Now create the shader resource view
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format                    = shaderResourceViewFormat;
-	shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MipLevels       = 1;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	if(mIsShaderResource)
+	{
+		// Now create the shader resource view
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		shaderResourceViewDesc.Format                    = shaderResourceViewFormat;
+		shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+		shaderResourceViewDesc.Texture2D.MipLevels       = 1;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 
-	if (!shaderHandler.CreateShaderResourceView(mTexture2D->GetInternalTexture(), &shaderResourceViewDesc, &mShaderResourceView))
-		return;
+		if (!shaderHandler.CreateShaderResourceView(mTexture2D->GetInternalTexture(), &shaderResourceViewDesc, &mShaderResourceView))
+			return;
+	}
 }
 
 // ------------------------------------------------------------------ // 

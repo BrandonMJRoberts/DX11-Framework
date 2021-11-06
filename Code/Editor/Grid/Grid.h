@@ -8,6 +8,8 @@
 
 #include "../../Shaders/ShaderHandler.h"
 
+#include "../../Texture/RenderBuffer.h"
+
 // ------------------------------------------------------------------------ //
 
 struct GridPiece
@@ -54,11 +56,9 @@ private:
 	ShaderHandler&         mShaderHandler;
 
 	// Texture for the occlusion text
-	ID3D11Texture2D*          mOcclusionTexture;            // The actual texture
-	ID3D11RenderTargetView*   mRenderTargetViewOcclusion;   // Used to bind the texture to be rendered to 
-	ID3D11ShaderResourceView* mShaderResourceViewOcclusion; // Used to pass the texture into shaders
+	RenderBuffer* mOcclusionRenderBuffer;
 
-	ID3D11DepthStencilView*   mDepthStencilViewOcclusion;
+	DepthStencilBuffer* mDepthStencilBufferOcclusion;
 };
 
 // ------------------------------------------------------------------------ //
