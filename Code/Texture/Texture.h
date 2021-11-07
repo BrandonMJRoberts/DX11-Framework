@@ -55,7 +55,7 @@ class SamplerState final
 {
 public:
 	SamplerState() = delete;
-	SamplerState(ShaderHandler              shaderHandler,
+	SamplerState(ShaderHandler&             shaderHandler,
 		         D3D11_FILTER               filter, 
 		         D3D11_TEXTURE_ADDRESS_MODE wrapU, 
 		         D3D11_TEXTURE_ADDRESS_MODE wrapV, 

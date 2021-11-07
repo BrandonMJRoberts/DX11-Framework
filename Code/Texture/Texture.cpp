@@ -94,7 +94,7 @@ void Texture3D::LoadTextureInFromFile(std::string& filePath)
 
 // --------------------------------------------------------------------- //
 
-SamplerState::SamplerState(ShaderHandler              shaderHandler,
+SamplerState::SamplerState(ShaderHandler&             shaderHandler,
 	                       D3D11_FILTER               filter, 
 		                   D3D11_TEXTURE_ADDRESS_MODE wrapU, 
 						   D3D11_TEXTURE_ADDRESS_MODE wrapV, 
