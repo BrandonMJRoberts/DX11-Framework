@@ -10,6 +10,8 @@
 
 #include "../Post Processing/PostProcessing.h"
 
+#include "../Models/Car.h"
+
 class Model;
 
 class GameScreen_Editor final : public GameScreen
@@ -32,7 +34,7 @@ private:
 	TestCube* testCube;
 	TestCube* testCube2;
 
-	Model* carTest;
+	Car* testCar;
 };
 
 #endif

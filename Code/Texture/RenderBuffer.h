@@ -25,7 +25,7 @@ private:
 	ID3D11RenderTargetView* mRenderTargetView;
 
 	// Shader Resource view - used to pass the texture into shaders
-	ID3D11ShaderResourceView* mShaderResourceView;
+	//ID3D11ShaderResourceView* mShaderResourceView;
 
 	ShaderHandler& mShaderHandler;
 };
@@ -50,6 +50,8 @@ public:
 
 	ID3D11DepthStencilView* GetDepthStencilView() { return mDepthStencilView; }
 
+	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews);
+
 private:
 	Texture2D* mTexture2D;
 
@@ -57,7 +59,7 @@ private:
 	ID3D11DepthStencilView* mDepthStencilView;
 
 	// So it can be bound to shaders as a texture
-	ID3D11ShaderResourceView* mShaderResourceView;
+	//ID3D11ShaderResourceView* mShaderResourceView;
 
 	bool mIsShaderResource;
 };

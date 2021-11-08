@@ -398,6 +398,7 @@
     <ClCompile Include="Code\GameScreens\ScreenManager.cpp" />
     <ClCompile Include="Code\Input\InputHandler.cpp" />
     <ClCompile Include="Code\Maths\CommonMaths.cpp" />
+    <ClCompile Include="Code\Models\Car.cpp" />
     <ClCompile Include="Code\Models\Model.cpp" />
     <ClCompile Include="Code\Post Processing\Clouds.cpp" />
     <ClCompile Include="Code\Post Processing\PostProcessing.cpp" />
@@ -424,6 +425,7 @@
     <ClInclude Include="Code\Maths\CommonMaths.h" />
     <ClInclude Include="Code\Maths\Commons.h" />
     <ClInclude Include="Code\Maths\Constants.h" />
+    <ClInclude Include="Code\Models\Car.h" />
     <ClInclude Include="Code\Models\Model.h" />
     <ClInclude Include="Code\Post Processing\Clouds.h" />
     <ClInclude Include="Code\Post Processing\PostProcessing.h" />
@@ -448,6 +450,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="DX11 Framework.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="ModelGeometryRender.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="ModelLightingRender.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>

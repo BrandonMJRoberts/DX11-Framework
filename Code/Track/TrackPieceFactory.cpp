@@ -50,8 +50,8 @@ void TrackPieceFactory::Init(ShaderHandler* shaderHander)
 	// Load in the models for the track pieces
 	for (unsigned int i = 0; i < (unsigned int)TrackPieceType::MAX; i++)
 	{
-		if (kFilePathsToModels.size() > i)
-			mModels.push_back(new Model(*mShaderHandler, kFilePathsToModels[i]));
+		//if (kFilePathsToModels.size() > i)
+		//	mModels.push_back(new Model(*mShaderHandler, kFilePathsToModels[i]));
 	}
 
 	// Load in the collision data for the track pieces

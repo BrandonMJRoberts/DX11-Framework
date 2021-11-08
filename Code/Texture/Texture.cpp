@@ -6,8 +6,11 @@
 
 // --------------------------------------------------------------------- //
 
-Texture2D::Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat)
-	: mInternalTexture(nullptr)
+Texture2D::Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat, DXGI_FORMAT shaderResourceViewFormat)
+	: mInternalTexture(nullptr),
+	  mShaderResource(false),
+	  mShaderResourceView(nullptr),
+	  mShaderHandler(shaderHandler)
 {
 		D3D11_TEXTURE2D_DESC desc;
 	desc.Width              = width;
@@ -25,6 +28,23 @@ Texture2D::Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 	// Create the texture
 	if (!shaderHandler.CreateTexture2D(&desc, nullptr, &mInternalTexture))
 		return;
+
+	// Store if the texture can be used as a shader resource
+	mShaderResource  = bindFlags & D3D11_BIND_SHADER_RESOURCE;
+
+	// If we need to create a shader resource view for this texture then do so
+	if (mShaderResource)
+	{
+		// Now create the shader resource view
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		shaderResourceViewDesc.Format                    = shaderResourceViewFormat;
+		shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+		shaderResourceViewDesc.Texture2D.MipLevels       = 1;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+
+		if (!mShaderHandler.CreateShaderResourceView(mInternalTexture, &shaderResourceViewDesc, &mShaderResourceView))
+			return;
+	}
 }
 
 // --------------------------------------------------------------------- //
@@ -36,6 +56,12 @@ Texture2D::~Texture2D()
 		mInternalTexture->Release();
 		mInternalTexture = nullptr;
 	}
+
+	if (mShaderResourceView)
+	{
+		mShaderResourceView->Release();
+		mShaderResourceView = nullptr;
+	}
 }
 
 // --------------------------------------------------------------------- //
@@ -46,13 +72,29 @@ void Texture2D::LoadTextureInFromFile(std::string& filePath)
 }
 
 // --------------------------------------------------------------------- //
+
+void Texture2D::BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews)
+{
+	// If have the functionality to bind to the shaders
+	if (mShaderResource && mShaderResourceView)
+	{
+		mShaderHandler.BindTextureToShaders(startSlot, numberOfViews, &mShaderResourceView);
+	}
+}
+
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
 // TEXTURE 3D
 // --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
 
 Texture3D::Texture3D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int depth, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat)
-	: mInternalTexture(nullptr)
+	: mInternalTexture(nullptr),
+	  mShaderResource(false),
+	  mShaderResourceView(nullptr),
+	  mShaderHandler(shaderHandler)
 {
 	D3D11_TEXTURE3D_DESC desc;
 	desc.Width			= width;
@@ -68,6 +110,23 @@ Texture3D::Texture3D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 	// Create the texture
 	if (!shaderHandler.CreateTexture3D(&desc, nullptr, &mInternalTexture))
 		return;
+
+	// Store if the texture can be used as a shader resource
+	mShaderResource  = bindFlags & D3D11_BIND_SHADER_RESOURCE;
+
+	// If we need to create a shader resource view for this texture then do so
+	if (mShaderResource)
+	{
+		// Now create the shader resource view
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		shaderResourceViewDesc.Format                    = internalFormat;
+		shaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE3D;
+		shaderResourceViewDesc.Texture2D.MipLevels       = 1;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+
+		if (!mShaderHandler.CreateShaderResourceView(mInternalTexture, &shaderResourceViewDesc, &mShaderResourceView))
+			return;
+	}
 }
 
 // --------------------------------------------------------------------- //
@@ -78,6 +137,12 @@ Texture3D::~Texture3D()
 	{
 		mInternalTexture->Release();
 		mInternalTexture = nullptr;
+	}
+
+	if (mShaderResourceView)
+	{
+		mShaderResourceView->Release();
+		mShaderResourceView = nullptr;
 	}
 }
 

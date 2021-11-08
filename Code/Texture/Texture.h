@@ -21,15 +21,22 @@ class Texture2D final
 {
 public:
 	Texture2D() = delete;
-	Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat);
+	Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat, DXGI_FORMAT shaderResourceViewFormat);
 	~Texture2D();
 
 	void LoadTextureInFromFile(std::string& filePath);
 
+	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews);
+
 	ID3D11Texture2D* GetInternalTexture() { return mInternalTexture; }
 
 private:
-	ID3D11Texture2D* mInternalTexture;
+	ID3D11Texture2D*          mInternalTexture;
+
+	ShaderHandler&            mShaderHandler;
+
+	ID3D11ShaderResourceView* mShaderResourceView;
+	bool                      mShaderResource;
 };
 
 // ---------------------------------------------------------------- //
@@ -46,7 +53,12 @@ public:
 	ID3D11Texture3D* GetInternalTexture() { return mInternalTexture; }
 
 private:
-	ID3D11Texture3D* mInternalTexture;
+	ID3D11Texture3D*         mInternalTexture;
+
+	ShaderHandler&            mShaderHandler;
+
+	ID3D11ShaderResourceView* mShaderResourceView;
+	bool                      mShaderResource;
 };
 
 // ---------------------------------------------------------------- //

@@ -7,6 +7,7 @@
 #include <directxmath.h>
 
 #include "../Maths/CommonMaths.h"
+#include "../Texture/Texture.h"
 
 // -------------------------------------------------------------- //
 
@@ -44,12 +45,15 @@ class ShaderHandler;
 class Model final
 {
 public:
-	Model(ShaderHandler&      shaderHandler, 
-	      std::string         filePathToLoadFrom = "", 
-	      ID3D11VertexShader* geometryRenderVertexShader = nullptr, 
-	      ID3D11PixelShader*  geometryRenderPixelShader = nullptr,
-	      ID3D11VertexShader* fullRenderVertexShader = nullptr,
-	      ID3D11PixelShader*  fullRenderPixelShader = nullptr);
+	Model(ShaderHandler&         shaderHandler, 
+	         std::string         filePathToLoadFrom, 
+	         ID3D11VertexShader* geometryRenderVertexShader, 
+	         ID3D11PixelShader*  geometryRenderPixelShader, 
+	         ID3DBlob*           geometryBlob,
+
+	         ID3D11VertexShader* fullRenderVertexShader, 
+	         ID3D11PixelShader*  fullRenderPixelShader,
+	         ID3DBlob*           fullRenderBlob);
 	~Model();
 
 	bool LoadInModelFromFile(std::string filePath);
@@ -73,6 +77,10 @@ private:
 
 	void     ExtractFaceIndexDataFromFile(std::string& line, Vector3D indexDataFromFile[3]);
 
+	void     SetupInputLayouts(ID3DBlob* geometryBlob, ID3DBlob* fullRenderBlob);
+
+	void     LoadInMaterialData(std::string filePath);
+
 	// Internal model data - stored as faces, each holding three verticies each
 	FaceData* mFaceData;
 
@@ -83,6 +91,16 @@ private:
 	// These are useful for things like depth buffer passes and occlusion checks
 	ID3D11VertexShader* mGeometryRenderVertexShader;
 	ID3D11PixelShader*  mGeometryRenderPixelShader;
+
+	ID3D11Buffer*       mVertexBuffer;
+
+	ID3D11InputLayout*  mGeometryInputLayout;
+	ID3D11InputLayout*  mFullRenderInputLayout;
+
+	Texture2D*          mTexture;
+	SamplerState*       mSamplerState;
+
+	unsigned int        mVertexCount;
 };
 
 // -------------------------------------------------------------- //

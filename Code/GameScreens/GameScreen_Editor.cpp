@@ -12,13 +12,13 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, mGrid(shaderHandler)
 	, mPostProcessing(nullptr)
 {
-	testCube = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
+	testCube  = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
 	testCube2 = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 3.0f));
 
-	carTest = new Model(shaderHandler, "Models/Car/Car.obj");
+	testCar   = new Car(shaderHandler);
 
-	mCamera = new ThirdPersonCamera(&inputHandler,
+	mCamera   = new ThirdPersonCamera(&inputHandler,
 									Vector3D(3.0f, 0.0f, 0.0f),
 									10.0f,
 									Vector3D(1.0f, 0.0f, 0.0f),
@@ -50,8 +50,8 @@ GameScreen_Editor::~GameScreen_Editor()
 	delete mPostProcessing;
 	mPostProcessing = nullptr;
 
-	delete carTest;
-	carTest = nullptr;
+	delete testCar;
+	testCar = nullptr;
 }
 
 // --------------------------------------------------------- //
@@ -75,6 +75,9 @@ void GameScreen_Editor::Render()
 
 	if (testCube2)
 		testCube2->Render(mCamera);
+
+	if (testCar)
+		testCar->RenderFull(mCamera);
 
 	// Now render the grid for the track
 	//mGrid.Render(mCamera);
@@ -105,6 +108,9 @@ void GameScreen_Editor::Update(const float deltaTime)
 	{
 		testCube2->Update(deltaTime);
 	}
+
+	if (testCar)
+		testCar->Update(deltaTime);
 
 	mGrid.Update(deltaTime);
 }

@@ -10,14 +10,23 @@ Model::Model(ShaderHandler&      shaderHandler,
 	         std::string         filePathToLoadFrom, 
 	         ID3D11VertexShader* geometryRenderVertexShader, 
 	         ID3D11PixelShader*  geometryRenderPixelShader, 
+	         ID3DBlob*           geometryBlob,
+
 	         ID3D11VertexShader* fullRenderVertexShader, 
-	         ID3D11PixelShader*  fullRenderPixelShader)
+	         ID3D11PixelShader*  fullRenderPixelShader,
+	         ID3DBlob*           fullRenderBlob)
 	:   mShaderHandler(shaderHandler)
 	  , mFaceData(nullptr)
 	  , mFullRenderVertexShader(geometryRenderVertexShader)
 	  , mFullRenderPixelShader(geometryRenderPixelShader)
 	  , mGeometryRenderVertexShader(fullRenderVertexShader)
 	  , mGeometryRenderPixelShader(fullRenderPixelShader)
+	  , mFullRenderInputLayout(nullptr)
+	  , mGeometryInputLayout(nullptr)
+	  , mVertexBuffer(nullptr)
+	  , mVertexCount(0)
+	  , mTexture(nullptr)
+	  , mSamplerState(nullptr)
 {
 	// First clear all data stored
 	RemoveAllPriorDataStored();
@@ -25,6 +34,11 @@ Model::Model(ShaderHandler&      shaderHandler,
 	// Now load in the data from the file
 	if (filePathToLoadFrom != "")
 		LoadInModelFromFile(filePathToLoadFrom);
+
+	// Now create the input layouts
+	SetupInputLayouts(geometryBlob, fullRenderBlob);
+
+	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);
 }
 
 // --------------------------------------------------------- //
@@ -55,6 +69,12 @@ Model::~Model()
 		mGeometryRenderPixelShader = nullptr;
 	}
 
+	if (mVertexBuffer)
+	{
+		mVertexBuffer->Release();
+		mVertexBuffer = nullptr;
+	}
+
 	RemoveAllPriorDataStored();
 }
 
@@ -72,7 +92,7 @@ bool Model::LoadInModelFromFile(std::string filePath)
 	// Now the file is open now we can load in the data for the model
 
 	// First find how many verticies, normals and textur coords are stored in the file so we can allocate the correct amount of tempoary memory
-	unsigned int vertexCount = 0, normalCount = 0, textureCoordCount = 0, faceCount = 0;
+	unsigned int normalCount = 0, textureCoordCount = 0, faceCount = 0;
 	Vector3D* vertexPositions;
 	Vector3D* vertexNormals;
 	Vector2D* textureCoordPositions;
@@ -93,7 +113,7 @@ bool Model::LoadInModelFromFile(std::string filePath)
 
 		if (line[0] == 'v' && line[1] == ' ')
 		{
-			vertexCount++;
+			mVertexCount++;
 			continue;
 		}
 
@@ -111,12 +131,12 @@ bool Model::LoadInModelFromFile(std::string filePath)
 	}
 
 	// Now we know the counts we can allocate the correct amount of data
-	vertexPositions       = new Vector3D[vertexCount];
+	vertexPositions       = new Vector3D[mVertexCount];
 	vertexNormals         = new Vector3D[normalCount];
 	textureCoordPositions = new Vector2D[textureCoordCount];
 	mFaceData             = new FaceData[faceCount];
 
-	vertexCount       = 0;
+	mVertexCount = 0;
 	normalCount       = 0;
 	textureCoordCount = 0;
 	faceCount         = 0;
@@ -142,7 +162,7 @@ bool Model::LoadInModelFromFile(std::string filePath)
 		if (line[0] == 'v' && line[1] == ' ')
 		{
 			subData = line.substr(2);
-			vertexPositions[vertexCount++] = ExtractThreeDataPointsFromLine(subData);
+			vertexPositions[mVertexCount++] = ExtractThreeDataPointsFromLine(subData);
 			continue;
 		}
 
@@ -167,6 +187,23 @@ bool Model::LoadInModelFromFile(std::string filePath)
 
 	// Close the file
 	file.close();
+
+	// Now for the vertex buffer
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mFaceData, sizeof(FaceData) * faceCount, &mVertexBuffer))
+		return false;
+
+	UINT stride = sizeof(FaceData);
+	UINT offset = 0;
+
+	if (!mShaderHandler.BindVertexBuffersToRegisters(0, 1, &mVertexBuffer, &stride, &offset))
+		return false;
+
+	// ----------------------------------------------------------------------------------------------------------- //
+
+	// Now load in the material data and the textures required
+	//LoadInMaterialData();
+
+	// ----------------------------------------------------------------------------------------------------------- //
 
 	return true;
 }
@@ -196,6 +233,35 @@ void Model::FullRender()
 {
 	if (!mFullRenderVertexShader || !mFullRenderPixelShader)
 		return;
+
+	// First set the input layout
+	mShaderHandler.SetInputLayout(mFullRenderInputLayout);
+
+	// Bind the shaders
+	mShaderHandler.SetVertexShader(mFullRenderVertexShader);
+	mShaderHandler.SetPixelShader(mFullRenderPixelShader);
+
+	// Bind the texture
+	if (mTexture)
+		mTexture->BindTextureToShaders(0, 1);
+
+	// Set the sampler state
+	if (mSamplerState)
+		mSamplerState->BindSamplerState(0, 1);
+
+	// Make sure to bind the data we are going to be using
+	UINT stride = sizeof(FaceData);
+	UINT offset = 0;
+
+	// Bind the vertex buffer to the correct registers
+	mShaderHandler.BindVertexBuffersToRegisters(0, 1, &mVertexBuffer, &stride, &offset);
+
+	// Render
+	mShaderHandler.Draw(mVertexCount, 0);
+
+	// Unbind
+	mShaderHandler.SetVertexShader(nullptr);
+	mShaderHandler.SetPixelShader(nullptr);
 }
 
 // --------------------------------------------------------- //
@@ -401,6 +467,38 @@ void Model::SetShadersForGeometryRender(ID3D11VertexShader* vertexShader, ID3D11
 
 		mGeometryRenderPixelShader = pixelShader;
 	}
+}
+
+// --------------------------------------------------------- //
+
+void Model::SetupInputLayouts(ID3DBlob* geometryBlob, ID3DBlob* fullRenderBlob)
+{
+	// Just the position
+	D3D11_INPUT_ELEMENT_DESC geometryLayout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	if (!mShaderHandler.SetDeviceInputLayout(geometryBlob, geometryLayout, 1, &mGeometryInputLayout))
+		return;
+
+	// Position, normal and texture coord
+	D3D11_INPUT_ELEMENT_DESC fullRenderLayout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	if (!mShaderHandler.SetDeviceInputLayout(fullRenderBlob, fullRenderLayout, 3, &mFullRenderInputLayout))
+		return;
+}
+
+// --------------------------------------------------------- //
+
+void Model::LoadInMaterialData(std::string filePath)
+{
+	 
 }
 
 // --------------------------------------------------------- //

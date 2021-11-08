@@ -303,6 +303,18 @@ bool ShaderHandler::SetPixelShaderConstantBufferData(unsigned int startSlot, uns
 
 // ------------------------------------------------------------------------------------------ //
 
+bool ShaderHandler::Draw(unsigned int vertexCount, unsigned int startLocation)
+{
+    if (!mDeviceContext)
+        return false;
+
+    mDeviceContext->Draw(vertexCount, startLocation);
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
 bool ShaderHandler::DrawIndexed(unsigned int numberOfIndicies, unsigned int startIndexLocation, int baseVertexLocation)
 {
     if (!mDeviceContext)

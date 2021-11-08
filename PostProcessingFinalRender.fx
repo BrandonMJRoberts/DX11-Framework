@@ -22,7 +22,7 @@ VS_OUTPUT VS( float4 Pos : POSITION, float2 TextureCoord : TEXCOORD)
 }
 
 
-Texture2D     finalScreenRenderImage      : register(t0); // The texture being passed into the shader
+Texture2D    finalScreenRenderImage       : register(t0); // The texture being passed into the shader
 SamplerState sampler1                     : register(s0);// Set the sampler state
 
 //--------------------------------------------------------------------------------------

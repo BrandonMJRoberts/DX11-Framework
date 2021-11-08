@@ -171,6 +171,9 @@
     <ClCompile Include="Code\Texture\Texture.cpp">
       <Filter>Source\Texture</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Models\Car.cpp">
+      <Filter>Source\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -245,6 +248,9 @@
     <ClInclude Include="Code\Texture\Texture.h">
       <Filter>Headers\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Models\Car.h">
+      <Filter>Headers\Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11 Framework.rc">
@@ -262,6 +268,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="CloudsInitialPass.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ModelLightingRender.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ModelGeometryRender.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
