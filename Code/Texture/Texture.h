@@ -4,33 +4,37 @@
 #include <d3d11_1.h>
 #include <d3d9types.h>
 
+#include <wincodec.h> // Texture loader built into directX
+
 #include <string>
 
 #include "../Shaders/ShaderHandler.h"
 
 // ---------------------------------------------------------------- //
 
-enum class TextureStates
-{
-
-};
-
-// ---------------------------------------------------------------- //
+// Needed conversion functions
+static DXGI_FORMAT        GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
+static int                GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
+static WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
 
 class Texture2D final
 {
 public:
 	Texture2D() = delete;
+	Texture2D(ShaderHandler& shaderHandler);
 	Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int mipLevels, unsigned int arraySize, D3D11_USAGE usage, unsigned int bindFlags, DXGI_FORMAT internalFormat, DXGI_FORMAT shaderResourceViewFormat);
 	~Texture2D();
 
-	void LoadTextureInFromFile(std::string& filePath);
+	void LoadTextureInFromFile(LPCWSTR filePath);
 
 	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews);
 
 	ID3D11Texture2D* GetInternalTexture() { return mInternalTexture; }
 
 private:
+	// Windows Imaging Context
+	static IWICImagingFactory* mImagingFactory;
+
 	ID3D11Texture2D*          mInternalTexture;
 
 	ShaderHandler&            mShaderHandler;

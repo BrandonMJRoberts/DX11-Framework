@@ -50,6 +50,8 @@ private:
 
 	// The access to DirectX functionality
 	ShaderHandler&      mShaderHandler;
+
+	Texture2D* testImage;
 };
 
 #endif
