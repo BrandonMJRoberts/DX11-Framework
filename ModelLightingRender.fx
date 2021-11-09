@@ -9,30 +9,40 @@ cbuffer ConstantBuffer : register( b0 )
 }
 
 //--------------------------------------------------------------------------------------
+
+struct VS_IN
+{
+    float3 Pos          : POSITION;
+    float3 Normal       : NORMAL;
+    float2 TextureCoord : TEXCOORD;
+};
+
 struct VS_OUTPUT
 {
     float4 Pos          : SV_POSITION;
-    float4 Normal       : NORMAL;
-    float2 TextureCoord : TEXCOORD0;
+    float3 Normal       : NORMAL;
+    float2 TextureCoord : TEXCOORD;
 };
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VS( float4 Pos : POSITION, float4 Normal : NORMAL, float2 TextureCoord : TEXCOORD)
+VS_OUTPUT VS(VS_IN inData)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     
     // Calculate the final screen position of the vertex
-    output.Pos       = mul( Pos, World );
+    output.Pos       = float4(inData.Pos, 1.0f),
+    
+    output.Pos       = mul(output.Pos,  World);
     output.Pos       = mul( output.Pos, View );
     output.Pos       = mul( output.Pos, Projection );
     
     // Pass the texture coord through
-    output.TextureCoord = TextureCoord;
+    output.TextureCoord = inData.TextureCoord;
     
     // Pass the normal through for lighting calculations
-    output.Normal = Normal;
+    output.Normal = inData.Normal;
 
     return output;
 }

@@ -24,9 +24,6 @@ PostProcessing::PostProcessing(ShaderHandler& shaderHandler)
 
 	// Create the clouds
 	mClouds = new VolumetricClouds();
-
-	testImage = new Texture2D(mShaderHandler);
-	testImage->LoadTextureInFromFile(L"Models/Car/ColourPallet.png");
 }
 
 // ------------------------------------------------------------------ 
@@ -86,11 +83,8 @@ void PostProcessing::RenderFinal()
 	mShaderHandler.SetVertexShader(mVertexShader);
 	mShaderHandler.SetPixelShader(mPixelShader);
 
-	//if(mPostProcessingRenderBuffer)
-	//	mPostProcessingRenderBuffer->BindTextureToShaders(0, 1);
-
-	if (testImage)
-		testImage->BindTextureToShaders(0, 1);
+	if(mPostProcessingRenderBuffer)
+		mPostProcessingRenderBuffer->BindTextureToShaders(0, 1);
 
 	if(mSamplerState)
 		mSamplerState->BindSamplerState(0, 1);
@@ -104,6 +98,9 @@ void PostProcessing::RenderFinal()
 
 	// Now draw the final screen
 	mShaderHandler.DrawIndexed(6, 0, 0);
+
+	// Unbind the texture
+	mShaderHandler.UnbindTextureFromShaderIndex(0, 1);
 
 	// Unbind the shaders
 	mShaderHandler.SetVertexShader(NULL);
@@ -124,7 +121,7 @@ void PostProcessing::RenderVolumetricClouds()
 void PostProcessing::Render()
 {
 	// Render the post processing stuff - starting with clouds
-	RenderVolumetricClouds();
+	//RenderVolumetricClouds();
 
 
 

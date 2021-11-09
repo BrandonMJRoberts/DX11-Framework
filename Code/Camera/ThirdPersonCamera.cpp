@@ -266,7 +266,7 @@ void ThirdPersonCamera::CapToXRotationBounds(float& angleToRotateBy)
 	}
 	else if (mXRotationAngle + angleToRotateBy < -PIDIV2)
 	{
-		angleToRotateBy = -(fabs(PIDIV2 - fabs(mXRotationAngle)));
+		angleToRotateBy = -(fabsf(PIDIV2 - fabsf(mXRotationAngle)));
 		mXRotationAngle = -PIDIV2;
 	}
 	else
@@ -286,7 +286,7 @@ void ThirdPersonCamera::CapToYRotationBounds(float& angleToRotateBy)
 	}
 	else if (mYRotationAngle + angleToRotateBy < -PIDIV4)
 	{
-		angleToRotateBy = -(fabs(PIDIV4 - fabs(mYRotationAngle)));
+		angleToRotateBy = -(fabsf(PIDIV4 - fabsf(mYRotationAngle)));
 		mYRotationAngle = -PIDIV4;
 	}
 	else

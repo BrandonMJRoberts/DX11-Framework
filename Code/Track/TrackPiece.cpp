@@ -25,14 +25,14 @@ TrackPiece::~TrackPiece()
 
 void TrackPiece::RenderGeometry()
 {
-	mModel.RenderGeometry();
+	//mModel.RenderGeometry();
 }
 
 // -------------------------------------------------------------------- //
 
 void TrackPiece::RenderFull()
 {
-	mModel.FullRender();
+	//mModel.FullRender();
 }
 
 // -------------------------------------------------------------------- //

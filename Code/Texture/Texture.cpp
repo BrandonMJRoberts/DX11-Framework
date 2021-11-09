@@ -430,7 +430,7 @@ SamplerState::SamplerState(ShaderHandler&             shaderHandler,
 	samplerDesc.AddressV       = wrapV;
 	samplerDesc.AddressW       = wrapW;
 	samplerDesc.MipLODBias     = mipLODBias;
-	samplerDesc.MinLOD         = minLOD;
+	samplerDesc.MinLOD         = (FLOAT)minLOD;
 	samplerDesc.MaxAnisotropy  = maxAnisotropy;
 	samplerDesc.BorderColor[0] = borderColour0;
 	samplerDesc.BorderColor[1] = borderColour1;

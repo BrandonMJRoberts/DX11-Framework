@@ -33,6 +33,8 @@ private:
 
 	ShaderHandler& mShaderHandler;
 
+	DirectX::XMFLOAT4X4 mModelMat;
+
 };
 
 #endif

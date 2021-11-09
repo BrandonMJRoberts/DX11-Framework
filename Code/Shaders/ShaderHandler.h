@@ -59,6 +59,7 @@ public:
 
 	bool UpdateSubresource(ID3D11Resource* destResource, unsigned int destSubResource, const D3D11_BOX* destBox, const void* sourceData, unsigned int sourceRowPitch, unsigned int sourceDepthPitch);
 
+	void UnbindTextureFromShaderIndex(unsigned int startSlot, unsigned int numberOfViews);
 	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews, ID3D11ShaderResourceView** shaderResourceViews);
 
 	// -----------------------------------------

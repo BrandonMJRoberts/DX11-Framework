@@ -628,3 +628,15 @@ void ShaderHandler::SetViewport(float width, float height, float minDepth, float
 }
 
 // ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::UnbindTextureFromShaderIndex(unsigned int startSlot, unsigned int numberOfViews)
+{
+    if (!mDeviceContext)
+        return;
+
+    ID3D11ShaderResourceView* shaderViewEmpty = nullptr;
+
+    mDeviceContext->PSSetShaderResources(startSlot, numberOfViews, &shaderViewEmpty);
+}
+
+// ------------------------------------------------------------------------------------------ //

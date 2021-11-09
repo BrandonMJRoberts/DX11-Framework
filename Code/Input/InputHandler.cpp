@@ -59,7 +59,7 @@ void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
 		}
 		else if (rawInput->header.dwType == RIM_TYPEMOUSE) 
 		{
-			mMouseDelta = Vector2D(rawInput->data.mouse.lLastX, rawInput->data.mouse.lLastY);
+			mMouseDelta = Vector2D((float)rawInput->data.mouse.lLastX, (float)rawInput->data.mouse.lLastY);
 
 			mMouseX += rawInput->data.mouse.lLastX;
 			mMouseY += rawInput->data.mouse.lLastY;

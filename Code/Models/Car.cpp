@@ -9,6 +9,7 @@ Car::Car(ShaderHandler& shaderHandler)
 	, mGeometryVertexShader(nullptr)
 	, mGeometryPixelShader(nullptr)
 	, mShaderHandler(shaderHandler)
+	, mModelMat(MatrixMaths::Identity4X4)
 {
 	// Load in the shaders and then construct the model
 	VertexShaderReturnData returnDataFullRender = mShaderHandler.CompileVertexShader(L"ModelLightingRender.fx", "VS");
@@ -22,7 +23,7 @@ Car::Car(ShaderHandler& shaderHandler)
 						   mGeometryPixelShader     = mShaderHandler.CompilePixelShader(L"ModelGeometryRender.fx", "PS");
 
     // Now load in the model
-	mCarModel = new Model(mShaderHandler, "", mGeometryVertexShader, mGeometryPixelShader, returnDataGeometryRender.Blob, mFullRenderVertexShader, mFullRenderPixelShader, returnDataFullRender.Blob);
+	mCarModel = new Model(mShaderHandler, "Models/Car/Car.obj", mGeometryVertexShader, mGeometryPixelShader, returnDataGeometryRender.Blob, mFullRenderVertexShader, mFullRenderPixelShader, returnDataFullRender.Blob);
 }
 
 // ------------------------------------------------------------------ //
@@ -63,7 +64,7 @@ void Car::RenderFull(BaseCamera* camera)
 {
 	if (mCarModel)
 	{
-		mCarModel->FullRender();
+		mCarModel->FullRender(camera, mModelMat);
 	}
 }
 
@@ -73,7 +74,7 @@ void Car::RenderGeometry(BaseCamera* camera)
 {
 	if (mCarModel)
 	{
-		mCarModel->RenderGeometry();
+		mCarModel->RenderGeometry(camera, mModelMat);
 	}
 }
 

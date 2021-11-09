@@ -2,12 +2,15 @@
 #define _MODEL_H_
 
 #include <string>
+#include <vector>
 
 #include <d3d11_1.h>
 #include <directxmath.h>
 
 #include "../Maths/CommonMaths.h"
 #include "../Texture/Texture.h"
+
+#include "../Camera/BaseCamera.h"
 
 // -------------------------------------------------------------- //
 
@@ -23,6 +26,32 @@ struct VertexData final
 	DirectX::XMFLOAT3 vertexPosition;
 	DirectX::XMFLOAT3 normal;
 	DirectX::XMFLOAT2 textureCoord;
+};
+
+struct MaterialData final
+{
+	MaterialData()
+		: specularPower(1)
+		, ambient(1.0f, 1.0f, 1.0f)
+		, specular(1.0f, 1.0f, 1.0f)
+		, diffuse(1.0f, 1.0f, 1.0f)
+		, texture(nullptr)
+	{
+
+	}
+
+	~MaterialData() 
+	{
+//		delete texture;
+		texture = nullptr;
+	}
+
+	float      specularPower;
+	Vector3D   ambient;
+	Vector3D   diffuse;
+	Vector3D   specular;
+
+	Texture2D* texture;
 };
 
 struct FaceData final
@@ -60,8 +89,8 @@ public:
 	void RemoveAllPriorDataStored();
 
 	// Render functionality
-	void RenderGeometry();
-	void FullRender();
+	void RenderGeometry(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat);
+	void FullRender(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat);
 
 	void SetShadersForFullRender(ID3D11VertexShader* vertexShader, ID3D11PixelShader* pixelShader);
 	void SetShadersForGeometryRender(ID3D11VertexShader* vertexShader, ID3D11PixelShader* pixelShader);
@@ -93,14 +122,17 @@ private:
 	ID3D11PixelShader*  mGeometryRenderPixelShader;
 
 	ID3D11Buffer*       mVertexBuffer;
+	unsigned int        mVertexBufferStride;
+	unsigned int        mVertexBufferOffset;
+	unsigned int        mVertexCount;
+
+	ID3D11Buffer*       mConstantBuffer;
 
 	ID3D11InputLayout*  mGeometryInputLayout;
 	ID3D11InputLayout*  mFullRenderInputLayout;
 
-	Texture2D*          mTexture;
-	SamplerState*       mSamplerState;
-
-	unsigned int        mVertexCount;
+	std::vector<MaterialData*> mMaterialData;
+	SamplerState*              mSamplerState;
 };
 
 // -------------------------------------------------------------- //
