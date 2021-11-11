@@ -17,7 +17,7 @@ Model::Model(ShaderHandler&      shaderHandler,
 	         ID3D11PixelShader*  fullRenderPixelShader,
 	         ID3DBlob*           fullRenderBlob)
 	:   mShaderHandler(shaderHandler)
-	  , mFaceData(nullptr)
+	  , mVertexData(nullptr)
 	  , mFullRenderVertexShader(fullRenderVertexShader)
 	  , mFullRenderPixelShader(fullRenderPixelShader)
 	  , mGeometryRenderVertexShader(geometryRenderVertexShader)
@@ -113,7 +113,7 @@ bool Model::LoadInModelFromFile(std::string filePath)
 	// Now the file is open now we can load in the data for the model
 
 	// First find how many verticies, normals and textur coords are stored in the file so we can allocate the correct amount of tempoary memory
-	unsigned int normalCount = 0, textureCoordCount = 0, faceCount = 0, vertexCount = 0;
+	unsigned int normalCount = 0, textureCoordCount = 0, faceCount = 0, uniqueVertexCount = 0;
 	Vector3D* vertexPositions;
 	Vector3D* vertexNormals;
 	Vector2D* textureCoordPositions;
@@ -121,7 +121,7 @@ bool Model::LoadInModelFromFile(std::string filePath)
 	std::string line;
 	std::string materialLibraryName;
 
-	// Loop through the entire file to get the correct counts
+	// Loop through the entire file to get the correct counts of each element
 	while (std::getline(file, line))
 	{
 		if (line == "")
@@ -141,24 +141,28 @@ bool Model::LoadInModelFromFile(std::string filePath)
 			}
 		}
 
+		// Face count
 		if (line[0] == 'f')
 		{
 			faceCount++;
 			continue;
 		}
 
+		// Vertex position count
 		if (line[0] == 'v' && line[1] == ' ')
 		{
-			vertexCount++;
+			uniqueVertexCount++;
 			continue;
 		}
 
+		// Texture coord count
 		if (line[0] == 'v' && line[1] == 't')
 		{
 			textureCoordCount++;
 			continue;
 		}
 
+		// Normals count
 		if (line[0] == 'v' && line[1] == 'n')
 		{
 			normalCount++;
@@ -167,17 +171,17 @@ bool Model::LoadInModelFromFile(std::string filePath)
 	}
 
 	// Now we know the counts we can allocate the correct amount of data
-	vertexPositions       = new Vector3D[vertexCount];
+	vertexPositions       = new Vector3D[uniqueVertexCount];
 	vertexNormals         = new Vector3D[normalCount];
 	textureCoordPositions = new Vector2D[textureCoordCount];
-	mFaceData             = new FaceData[faceCount];
 
-	mVertexCount = 0;
-	normalCount       = 0;
-	textureCoordCount = 0;
-	faceCount         = 0;
+	// Allocate the correct amount of memory for the vertex data
+	mVertexCount = faceCount * 3;
+	mVertexData  = new VertexData[mVertexCount];
 
 	std::string subData;
+	unsigned int currentVertexBeingExtracted = 0, currentNormal = 0, currentTextureCoord = 0, currentVertexDataBeingStored = 0;
+
 
 	// As we want to re-go through the file we need to seek to the beginnning of the file again
 	file.clear();
@@ -191,44 +195,46 @@ bool Model::LoadInModelFromFile(std::string filePath)
 
 		if (line[0] == 'f')
 		{
-			mFaceData[faceCount++] = ConstructFaceFromData(line, vertexPositions, vertexNormals, textureCoordPositions);
+			// Extract the vertex data
+			ConstructFaceFromData(line, vertexPositions, vertexNormals, textureCoordPositions, &mVertexData[currentVertexDataBeingStored]);
+
+			// Move the point along 3
+			currentVertexDataBeingStored += 3;
 			continue;
 		}
 
 		if (line[0] == 'v' && line[1] == ' ')
 		{
 			subData = line.substr(2);
-			vertexPositions[mVertexCount++] = ExtractThreeDataPointsFromLine(subData);
+			vertexPositions[currentVertexBeingExtracted++] = ExtractThreeDataPointsFromLine(subData);
 			continue;
 		}
 
 		if (line[0] == 'v' && line[1] == 't')
 		{
 			subData = line.substr(3);
-			textureCoordPositions[textureCoordCount++] = ExtractTwoDataPointsFromLine(subData);
+			textureCoordPositions[currentNormal++] = ExtractTwoDataPointsFromLine(subData);
 			continue;
 		}
 
 		if (line[0] == 'v' && line[1] == 'n')
 		{
 			subData = line.substr(3);
-			vertexNormals[normalCount++] = ExtractThreeDataPointsFromLine(subData);
+			vertexNormals[currentTextureCoord++] = ExtractThreeDataPointsFromLine(subData);
 			continue;
 		}
 	}
 
-	delete[] vertexPositions;
-	delete[] vertexNormals;
-	delete[] textureCoordPositions;
-
-	// There are three verticies per face - the vertex count above is unique verticies, not renderable verticies
-	mVertexCount = faceCount * 3;
+	// Clear up the tempoary data
+	delete[] vertexPositions;       vertexPositions       = nullptr;
+	delete[] vertexNormals;         vertexNormals         = nullptr;
+	delete[] textureCoordPositions; textureCoordPositions = nullptr;
 
 	// Close the file
 	file.close();
 
 	// Now for the vertex buffer
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mFaceData, sizeof(VertexData) * mVertexCount, &mVertexBuffer))
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mVertexData, sizeof(VertexData) * mVertexCount, &mVertexBuffer))
 		return false;
 
 	mVertexBufferStride = sizeof(VertexData);
@@ -253,10 +259,10 @@ bool Model::LoadInModelFromFile(std::string filePath)
 
 void Model::RemoveAllPriorDataStored()
 {
-	if (mFaceData)
+	if (mVertexData)
 	{
-		delete mFaceData;
-		mFaceData = nullptr;
+		delete[] mVertexData;
+		mVertexData = nullptr;
 	}
 }
 
@@ -272,7 +278,7 @@ void Model::RenderGeometry(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMa
 
 void Model::FullRender(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
 {
-	if (!mFullRenderVertexShader || !mFullRenderPixelShader)
+	if (!mFullRenderVertexShader || !mFullRenderPixelShader || !mFullRenderInputLayout)
 		return;
 
 	// ------------------------------------------------------------------------------ 
@@ -412,43 +418,33 @@ Vector2D Model::ExtractTwoDataPointsFromLine(std::string& line)
 
 // --------------------------------------------------------- //
 
-FaceData Model::ConstructFaceFromData(std::string& line, Vector3D* vertexData, Vector3D* normalData, Vector2D* textureCoordData)
+void Model::ConstructFaceFromData(std::string& line, Vector3D* vertexData, Vector3D* normalData, Vector2D* textureCoordData, VertexData* vertexDataReturn)
 {
-	FaceData returnData;
-	Vector3D indexDataFromFile[3];
-	
-	// Extract the indicies from the file
+	// Extract the index data from the file
+	Vector3D    indexDataFromFile[3];
 	std::string subString = line.substr(2);
+
+	// The index order of a .obj file is vertexPos/texture Coord/Normal
 	ExtractFaceIndexDataFromFile(subString, indexDataFromFile);
 
+	Vector3D currentData;
+	Vector2D currentTextureCoordData;
+
+	// Now loop through the three verticies in the face and set the correct data
 	for (unsigned int i = 0; i < 3; i++)
 	{
-		// Set the correct data from the store
-
 		// Vertex position
-		DirectX::XMStoreFloat3(&returnData.verticies[i].vertexPosition,
-			                    DirectX::XMVectorSet(vertexData[(unsigned int)indexDataFromFile[i].x].x, 
-									                 vertexData[(unsigned int)indexDataFromFile[i].x].y, 
-									                 vertexData[(unsigned int)indexDataFromFile[i].x].z, 
-													 0.0f));
+		currentData                            = vertexData[(unsigned int)(indexDataFromFile[i].x - 1)];
+		(vertexDataReturn + i)->vertexPosition = DirectX::XMFLOAT3(currentData.x, currentData.y, currentData.z);
 
 		// Vertex normal
-		DirectX::XMStoreFloat3(&returnData.verticies[i].normal, 
-			                    DirectX::XMVectorSet(normalData[(unsigned int)indexDataFromFile[i].x].x, 
-									                 normalData[(unsigned int)indexDataFromFile[i].x].y, 
-									                 normalData[(unsigned int)indexDataFromFile[i].x].z,  
-									                 0.0f));
+		currentData                    = normalData[(unsigned int)(indexDataFromFile[i].z - 1)];
+		(vertexDataReturn + i)->normal = DirectX::XMFLOAT3(currentData.x, currentData.y, currentData.z);
 
 		// Vertex texture coord
-		DirectX::XMStoreFloat2(&returnData.verticies[i].textureCoord,
-			                    DirectX::XMVectorSet(textureCoordData[(unsigned int)indexDataFromFile[i].x].x,
-									                 textureCoordData[(unsigned int)indexDataFromFile[i].x].y,
-									                 0.0f, 
-									                 0.0f));
+		currentTextureCoordData              = textureCoordData[(unsigned int)(indexDataFromFile[i].y - 1)];
+		(vertexDataReturn + i)->textureCoord = DirectX::XMFLOAT2(currentTextureCoordData.x, 1.0f - currentTextureCoordData.y);
 	}
-
-	// Return it back
-	return returnData;
 }
 
 // --------------------------------------------------------- //
@@ -563,12 +559,15 @@ void Model::SetupInputLayouts(ID3DBlob* geometryBlob, ID3DBlob* fullRenderBlob)
 	// Position, normal and texture coord
 	D3D11_INPUT_ELEMENT_DESC fullRenderLayout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION",     0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",       0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	if (!mShaderHandler.SetDeviceInputLayout(fullRenderBlob, fullRenderLayout, 3, &mFullRenderInputLayout))
+		return;
+
+	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
 		return;
 }
 
