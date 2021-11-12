@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<TrackGrid>
+	
+	<!-- Times stored in seconds -->
+	<Times>
+		<First>90.99</First>
+		<Second>95.01</Second>
+		<Third>100.29</Third>
+		<Fourth>105.00</Fourth>
+		<Fifth>108.23</Fifth>
+	</Times>
+
+	<!-- Weather data for this track design -->
+	<Weather>
+		<!-- Time of day stored as a 24 hour time -->
+		<TimeOfDay>1200</TimeOfDay>
+		
+		<Clouds>
+			<MovementSpeedX>0.5</MovementSpeedX>
+			<MovementSpeedZ>0.8</MovementSpeedZ>
+			
+			<GlobalCoverage>0.5</GlobalCoverage>
+		</Clouds>
+		
+		<!-- Can be 'Sun', 'Rain', 'Snow' or 'Fog' -->
+		<Type>Sun</Type>
+		
+		
+	</Weather>
+
+	<!-- Dimensions of the track -->
+	<Width>16</Width>
+	<Height>2</Height>
+	<Depth>16</Depth>
+
+	<!-- A layer is a x-z plane slice, defining all positions at that Y level -->
+	<!-- The layers start at the bottom and work up -->
+	<!-- These files are usally computer generated so writing layers is not a normal probelm with this approach-->
+	<!-- The ID's stored here refer to an interal enum of values in the grid class -->
+	<Layer>
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+	</Layer>
+	
+	<Layer>
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+	</Layer>
+
+</TrackGrid>

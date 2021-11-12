@@ -546,6 +546,17 @@ Vector4D::Vector4D(const Vector4D& other)
 
 // ------------------------------------------------------------------------------------------------
 
+Vector4D::Vector4D(Vector3D vec, float w)
+	: x(vec.x)
+	, y(vec.y)
+	, z(vec.z)
+	, w(w)
+{
+
+}
+
+// ------------------------------------------------------------------------------------------------
+
 Vector4D Vector4D::operator+(const Vector4D& other)
 {
 	// Return back a new vector with the change applied

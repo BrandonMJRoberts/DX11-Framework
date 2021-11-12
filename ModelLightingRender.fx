@@ -8,6 +8,20 @@ cbuffer ConstantBuffer : register( b0 )
 	matrix Projection;
 }
 
+cbuffer LightingData : register(b1)
+{
+    float4 lightColour;
+    float3 lightDirection;
+}
+
+cbuffer MaterialData : register(b2)
+{
+    float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float  shinniness;
+}
+
 //--------------------------------------------------------------------------------------
 
 struct VS_OUTPUT
@@ -47,5 +61,5 @@ SamplerState sampler1     : register(s0); // Set the sampler state
 float4 PS( VS_OUTPUT input ) : SV_Target
 {
     // For now just use the texture colour
-    return texurePallet.Sample(sampler1, input.TexCoord);
+    return ambient * texurePallet.Sample(sampler1, input.TexCoord);
 }

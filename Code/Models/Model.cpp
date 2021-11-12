@@ -17,19 +17,28 @@ Model::Model(ShaderHandler&      shaderHandler,
 	         ID3D11PixelShader*  fullRenderPixelShader,
 	         ID3DBlob*           fullRenderBlob)
 	:   mShaderHandler(shaderHandler)
-	  , mVertexData(nullptr)
+	  , mFaceData(nullptr)
+
 	  , mFullRenderVertexShader(fullRenderVertexShader)
 	  , mFullRenderPixelShader(fullRenderPixelShader)
 	  , mGeometryRenderVertexShader(geometryRenderVertexShader)
 	  , mGeometryRenderPixelShader(geometryRenderPixelShader)
+
 	  , mFullRenderInputLayout(nullptr)
 	  , mGeometryInputLayout(nullptr)
+
 	  , mVertexBuffer(nullptr)
 	  , mVertexCount(0)
+
 	  , mSamplerState(nullptr)
-	  , mConstantBuffer(nullptr)
+
+	  , mMatrixConstantBuffer(nullptr)
+	  , mLightConstantBuffer(nullptr)
+	  , mMaterialConstantBuffer(nullptr)
+
 	  , mVertexBufferStride(0)
 	  , mVertexBufferOffset(0)
+	  , placeHolderTexture(nullptr)
 {
 	// First clear all data stored
 	RemoveAllPriorDataStored();
@@ -43,8 +52,14 @@ Model::Model(ShaderHandler&      shaderHandler,
 
 	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);
 
-	// Now for the constant buffer
-	if (!shaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(ConstantBuffer), &mConstantBuffer))
+	// Now for the constant buffers
+	if (!shaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(ConstantBuffer), &mMatrixConstantBuffer))
+		return;
+
+	if (!shaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(BasicMaterialData), &mMaterialConstantBuffer))
+		return;
+
+	if (!shaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(BasicDirectionalLightingData), &mLightConstantBuffer))
 		return;
 }
 
@@ -82,10 +97,22 @@ Model::~Model()
 		mVertexBuffer = nullptr;
 	}
 
-	if (mConstantBuffer)
+	if (mMatrixConstantBuffer)
 	{
-		mConstantBuffer->Release();
-		mConstantBuffer = nullptr;
+		mMatrixConstantBuffer->Release();
+		mMatrixConstantBuffer = nullptr;
+	}
+
+	if (mLightConstantBuffer)
+	{
+		mLightConstantBuffer->Release();
+		mLightConstantBuffer = nullptr;
+	}
+
+	if (mMaterialConstantBuffer)
+	{
+		mMaterialConstantBuffer->Release();
+		mMaterialConstantBuffer = nullptr;
 	}
 
 	RemoveAllPriorDataStored();
@@ -177,10 +204,10 @@ bool Model::LoadInModelFromFile(std::string filePath)
 
 	// Allocate the correct amount of memory for the vertex data
 	mVertexCount = faceCount * 3;
-	mVertexData  = new VertexData[mVertexCount];
+	mFaceData    = new FaceData[faceCount];
 
 	std::string subData;
-	unsigned int currentVertexBeingExtracted = 0, currentNormal = 0, currentTextureCoord = 0, currentVertexDataBeingStored = 0;
+	unsigned int currentVertexBeingExtracted = 0, currentNormal = 0, currentTextureCoord = 0, currentFaceBeingExtracted = 0;
 
 
 	// As we want to re-go through the file we need to seek to the beginnning of the file again
@@ -196,10 +223,7 @@ bool Model::LoadInModelFromFile(std::string filePath)
 		if (line[0] == 'f')
 		{
 			// Extract the vertex data
-			ConstructFaceFromData(line, vertexPositions, vertexNormals, textureCoordPositions, &mVertexData[currentVertexDataBeingStored]);
-
-			// Move the point along 3
-			currentVertexDataBeingStored += 3;
+			ConstructFaceFromData(line, vertexPositions, vertexNormals, textureCoordPositions, mFaceData[currentFaceBeingExtracted++]);
 			continue;
 		}
 
@@ -234,7 +258,7 @@ bool Model::LoadInModelFromFile(std::string filePath)
 	file.close();
 
 	// Now for the vertex buffer
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mVertexData, sizeof(VertexData) * mVertexCount, &mVertexBuffer))
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mFaceData, sizeof(VertexData) * mVertexCount, &mVertexBuffer))
 		return false;
 
 	mVertexBufferStride = sizeof(VertexData);
@@ -259,10 +283,10 @@ bool Model::LoadInModelFromFile(std::string filePath)
 
 void Model::RemoveAllPriorDataStored()
 {
-	if (mVertexData)
+	if (mFaceData)
 	{
-		delete[] mVertexData;
-		mVertexData = nullptr;
+		delete[] mFaceData;
+		mFaceData = nullptr;
 	}
 }
 
@@ -295,8 +319,13 @@ void Model::FullRender(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
 	// ------------------------------------------------------------------------------ 
 
 	// Bind the texture
-	if (mMaterialData.size() > 0 && mMaterialData[0] && mMaterialData[0]->texture)
-		mMaterialData[0]->texture->BindTextureToShaders(0, 1);
+	//if (mMaterialData.size() > 0 && mMaterialData[0] && mMaterialData[0]->texture)
+		//mMaterialData[0]->texture->BindTextureToShaders(0, 1);
+
+	if (placeHolderTexture)
+	{
+		placeHolderTexture->BindTextureToShaders(0, 1);
+	}
 
 	// Set the sampler state
 	if (mSamplerState)
@@ -324,12 +353,24 @@ void Model::FullRender(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
 					    projection     = DirectX::XMLoadFloat4x4(&persp);
 					    cb.mProjection = DirectX::XMMatrixTranspose(projection);
 
+	BasicDirectionalLightingData lightingData;
+	lightingData.colour    = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	lightingData.direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+
 	// Update the constant buffer
-	mShaderHandler.UpdateSubresource(mConstantBuffer, 0, nullptr, &cb, 0, 0);
+	mShaderHandler.UpdateSubresource(mMatrixConstantBuffer,   0, nullptr, &cb, 0, 0);
+	mShaderHandler.UpdateSubresource(mLightConstantBuffer,    0, nullptr, &lightingData, 0, 0);
+	mShaderHandler.UpdateSubresource(mMaterialConstantBuffer, 0, nullptr, &(*mMaterialData[0]), 0, 0);
 
 	// Set the data in the shaders
-	mShaderHandler.SetVertexShaderConstantBufferData(0, 1, &mConstantBuffer);
-	mShaderHandler.SetPixelShaderConstantBufferData(0, 1, &mConstantBuffer);
+	mShaderHandler.SetVertexShaderConstantBufferData(0, 1, &mMatrixConstantBuffer);
+	mShaderHandler.SetPixelShaderConstantBufferData(0, 1, &mMatrixConstantBuffer);
+
+	mShaderHandler.SetVertexShaderConstantBufferData(1, 1, &mLightConstantBuffer);
+	mShaderHandler.SetPixelShaderConstantBufferData(1, 1, &mLightConstantBuffer);
+
+	mShaderHandler.SetVertexShaderConstantBufferData(2, 1, &mMaterialConstantBuffer);
+	mShaderHandler.SetPixelShaderConstantBufferData(2, 1, &mMaterialConstantBuffer);
 
 	// ------------------------------------------------------------------------------ 
 
@@ -418,7 +459,7 @@ Vector2D Model::ExtractTwoDataPointsFromLine(std::string& line)
 
 // --------------------------------------------------------- //
 
-void Model::ConstructFaceFromData(std::string& line, Vector3D* vertexData, Vector3D* normalData, Vector2D* textureCoordData, VertexData* vertexDataReturn)
+void Model::ConstructFaceFromData(std::string& line, Vector3D* vertexData, Vector3D* normalData, Vector2D* textureCoordData, FaceData& faceBeingReturned)
 {
 	// Extract the index data from the file
 	Vector3D    indexDataFromFile[3];
@@ -434,16 +475,16 @@ void Model::ConstructFaceFromData(std::string& line, Vector3D* vertexData, Vecto
 	for (unsigned int i = 0; i < 3; i++)
 	{
 		// Vertex position
-		currentData                            = vertexData[(unsigned int)(indexDataFromFile[i].x - 1)];
-		(vertexDataReturn + i)->vertexPosition = DirectX::XMFLOAT3(currentData.x, currentData.y, currentData.z);
+		currentData                                   = vertexData[(unsigned int)(indexDataFromFile[i].x - 1)];
+		faceBeingReturned.verticies[i].vertexPosition = DirectX::XMFLOAT3(currentData.x, currentData.y, currentData.z);
 
 		// Vertex normal
-		currentData                    = normalData[(unsigned int)(indexDataFromFile[i].z - 1)];
-		(vertexDataReturn + i)->normal = DirectX::XMFLOAT3(currentData.x, currentData.y, currentData.z);
+		currentData                           = normalData[(unsigned int)(indexDataFromFile[i].z - 1)];
+		faceBeingReturned.verticies[i].normal = DirectX::XMFLOAT3(currentData.x, currentData.y, currentData.z);
 
 		// Vertex texture coord
-		currentTextureCoordData              = textureCoordData[(unsigned int)(indexDataFromFile[i].y - 1)];
-		(vertexDataReturn + i)->textureCoord = DirectX::XMFLOAT2(currentTextureCoordData.x, 1.0f - currentTextureCoordData.y);
+		currentTextureCoordData                     = textureCoordData[(unsigned int)(indexDataFromFile[i].y - 1)];
+		faceBeingReturned.verticies[i].textureCoord = DirectX::XMFLOAT2(currentTextureCoordData.x, 1.0f - currentTextureCoordData.y);
 	}
 }
 
@@ -560,7 +601,7 @@ void Model::SetupInputLayouts(ID3DBlob* geometryBlob, ID3DBlob* fullRenderBlob)
 	D3D11_INPUT_ELEMENT_DESC fullRenderLayout[] =
 	{
 		{ "POSITION",     0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",     0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",       0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
@@ -621,19 +662,19 @@ void Model::LoadInMaterialData(std::string filePath)
 				if (line[1] == 'a')
 				{
 					subStr = line.substr(3);
-					newData->ambient = ExtractThreeDataPointsFromLine(subStr);
+					newData->ambient = Vector4D(ExtractThreeDataPointsFromLine(subStr), 1.0f);
 					continue;
 				}
 				else if (line[1] == 'd')
 				{
 					subStr = line.substr(3);
-					newData->diffuse = ExtractThreeDataPointsFromLine(subStr);
+					newData->diffuse = Vector4D(ExtractThreeDataPointsFromLine(subStr), 1.0f);
 					continue;
 				}
 				else if (line[1] == 's')
 				{
 					subStr = line.substr(3);
-					newData->specular = ExtractThreeDataPointsFromLine(subStr);
+					newData->specular = Vector4D(ExtractThreeDataPointsFromLine(subStr), 1.0f);
 					continue;
 				}
 			}
@@ -642,7 +683,8 @@ void Model::LoadInMaterialData(std::string filePath)
 			if (line[0] == 'm')
 			{
 				// Create the initial data for the texture
-				newData->texture = new Texture2D(mShaderHandler);
+				//newData->texture = new Texture2D(mShaderHandler);
+				placeHolderTexture = new Texture2D(mShaderHandler);
 
 				// Get the file path from the file by finding the gap between the 'map_Kd' and the file path
 				for (unsigned int i = 0; i < line.length(); i++)
@@ -664,7 +706,8 @@ void Model::LoadInMaterialData(std::string filePath)
 				mbsrtowcs(buffer, &charPtr, size + 1, NULL);
 
 				// Now load the texture in from the file
-				newData->texture->LoadTextureInFromFile(buffer);
+				//newData->texture->LoadTextureInFromFile(buffer);
+				placeHolderTexture->LoadTextureInFromFile(buffer);
 
 				delete[] buffer;
 
@@ -674,7 +717,19 @@ void Model::LoadInMaterialData(std::string filePath)
 			// Get the specular intensity multiplier value
 			if (line[0] == 'i')
 			{
-				
+				// Find the first space in the line and extract the data from there
+				for (unsigned int i = 0; i < line.length(); i++)
+				{
+					if (line[i] == ' ')
+					{
+						subStr = line.substr(i + 1, line.length() - i);
+						break;
+					}
+				}
+
+				// Now convert from the string to an int
+				newData->specularPower = std::stof(subStr);
+				continue;
 			}
 		}
 

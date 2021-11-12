@@ -32,10 +32,10 @@ struct MaterialData final
 {
 	MaterialData()
 		: specularPower(1)
-		, ambient(1.0f, 1.0f, 1.0f)
-		, specular(1.0f, 1.0f, 1.0f)
-		, diffuse(1.0f, 1.0f, 1.0f)
-		, texture(nullptr)
+		, ambient(1.0f, 1.0f, 1.0f, 1.0f)
+		, specular(1.0f, 1.0f, 1.0f, 1.0f)
+		, diffuse(1.0f, 1.0f, 1.0f, 1.0f)
+		//, texture(nullptr)
 	{
 
 	}
@@ -43,28 +43,27 @@ struct MaterialData final
 	~MaterialData() 
 	{
 //		delete texture;
-		texture = nullptr;
+		//texture = nullptr;
 	}
 
+	Vector4D   ambient;
+	Vector4D   diffuse;
+	Vector4D   specular;
 	float      specularPower;
-	Vector3D   ambient;
-	Vector3D   diffuse;
-	Vector3D   specular;
-
-	Texture2D* texture;
 };
-//
-//struct FaceData final
-//{
-//	FaceData()
-//	{
-//		verticies[0] = VertexData();
-//		verticies[1] = VertexData();
-//		verticies[2] = VertexData();
-//	}
-//
-//	VertexData verticies[3];
-//};
+
+
+struct FaceData final
+{
+	FaceData()
+	{
+		verticies[0] = VertexData();
+		verticies[1] = VertexData();
+		verticies[2] = VertexData();
+	}
+
+	VertexData verticies[3];
+};
 
 // -------------------------------------------------------------- //
 
@@ -102,7 +101,7 @@ private:
 	Vector3D ExtractThreeDataPointsFromLine(std::string& line);
 	Vector2D ExtractTwoDataPointsFromLine(std::string& line);
 
-	void ConstructFaceFromData(std::string& line, Vector3D* vertexData, Vector3D* normalData, Vector2D* textureCoordData, VertexData* vertexToExtract);
+	void     ConstructFaceFromData(std::string& line, Vector3D* vertexData, Vector3D* normalData, Vector2D* textureCoordData, FaceData& faceBeingReturned);
 
 	void     ExtractFaceIndexDataFromFile(std::string& line, Vector3D indexDataFromFile[3]);
 
@@ -111,8 +110,8 @@ private:
 	void     LoadInMaterialData(std::string filePath);
 
 	// Internal model data - stored as faces, each holding three verticies each
-	//FaceData* mFaceData;
-	VertexData* mVertexData;
+	FaceData* mFaceData;
+	//VertexData* mVertexData;
 
 	// Shaders used to render the model - are passed in either when the model is created, or at some later point
 	ID3D11VertexShader* mFullRenderVertexShader;
@@ -127,12 +126,16 @@ private:
 	unsigned int        mVertexBufferOffset;
 	unsigned int        mVertexCount;
 
-	ID3D11Buffer*       mConstantBuffer;
+	ID3D11Buffer*       mMatrixConstantBuffer;
+	ID3D11Buffer*       mMaterialConstantBuffer;
+	ID3D11Buffer*       mLightConstantBuffer;
 
 	ID3D11InputLayout*  mGeometryInputLayout;
 	ID3D11InputLayout*  mFullRenderInputLayout;
 
 	std::vector<MaterialData*> mMaterialData;
+	Texture2D*                 placeHolderTexture;
+
 	SamplerState*              mSamplerState;
 };
 
