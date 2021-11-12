@@ -11,12 +11,15 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, mCamera(nullptr)
 	, mGrid(shaderHandler)
 	, mPostProcessing(nullptr)
+	, mSkyDome(nullptr)
 {
 	testCube  = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
 	testCube2 = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 3.0f));
 
 	testCar   = new Car(shaderHandler);
+
+	mSkyDome = new SkyDome(shaderHandler, Vector3D::zero, 10.0f, 10, 10);
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
 									Vector3D(0.0f, 0.0f, 0.0f),
@@ -52,6 +55,9 @@ GameScreen_Editor::~GameScreen_Editor()
 
 	delete testCar;
 	testCar = nullptr;
+
+	delete mSkyDome;
+	mSkyDome = nullptr;
 }
 
 // --------------------------------------------------------- //
@@ -78,6 +84,9 @@ void GameScreen_Editor::Render()
 
 	if (testCar)
 		testCar->RenderFull(mCamera);
+
+	if (mSkyDome)
+		mSkyDome->Render(mCamera);
 
 	// Now render the grid for the track
 	//mGrid.Render(mCamera);
@@ -111,6 +120,9 @@ void GameScreen_Editor::Update(const float deltaTime)
 
 	if (testCar)
 		testCar->Update(deltaTime);
+
+	if (mSkyDome)
+		mSkyDome->Update(deltaTime);
 
 	mGrid.Update(deltaTime);
 }

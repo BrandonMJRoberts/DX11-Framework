@@ -60,9 +60,6 @@
     <Filter Include="Headers\Models">
       <UniqueIdentifier>{80cb40e3-4f3d-4874-8f36-e0af050c2d7d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Models">
-      <UniqueIdentifier>{4fcf6fb4-a547-488e-beaa-2066d7bcb5ca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Collisions">
       <UniqueIdentifier>{f04ba091-7bd3-47ae-b03d-db31874f4a51}</UniqueIdentifier>
     </Filter>
@@ -104,6 +101,21 @@
     </Filter>
     <Filter Include="Source\Texture">
       <UniqueIdentifier>{695ae988-2a8a-4c93-98e3-69fd1cb6dea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Particle Effects">
+      <UniqueIdentifier>{f88aa2a2-603c-494c-9b4a-4ef574ec4f98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Sky">
+      <UniqueIdentifier>{7d4a808e-9a40-44f5-84ff-54b0b9aaaf41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Particle Effects">
+      <UniqueIdentifier>{3b2faf70-eb31-4be4-a88b-8e2d9f2b835b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Sky">
+      <UniqueIdentifier>{38ef65f8-2a2c-45db-ba7a-ecd5f55e2222}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Models">
+      <UniqueIdentifier>{4fcf6fb4-a547-488e-beaa-2066d7bcb5ca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +185,12 @@
     </ClCompile>
     <ClCompile Include="Code\Models\Car.cpp">
       <Filter>Source\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sky\Sky.cpp">
+      <Filter>Source\Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Particle Effects\ParticleSystem.cpp">
+      <Filter>Source\Particle Effects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -251,6 +269,12 @@
     <ClInclude Include="Code\Models\Car.h">
       <Filter>Headers\Models</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Sky\Sky.h">
+      <Filter>Headers\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Particle Effects\ParticleSystem.h">
+      <Filter>Headers\Particle Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11 Framework.rc">
@@ -274,6 +298,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ModelGeometryRender.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyDomeRender.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -192,6 +192,9 @@ void TestCube::Render(BaseCamera* camera)
 
 	mShaderHandler.SetInputLayout(mShaderInputLayout);
 
+	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
+		return;
+
 	// Draw
 	mShaderHandler.DrawIndexed(36, 0, 0);
 }

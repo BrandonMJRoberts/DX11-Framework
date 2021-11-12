@@ -400,9 +400,11 @@
     <ClCompile Include="Code\Maths\CommonMaths.cpp" />
     <ClCompile Include="Code\Models\Car.cpp" />
     <ClCompile Include="Code\Models\Model.cpp" />
+    <ClCompile Include="Code\Particle Effects\ParticleSystem.cpp" />
     <ClCompile Include="Code\Post Processing\Clouds.cpp" />
     <ClCompile Include="Code\Post Processing\PostProcessing.cpp" />
     <ClCompile Include="Code\Shaders\ShaderHandler.cpp" />
+    <ClCompile Include="Code\Sky\Sky.cpp" />
     <ClCompile Include="Code\Test\TestCube.cpp" />
     <ClCompile Include="Code\Texture\RenderBuffer.cpp" />
     <ClCompile Include="Code\Texture\Texture.cpp" />
@@ -427,9 +429,11 @@
     <ClInclude Include="Code\Maths\Constants.h" />
     <ClInclude Include="Code\Models\Car.h" />
     <ClInclude Include="Code\Models\Model.h" />
+    <ClInclude Include="Code\Particle Effects\ParticleSystem.h" />
     <ClInclude Include="Code\Post Processing\Clouds.h" />
     <ClInclude Include="Code\Post Processing\PostProcessing.h" />
     <ClInclude Include="Code\Shaders\ShaderHandler.h" />
+    <ClInclude Include="Code\Sky\Sky.h" />
     <ClInclude Include="Code\Test\TestCube.h" />
     <ClInclude Include="Code\Texture\RenderBuffer.h" />
     <ClInclude Include="Code\Texture\Texture.h" />
@@ -468,6 +472,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="SkyDomeRender.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

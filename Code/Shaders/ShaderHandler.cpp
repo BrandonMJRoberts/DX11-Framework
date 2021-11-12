@@ -640,3 +640,32 @@ void ShaderHandler::UnbindTextureFromShaderIndex(unsigned int startSlot, unsigne
 }
 
 // ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::CreateRasterizerState(ID3D11RasterizerState** state, 
+                                          D3D11_FILL_MODE         fillMode, 
+                                          D3D11_CULL_MODE         cullMode, 
+                                          bool                    windingCounterClockwise, 
+                                          int                     depthBias,          
+                                          float                   depthBiasClamp, 
+                                          float                   slopeScaledDepthBias, 
+                                          bool                    depthClipEnabled, 
+                                          bool                    scissorEnabled, 
+                                          bool                    multiSampleEnabled, 
+                                          bool                    antialiasedLineEnabled)
+{
+    if (!mDeviceContext)
+        return;
+
+    D3D11_RASTERIZER_DESC desc;
+    desc.CullMode = cullMode;
+    desc.FillMode = fillMode;
+    desc.FrontCounterClockwise = windingCounterClockwise;
+    desc.DepthBias             = depthBias;
+    desc.DepthBiasClamp        = depthBiasClamp;
+    desc.AntialiasedLineEnable = 
+
+
+    mDeviceHandle->CreateRasterizerState(,);
+}
+
+// ------------------------------------------------------------------------------------------ //

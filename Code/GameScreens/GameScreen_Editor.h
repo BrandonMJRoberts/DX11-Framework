@@ -12,6 +12,8 @@
 
 #include "../Models/Car.h"
 
+#include "../Sky/Sky.h"
+
 class Model;
 
 class GameScreen_Editor final : public GameScreen
@@ -35,6 +37,8 @@ private:
 	TestCube* testCube2;
 
 	Car* testCar;
+
+	SkyDome* mSkyDome;
 };
 
 #endif

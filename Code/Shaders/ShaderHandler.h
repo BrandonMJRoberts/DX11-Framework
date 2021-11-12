@@ -112,6 +112,8 @@ public:
 
 	void SetViewport(float width, float height, float minDepth, float maxDepth, unsigned int topLeftX = 0, unsigned int topLeftY = 0);
 
+	void CreateRasterizerState(ID3D11RasterizerState** state, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode, bool windingCounterClockwise, int depthBias, float depthBiasClamp, float slopeScaledDepthBias, bool depthClipEnabled, bool scissorEnabled, bool multiSampleEnabled, bool antialiasedLineEnabled);
+
 private:
 	// Shader compilation 
 	bool CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);

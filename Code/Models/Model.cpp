@@ -296,6 +296,9 @@ void Model::RenderGeometry(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMa
 {
 	if (!mGeometryRenderVertexShader || !mGeometryRenderPixelShader)
 		return;
+
+	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
+		return;
 }
 
 // --------------------------------------------------------- //
@@ -375,6 +378,9 @@ void Model::FullRender(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
 	mShaderHandler.SetPixelShaderConstantBufferData(2, 1, &mMaterialConstantBuffer);
 
 	// ------------------------------------------------------------------------------ 
+
+	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
+		return;
 
 	// Render
 	mShaderHandler.Draw(mVertexCount, 0);

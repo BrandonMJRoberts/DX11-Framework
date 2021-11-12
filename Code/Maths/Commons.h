@@ -16,7 +16,7 @@ struct TextureVertex
 };
 
 // -----------------------------------------------------------------------------
-
+// 
 // Constant buffer types
 struct ConstantBuffer final
 {
