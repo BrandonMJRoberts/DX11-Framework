@@ -23,6 +23,8 @@ struct ConstantBuffer final
 	DirectX::XMMATRIX mWorld;
 	DirectX::XMMATRIX mView;
 	DirectX::XMMATRIX mProjection;
+	Vector3D          cameraPosition;
+	float             padding;
 };
 
 // -----------------------------------------------------------------------------

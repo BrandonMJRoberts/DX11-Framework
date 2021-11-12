@@ -19,7 +19,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	testCar   = new Car(shaderHandler);
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
-									Vector3D(3.0f, 0.0f, 0.0f),
+									Vector3D(0.0f, 0.0f, 0.0f),
 									10.0f,
 									Vector3D(1.0f, 0.0f, 0.0f),
 									Vector3D::worldUp,

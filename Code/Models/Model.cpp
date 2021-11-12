@@ -353,9 +353,11 @@ void Model::FullRender(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
 					    projection     = DirectX::XMLoadFloat4x4(&persp);
 					    cb.mProjection = DirectX::XMMatrixTranspose(projection);
 
+						cb.cameraPosition = camera->GetPosition();
+
 	BasicDirectionalLightingData lightingData;
 	lightingData.colour    = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	lightingData.direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+	lightingData.direction = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
 
 	// Update the constant buffer
 	mShaderHandler.UpdateSubresource(mMatrixConstantBuffer,   0, nullptr, &cb, 0, 0);
