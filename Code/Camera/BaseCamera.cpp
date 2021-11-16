@@ -13,7 +13,7 @@ BaseCamera::BaseCamera()
 	, mAspectRatio(16.0f / 9.0f)
 	, mPerspectiveMatrix()
 	, mInputHandler(nullptr)
-	, mMovementSpeed(1.0f)
+	, mMovementSpeed(0.1f)
 	, mRotationSpeed(0.1f)
 {
 	//ReCalculateViewMatrix();

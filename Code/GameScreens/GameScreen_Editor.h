@@ -39,6 +39,8 @@ private:
 	Car* testCar;
 
 	SkyDome* mSkyDome;
+
+	ID3D11RasterizerState* renderState;
 };
 
 #endif

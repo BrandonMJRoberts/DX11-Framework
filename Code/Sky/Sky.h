@@ -7,25 +7,29 @@
 #include <d3d11_1.h>
 
 #include "../Shaders/ShaderHandler.h"
+#include <vector>
 
 class SkyDome final
 {
 public:
 	SkyDome() = delete;
-	SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, unsigned int slicesX, unsigned int slicesY);
+	SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, unsigned int divisions);
 	~SkyDome();
 
 	void Render(BaseCamera* camera);
 	void Update(const float deltaTime);
 
 private:
-	void GenerateDome(Vector3D centre, float radius, unsigned int slicesX, unsigned int slicesY);
+	void GenerateDome();
+
+	void CalculateVerticies();
+	void CalculateIndicies();
+
 	void SetupShaders();
 
 	Vector3D     mDomeCentre;
 	float        mRadius;
-	unsigned int mSlicesX;
-	unsigned int mSlicesY;
+	unsigned int mDivisions;
 	
 	// Shaders required
 	ID3D11VertexShader* mVertexShader;
@@ -36,18 +40,18 @@ private:
 	ID3D11Buffer*       mIndexBuffer;
 	ID3D11Buffer*       mConstantBuffer;
 
-	Vector3D*           mVertexData;
-	short*       mIndexData;
+	std::vector<Vector3D>     mVertexData;
+	std::vector<unsigned int> mIndexData;
 
 	unsigned int        mVertexBufferStride;
-	unsigned int        mVertexCount;
-	unsigned int        mIndexCount;
 
 	ShaderHandler&      mShaderHandler;
 
 	ID3D11InputLayout*  mInputLayout;
 
 	DirectX::XMFLOAT4X4 mModelMat;
+
+	ID3D11RasterizerState* renderState;
 };
 
 #endif

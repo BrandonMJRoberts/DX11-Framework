@@ -6,11 +6,10 @@
 
 // X slices is how many steps up the angle must go before reaching straight up
 // Y slices is how many steps around the angle must go before reaching back to where it started
-SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, unsigned int slicesX, unsigned int slicesY)
+SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, unsigned int divisions)
 	: mDomeCentre(centre)
 	, mRadius(radius)
-	, mSlicesX(slicesX)
-	, mSlicesY(slicesY)
+	, mDivisions(divisions)
 	, mVertexShader(nullptr)
 	, mPixelShader(nullptr)
 	, mVertexBuffer(nullptr)
@@ -18,16 +17,18 @@ SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, un
 	, mConstantBuffer(nullptr)
 	, mShaderHandler(shaderHandler)
 	, mInputLayout(nullptr)
-	, mVertexData(nullptr)
-	, mVertexCount(0)
-	, mIndexCount(0)
+	, mVertexData()
 	, mModelMat(MatrixMaths::Identity4X4)
+	, renderState(nullptr)
+	, mIndexData()
 {
 	// First generate the dome
-	GenerateDome(centre, radius, slicesX, slicesY);
+	GenerateDome();
 
 	// Now setup the shaders requred for rendering the dome
 	SetupShaders();
+
+	mShaderHandler.CreateRasterizerState(&renderState, D3D11_FILL_WIREFRAME, D3D11_CULL_NONE);
 }
 
 // ---------------------------------------------------------------- 
@@ -64,11 +65,14 @@ SkyDome::~SkyDome()
 		mInputLayout = nullptr;
 	}
 
-	delete[] mVertexData;
-	mVertexData = nullptr;
+	//delete[] mVertexData;
+	//mVertexData = nullptr;
 
-	delete[] mIndexData;
-	mIndexData = nullptr;
+	mVertexData.clear();
+
+	mIndexData.clear();
+	//delete[] mIndexData;
+	//mIndexData = nullptr;
 }
 
 // ---------------------------------------------------------------- 
@@ -78,6 +82,9 @@ void SkyDome::Render(BaseCamera* camera)
 	// Quick outs
 	if (!mVertexShader || !mPixelShader || !mInputLayout ||!camera)
 		return;
+
+	// Make the dome render in wireframe mode
+	mShaderHandler.BindRasterizerState(renderState);
 
 	// Set the input layout for this render
 	mShaderHandler.SetInputLayout(mInputLayout);
@@ -91,7 +98,7 @@ void SkyDome::Render(BaseCamera* camera)
 	mShaderHandler.BindVertexBuffersToRegisters(0, 1, &mVertexBuffer, &mVertexBufferStride, &offset);
 
 	// Now bind the index buffer
-	mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	// Now setup the constant buffer data
 	ConstantBuffer cb;
@@ -119,11 +126,11 @@ void SkyDome::Render(BaseCamera* camera)
 	mShaderHandler.SetPixelShaderConstantBufferData(0, 1, &mConstantBuffer);
 
 	// For this render we are going to use triangle strips as it is simpler to define a dome using triangle strips than triangle lists
-	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP))
+	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
 		return;
 
 		// Now draw the dome using the indicies
-		mShaderHandler.DrawIndexed(mIndexCount, 0, 0);
+		mShaderHandler.DrawIndexed(mIndexData.size(), 0, 0);
 
 	// Now unbind the shaders
 	mShaderHandler.SetVertexShader(nullptr);
@@ -134,99 +141,29 @@ void SkyDome::Render(BaseCamera* camera)
 
 void SkyDome::Update(const float deltaTime)
 {
-
+	UNREFERENCED_PARAMETER(deltaTime);
 }
 
 // ---------------------------------------------------------------- 
 
 // X slices is how many steps up the angle must go before reaching straight up
 // Y slices is how many steps around the angle must go before reaching back to where it started
-void SkyDome::GenerateDome(Vector3D centre, float radius, unsigned int XSlices, unsigned int YSlices)
+void SkyDome::GenerateDome()
 {
-	float theta      = 0.0f; // Rotation angle around the Y axis
-	float deltaTheta = TWOPI / float(YSlices);
+	CalculateVerticies();
 
-	float gamma      = 0.0f; // Rotation angle arond the X axis
-	float deltaGamma = TWOPI / float(XSlices);
-
-	// First calculate the amount of vertex positions based on the data passed in
-	mVertexCount = XSlices * YSlices;
-
-	// Allocate the amount of memory required
-	mVertexData = new Vector3D[mVertexCount];
-
-	// Now calculate the actual vertex positions
-	unsigned int currentvertex = 0;
-	float        sinTheta = 0.0f;
-	float        sinGamma = 0.0f;
-	float        cosTheta = 0.0f;
-    float        cosGamma = 0.0f;
-
-	// Loop around all of the same Y level notches given
-	for (unsigned int i = 0; i < YSlices; i++)
-	{
-		// Reset theta as we have now done a full rotation
-		theta = 0.0f;
-
-		// Now loop around all of the same X level notches given
-		for (unsigned int j = 0; j < XSlices; j++)
-		{
-			// Calculate the sin and cos values for what we have now
-			sinGamma = sinf(gamma);
-			sinTheta = sinf(theta);
-
-			cosTheta = cosf(theta);
-			cosGamma = cosf(gamma);
-
-			// Calculate the vertex
-			mVertexData[currentvertex] = Vector3D(mRadius * sinGamma * cosTheta, 
-												  mRadius * cosGamma,
-												  mRadius * sinGamma * sinTheta);
-
-			// Apply the spin of the angle
-			theta += deltaTheta;
-		}
-
-		// Move the Y level up a notch
-		gamma += deltaGamma;
-	}
-
-	// Now calculate the indices for rendering
-
-	// Each index will be used twice, as it is used for its current layer, and on the layer below it, appart from the bottom layer and the top most layer, which are only used once each
-	mIndexCount = (YSlices * 2) * (XSlices - 1);
-
-	mIndexData = new short[mIndexCount];
-
-	unsigned int currentIndex = 0;
-	unsigned int currentValue = 0;
-
-	// Now calculate the indicies for the render
-	for (unsigned int YLayer = 0; YLayer < YSlices; YLayer++)
-	{
-		// To XSlices - 1 because the top most layer would overflow into non-valid indices, and are already included in the layer below the top
-		for (unsigned int XNotch = 0; XNotch < XSlices - 1; XNotch++)
-		{
-			currentValue = (YLayer * XSlices) + XNotch;
-
-			// First put where we are
-			mIndexData[currentIndex++] = currentValue;
-			
-			// Now put the index on the layer above it
-			mIndexData[currentIndex++] = currentValue + XSlices;
-		}
-	}
+	CalculateIndicies();
 	
 	// Create the vertex buffer now we have the vertex data
 	mVertexBufferStride = sizeof(Vector3D);
 
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mVertexData, sizeof(Vector3D) * mVertexCount, &mVertexBuffer))
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mVertexData.data(), sizeof(Vector3D) * mVertexData.size(), &mVertexBuffer))
 		return;
 
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mIndexData, sizeof(short) * mIndexCount, &mIndexBuffer)); 
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mIndexData.data(), sizeof(unsigned int) * mIndexData.size(), &mIndexBuffer)) 
 		return;
 
-	if (!mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R16_UINT, 0))
+	if (!mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0))
 		return;
 }
 
@@ -253,6 +190,110 @@ void SkyDome::SetupShaders()
 	// Create the constant buffer
 	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(ConstantBuffer), &mConstantBuffer))
 		return;
+}
+
+// ---------------------------------------------------------------- 
+
+void SkyDome::CalculateVerticies()
+{
+	// All verticies are the same distance from the centre of the sphere (the radius away)
+	// Using spherical coordinates we can calculate all of the vertices equidist from each other
+
+	float deltaLatitude  = PI    / (float)mDivisions; // How up/down we are pointing
+	float deltaLongitude = TWOPI / (float)mDivisions; // How far around the object we are pointing
+
+	// Current angles being pointed at
+	float currentLatitude  = 0.0f;
+	float currentLongitude = 0.0f;
+
+	// First add the top most vertex, as we dont want to add it a lot of times
+	mVertexData.push_back(Vector3D(0.0f, mRadius, 0.0f));
+
+	// What we want to do is rotate a full rotation around the same latitude before changing the latitude
+	// = 1 and -1 to account for the fact we are pre-post adding the top and bottom of the circle
+	for (unsigned int i = 1; i < mDivisions - 1; i++)
+	{
+		// Reset the longitude as it should currently either be 0 or 2PI
+		currentLongitude = 0.0f;
+
+		// Now we have completed a loop we can point more upwards
+		currentLatitude += deltaLatitude;
+
+		// Now loop around the sphere's longitude for a full rotation
+		for (unsigned int j = 0; j < mDivisions; j++)
+		{
+			// Now given the current angles calculate where we are pointing using spherical coordinates
+			mVertexData.push_back(Vector3D(mRadius * cosf(currentLongitude) * sinf(currentLatitude),
+				                           mRadius * cosf(currentLatitude), // The Y value should go from +radius to -radius as the latitide changes
+				                           mRadius * sinf(currentLatitude)  * sinf(currentLongitude)));
+
+			// Increment the longitude so we can loop around the sphere completly
+			currentLongitude += deltaLongitude;
+		}
+	}
+
+	// Now add the last vertex so we dont add it lots of times
+	mVertexData.push_back(Vector3D(0.0f, -mRadius, 0.0f));
+
+	// We should now have all of the verticies of a sphere, radius of the set radius, centre at the origin (the offset will be applied by the model matrix)
+}
+
+// ---------------------------------------------------------------- 
+
+void SkyDome::CalculateIndicies()
+{
+	// Calulation of indicies in order to render a sphere
+
+
+	// Now calculate the indices for the triangles
+	// Start with the top ring of triangles around the pole, as the top is stored as a single point instead of a load of points in the same place
+	for (unsigned int i = 0; i < mDivisions; i++)
+	{
+		// For each of these triangles - 0 will be the first value as they all link to the top
+		mIndexData.push_back(0);
+
+		// Now add the current index on the first loop
+		mIndexData.push_back(i + 1);
+
+		// Now add the index next to the previous index on the same loop
+		mIndexData.push_back(((i + 1) % mDivisions) + 1);
+	}
+
+	unsigned int currentIndexID;
+
+	// Now calculate the filling triangles
+	for (unsigned int i = 0; i < mDivisions - 3; i++)
+	{ 
+		// Calculate the starting offset we are at (+1 to account for the top, i * divisions so that we move down the correct amount of loops)
+		currentIndexID = (i * mDivisions) + 1;
+
+		for (unsigned int j = 0; j < mDivisions; j++)
+		{
+			// Start off with the current ID of the loop we are on
+			mIndexData.push_back(currentIndexID + j);
+
+			// Now add the id of the next index of the same loop we are on
+			mIndexData.push_back(currentIndexID + ((j + 1) % mDivisions));
+
+			// Now add the ID of the index on the loop below ours
+			mIndexData.push_back((currentIndexID + mDivisions) + j);
+		}
+	}
+	
+	unsigned int endIndexID = mVertexData.size() - 1;
+
+	// Now calculate the bottom most ring of triangles
+	for (unsigned int i = 1; i < mDivisions; i++)
+	{
+		// For each of these triangles the last index will be the first value as they all link to the top
+		mIndexData.push_back(endIndexID);
+
+		// Now add the current index on the loop above the end point
+		mIndexData.push_back(endIndexID - i);
+
+		// Now add the index next to the previous index on the same loop
+		mIndexData.push_back(endIndexID - (i + 1));
+	}
 }
 
 // ---------------------------------------------------------------- 

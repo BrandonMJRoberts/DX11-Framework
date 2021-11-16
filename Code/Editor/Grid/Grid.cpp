@@ -117,6 +117,8 @@ void EditorGrid::Update(const float deltaTime)
 
 void EditorGrid::Render(BaseCamera* camera)
 {
+	UNREFERENCED_PARAMETER(camera);
+
 	// First bind the correct texture for the draw calls
 	if (mOcclusionRenderBuffer && mDepthStencilBufferOcclusion)
 	{

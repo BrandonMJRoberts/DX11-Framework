@@ -294,6 +294,9 @@ void Model::RemoveAllPriorDataStored()
 
 void Model::RenderGeometry(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
 {
+	UNREFERENCED_PARAMETER(modelMat);
+	UNREFERENCED_PARAMETER(camera);
+
 	if (!mGeometryRenderVertexShader || !mGeometryRenderPixelShader)
 		return;
 

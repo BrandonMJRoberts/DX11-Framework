@@ -657,15 +657,30 @@ void ShaderHandler::CreateRasterizerState(ID3D11RasterizerState** state,
         return;
 
     D3D11_RASTERIZER_DESC desc;
-    desc.CullMode = cullMode;
-    desc.FillMode = fillMode;
+    desc.CullMode              = cullMode;
+    desc.FillMode              = fillMode;
     desc.FrontCounterClockwise = windingCounterClockwise;
     desc.DepthBias             = depthBias;
     desc.DepthBiasClamp        = depthBiasClamp;
-    desc.AntialiasedLineEnable = 
+    desc.AntialiasedLineEnable = antialiasedLineEnabled;
+    desc.SlopeScaledDepthBias  = slopeScaledDepthBias;
+    desc.DepthClipEnable       = depthClipEnabled;
+    desc.ScissorEnable         = scissorEnabled;
+    desc.MultisampleEnable     = multiSampleEnabled;
 
+    HRESULT hr;
 
-    mDeviceHandle->CreateRasterizerState(,);
+    hr = mDeviceHandle->CreateRasterizerState(&desc, state);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindRasterizerState(ID3D11RasterizerState* state)
+{
+    if (!mDeviceContext)
+        return;
+
+    mDeviceContext->RSSetState(state);
 }
 
 // ------------------------------------------------------------------------------------------ //

@@ -19,7 +19,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	testCar   = new Car(shaderHandler);
 
-	mSkyDome = new SkyDome(shaderHandler, Vector3D::zero, 10.0f, 10, 10);
+	mSkyDome = new SkyDome(shaderHandler, Vector3D::zero, 8.0f, 100);
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
 									Vector3D(0.0f, 0.0f, 0.0f),
@@ -30,11 +30,13 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 									0.01f,
 									800.0f,
 									16.0f / 9.0f,
-									0.1f,
-									0.2f);
+									0.01f,
+									0.05f);
 
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);
+
+	mShaderHandler.CreateRasterizerState(&renderState);
 }
 
 // --------------------------------------------------------- //
@@ -75,6 +77,8 @@ void GameScreen_Editor::Render()
 
 	// ------------------------------------------------------------------------------------------- //
 
+	mShaderHandler.BindRasterizerState(renderState);
+
 	// Render the test cubes
 	if (testCube)
 		testCube->Render(mCamera);
@@ -93,6 +97,9 @@ void GameScreen_Editor::Render()
 
 	// ------------------------------------------------------------------------------------------- //
 
+
+
+	mShaderHandler.BindRasterizerState(renderState);
 	mPostProcessing->Render();
 
 	// ------------------------------------------------------------------------------------------- //
