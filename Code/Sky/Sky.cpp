@@ -283,16 +283,16 @@ void SkyDome::CalculateIndicies()
 	unsigned int endIndexID = mVertexData.size() - 1;
 
 	// Now calculate the bottom most ring of triangles
-	for (unsigned int i = 1; i < mDivisions; i++)
+	for (unsigned int i = 0; i < mDivisions; i++)
 	{
 		// For each of these triangles the last index will be the first value as they all link to the top
 		mIndexData.push_back(endIndexID);
 
 		// Now add the current index on the loop above the end point
-		mIndexData.push_back(endIndexID - i);
+		mIndexData.push_back(endIndexID - ((i % mDivisions) + 1));
 
 		// Now add the index next to the previous index on the same loop
-		mIndexData.push_back(endIndexID - (i + 1));
+		mIndexData.push_back(endIndexID - (((i + 1) % mDivisions) + 1));
 	}
 }
 
