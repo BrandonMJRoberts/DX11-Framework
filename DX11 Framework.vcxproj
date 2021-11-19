@@ -391,6 +391,7 @@
     <ClCompile Include="Code\Camera\BaseCamera.cpp" />
     <ClCompile Include="Code\Collisions\TrackCollision.cpp" />
     <ClCompile Include="Code\Editor\Grid\Grid.cpp" />
+    <ClCompile Include="Code\Editor\Ground\Ground.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_Editor.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_InGame.cpp" />
@@ -418,6 +419,7 @@
     <ClInclude Include="Code\Camera\BaseCamera.h" />
     <ClInclude Include="Code\Collisions\TrackCollision.h" />
     <ClInclude Include="Code\Editor\Grid\Grid.h" />
+    <ClInclude Include="Code\Editor\Ground\Ground.h" />
     <ClInclude Include="Code\GameScreens\GameScreen.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_Editor.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_InGame.h" />
@@ -453,6 +455,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="DetailNoiseGenerator.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="DX11 Framework.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -475,6 +482,11 @@
     </FxCompile>
     <FxCompile Include="SkyDomeRender.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="WeatherMapGenerator.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

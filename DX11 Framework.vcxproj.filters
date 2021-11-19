@@ -27,9 +27,6 @@
     <Filter Include="Headers\Editor\Grid">
       <UniqueIdentifier>{26ba3f76-d25b-4ca6-94a5-7c8b10ee0362}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\Surroundings">
-      <UniqueIdentifier>{247f3846-c900-45c1-95a1-62279b2e70cf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headers\Editor\Ground">
       <UniqueIdentifier>{7b047baa-de96-4f34-ad60-60247f73ae94}</UniqueIdentifier>
     </Filter>
@@ -117,6 +114,24 @@
     <Filter Include="Source\Models">
       <UniqueIdentifier>{4fcf6fb4-a547-488e-beaa-2066d7bcb5ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Editor\Ground">
+      <UniqueIdentifier>{38e521de-5195-48c7-88cd-a6dcff62bccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Clouds">
+      <UniqueIdentifier>{9117190f-24b5-474b-b3b3-a82a70ff73d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Sky">
+      <UniqueIdentifier>{3f0caa5c-9da6-4c50-ae46-d92dcce98cdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Post Processing">
+      <UniqueIdentifier>{91b0975b-f6ff-4ee9-b941-264f7581373b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Models">
+      <UniqueIdentifier>{d28940da-078c-4ae4-9e1d-23fee85c921c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Basic Render">
+      <UniqueIdentifier>{e4f468e5-4780-4cb4-9669-85cc3fce2b16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Track\TrackPiece.cpp">
@@ -191,6 +206,9 @@
     </ClCompile>
     <ClCompile Include="Code\Particle Effects\ParticleSystem.cpp">
       <Filter>Source\Particle Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Editor\Ground\Ground.cpp">
+      <Filter>Source\Editor\Ground</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +293,9 @@
     <ClInclude Include="Code\Particle Effects\ParticleSystem.h">
       <Filter>Headers\Particle Effects</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Editor\Ground\Ground.h">
+      <Filter>Headers\Editor\Ground</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11 Framework.rc">
@@ -282,26 +303,32 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="DX11 Framework.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PostProcessingFinalRender.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="CloudsFinalPass.fx">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Clouds</Filter>
     </FxCompile>
     <FxCompile Include="CloudsInitialPass.fx">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Clouds</Filter>
     </FxCompile>
-    <FxCompile Include="ModelLightingRender.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ModelGeometryRender.fx">
-      <Filter>Shaders</Filter>
+    <FxCompile Include="WeatherMapGenerator.fx">
+      <Filter>Shaders\Clouds</Filter>
     </FxCompile>
     <FxCompile Include="SkyDomeRender.fx">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Sky</Filter>
+    </FxCompile>
+    <FxCompile Include="PostProcessingFinalRender.fx">
+      <Filter>Shaders\Post Processing</Filter>
+    </FxCompile>
+    <FxCompile Include="ModelGeometryRender.fx">
+      <Filter>Shaders\Models</Filter>
+    </FxCompile>
+    <FxCompile Include="ModelLightingRender.fx">
+      <Filter>Shaders\Models</Filter>
+    </FxCompile>
+    <FxCompile Include="DX11 Framework.fx">
+      <Filter>Shaders\Basic Render</Filter>
+    </FxCompile>
+    <FxCompile Include="DetailNoiseGenerator.fx">
+      <Filter>Shaders\Clouds</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

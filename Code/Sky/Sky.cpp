@@ -17,10 +17,8 @@ SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, un
 	, mConstantBuffer(nullptr)
 	, mShaderHandler(shaderHandler)
 	, mInputLayout(nullptr)
-	, mVertexData()
 	, mModelMat(MatrixMaths::Identity4X4)
 	, renderState(nullptr)
-	, mIndexData()
 {
 	// First generate the dome
 	GenerateDome();
@@ -28,7 +26,7 @@ SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, un
 	// Now setup the shaders requred for rendering the dome
 	SetupShaders();
 
-	mShaderHandler.CreateRasterizerState(&renderState, D3D11_FILL_WIREFRAME, D3D11_CULL_NONE);
+	mShaderHandler.CreateRasterizerState(&renderState, D3D11_FILL_WIREFRAME, D3D11_CULL_FRONT);
 }
 
 // ---------------------------------------------------------------- 
@@ -64,15 +62,6 @@ SkyDome::~SkyDome()
 		mInputLayout->Release();
 		mInputLayout = nullptr;
 	}
-
-	//delete[] mVertexData;
-	//mVertexData = nullptr;
-
-	mVertexData.clear();
-
-	mIndexData.clear();
-	//delete[] mIndexData;
-	//mIndexData = nullptr;
 }
 
 // ---------------------------------------------------------------- 
@@ -130,7 +119,7 @@ void SkyDome::Render(BaseCamera* camera)
 		return;
 
 		// Now draw the dome using the indicies
-		mShaderHandler.DrawIndexed(mIndexData.size(), 0, 0);
+		mShaderHandler.DrawIndexed(mIndexCount, 0, 0);
 
 	// Now unbind the shaders
 	mShaderHandler.SetVertexShader(nullptr);
@@ -153,18 +142,6 @@ void SkyDome::GenerateDome()
 	CalculateVerticies();
 
 	CalculateIndicies();
-	
-	// Create the vertex buffer now we have the vertex data
-	mVertexBufferStride = sizeof(Vector3D);
-
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mVertexData.data(), sizeof(Vector3D) * mVertexData.size(), &mVertexBuffer))
-		return;
-
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, mIndexData.data(), sizeof(unsigned int) * mIndexData.size(), &mIndexBuffer)) 
-		return;
-
-	if (!mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0))
-		return;
 }
 
 // ---------------------------------------------------------------- 
@@ -207,7 +184,8 @@ void SkyDome::CalculateVerticies()
 	float currentLongitude = 0.0f;
 
 	// First add the top most vertex, as we dont want to add it a lot of times
-	mVertexData.push_back(Vector3D(0.0f, mRadius, 0.0f));
+	std::vector<Vector3D> vertexData;
+	vertexData.push_back(Vector3D(0.0f, mRadius, 0.0f));
 
 	// What we want to do is rotate a full rotation around the same latitude before changing the latitude
 	// = 1 and -1 to account for the fact we are pre-post adding the top and bottom of the circle
@@ -223,7 +201,7 @@ void SkyDome::CalculateVerticies()
 		for (unsigned int j = 0; j < mDivisions; j++)
 		{
 			// Now given the current angles calculate where we are pointing using spherical coordinates
-			mVertexData.push_back(Vector3D(mRadius * cosf(currentLongitude) * sinf(currentLatitude),
+			vertexData.push_back(Vector3D( mRadius * cosf(currentLongitude) * sinf(currentLatitude),
 				                           mRadius * cosf(currentLatitude), // The Y value should go from +radius to -radius as the latitide changes
 				                           mRadius * sinf(currentLatitude)  * sinf(currentLongitude)));
 
@@ -233,9 +211,14 @@ void SkyDome::CalculateVerticies()
 	}
 
 	// Now add the last vertex so we dont add it lots of times
-	mVertexData.push_back(Vector3D(0.0f, -mRadius, 0.0f));
+	vertexData.push_back(Vector3D(0.0f, -mRadius, 0.0f));
 
-	// We should now have all of the verticies of a sphere, radius of the set radius, centre at the origin (the offset will be applied by the model matrix)
+	mVertexBufferStride = sizeof(Vector3D);
+	mVertexCount        = vertexData.size();
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, vertexData.data(), sizeof(Vector3D) * mVertexCount, &mVertexBuffer))
+		return;
+
+	vertexData.clear();
 }
 
 // ---------------------------------------------------------------- 
@@ -244,19 +227,20 @@ void SkyDome::CalculateIndicies()
 {
 	// Calulation of indicies in order to render a sphere
 
+	std::vector<unsigned int> indexData;
 
 	// Now calculate the indices for the triangles
 	// Start with the top ring of triangles around the pole, as the top is stored as a single point instead of a load of points in the same place
 	for (unsigned int i = 0; i < mDivisions; i++)
 	{
 		// For each of these triangles - 0 will be the first value as they all link to the top
-		mIndexData.push_back(0);
+		indexData.push_back(0);
 
 		// Now add the current index on the first loop
-		mIndexData.push_back(i + 1);
+		indexData.push_back(i + 1);
 
 		// Now add the index next to the previous index on the same loop
-		mIndexData.push_back(((i + 1) % mDivisions) + 1);
+		indexData.push_back(((i + 1) % mDivisions) + 1);
 	}
 
 	unsigned int currentIndexID;
@@ -270,30 +254,36 @@ void SkyDome::CalculateIndicies()
 		for (unsigned int j = 0; j < mDivisions; j++)
 		{
 			// Start off with the current ID of the loop we are on
-			mIndexData.push_back(currentIndexID + j);
+			indexData.push_back(currentIndexID + j);
 
 			// Now add the id of the next index of the same loop we are on
-			mIndexData.push_back(currentIndexID + ((j + 1) % mDivisions));
+			indexData.push_back(currentIndexID + ((j + 1) % mDivisions));
 
 			// Now add the ID of the index on the loop below ours
-			mIndexData.push_back((currentIndexID + mDivisions) + j);
+			indexData.push_back((currentIndexID + mDivisions) + j);
 		}
 	}
 	
-	unsigned int endIndexID = mVertexData.size() - 1;
+	unsigned int endIndexID = mVertexCount - 1;
 
 	// Now calculate the bottom most ring of triangles
 	for (unsigned int i = 0; i < mDivisions; i++)
 	{
 		// For each of these triangles the last index will be the first value as they all link to the top
-		mIndexData.push_back(endIndexID);
+		indexData.push_back(endIndexID);
 
 		// Now add the current index on the loop above the end point
-		mIndexData.push_back(endIndexID - ((i % mDivisions) + 1));
+		indexData.push_back(endIndexID - ((i % mDivisions) + 1));
 
 		// Now add the index next to the previous index on the same loop
-		mIndexData.push_back(endIndexID - (((i + 1) % mDivisions) + 1));
+		indexData.push_back(endIndexID - (((i + 1) % mDivisions) + 1));
 	}
+
+	mIndexCount = indexData.size();
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, indexData.data(), sizeof(unsigned int) * mIndexCount, &mIndexBuffer))
+		return;
+
+	indexData.clear();
 }
 
 // ---------------------------------------------------------------- 

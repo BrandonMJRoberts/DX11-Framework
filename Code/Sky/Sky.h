@@ -40,10 +40,9 @@ private:
 	ID3D11Buffer*       mIndexBuffer;
 	ID3D11Buffer*       mConstantBuffer;
 
-	std::vector<Vector3D>     mVertexData;
-	std::vector<unsigned int> mIndexData;
-
 	unsigned int        mVertexBufferStride;
+	unsigned int        mIndexCount;
+	unsigned int        mVertexCount;
 
 	ShaderHandler&      mShaderHandler;
 

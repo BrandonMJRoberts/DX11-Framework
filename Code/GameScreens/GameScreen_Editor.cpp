@@ -19,7 +19,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	testCar   = new Car(shaderHandler);
 
-	mSkyDome = new SkyDome(shaderHandler, Vector3D::zero, 8.0f, 15);
+	mSkyDome = new SkyDome(shaderHandler, Vector3D::zero, 50.0f, 100);
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
 									Vector3D(0.0f, 0.0f, 0.0f),
@@ -60,6 +60,12 @@ GameScreen_Editor::~GameScreen_Editor()
 
 	delete mSkyDome;
 	mSkyDome = nullptr;
+
+	if (renderState)
+	{
+		renderState->Release();
+		renderState = nullptr;
+	}
 }
 
 // --------------------------------------------------------- //
