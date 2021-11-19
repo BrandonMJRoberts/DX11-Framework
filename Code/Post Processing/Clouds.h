@@ -2,8 +2,13 @@
 #define _CLOUDS_H_
 
 #include "../Maths/CommonMaths.h"
+
+#include "../Texture/RenderBuffer.h"
 #include "../Texture/Texture.h"
+
 #include "../Shaders/ShaderHandler.h"
+
+#include <vector>
 
 class VolumetricClouds final
 {
@@ -14,9 +19,14 @@ public:
 	void Render();
 	void Update(const float deltaTime);
 
+	void BindNoiseTest();
+
 private:
 	// Initialise functions
-	void SetupTextures();
+	void SetupNoiseTexture();
+
+	void GenerateDataPointsForNoise(unsigned int slices, std::vector<Vector2D>& returnData);
+
 	void SetupShaders();
 
 	void GenerateWeatherMapTexture();
@@ -42,7 +52,7 @@ private:
 		// G = High coverage map
 		// B = Clouds peak hat
 		// A = Cloud weather-map density
-	Texture2D* mWeatherMap;
+	RenderBuffer* mWeatherMap;
 
 	// First pass shaders (calculates the colour and opcaity of the clouds at each pixel)
 		// Vertex
@@ -61,8 +71,8 @@ private:
 		// G = Medium frequency Worley noise
 		// B = High Frequency Worley noise
 		// A = Highest frequency Worley noise
-	Texture2D* mShapeTexture;     // Used for making the shapes of the clouds
-	Texture2D* mBlueNoiseTexture; // Used for offsetting the start step length
+	RenderBuffer* mShapeTexture;     // Used for making the shapes of the clouds
+	Texture2D*    mBlueNoiseTexture; // Used for offsetting the start step length
 
 	ShaderHandler& mShaderHandler;
 };
