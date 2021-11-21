@@ -37,8 +37,8 @@ private:
 	void CapToXRotationBounds(float& angleToRotateBy);
 	void CapToYRotationBounds(float& angleToRotateBy);
 
-	const float kMaxDistance = 15.0f;
-	const float kMinDistance = 2.0f;
+	const float kMaxDistance = 20.0f;
+	const float kMinDistance = 5.0f;
 
 	Vector3D mFocalPoint;
 	float    mDistanceFromFocalPoint;

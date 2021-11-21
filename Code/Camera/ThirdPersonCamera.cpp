@@ -11,6 +11,10 @@ ThirdPersonCamera::ThirdPersonCamera()
 	, mYRotationAngle(0.0f)
 	, mXRotationAngle(0.0f)
 {
+	float zero = 0.0f;
+	CapToYRotationBounds(zero);
+	CapToXRotationBounds(zero);
+
 	ReCalculatePosition();
 
 	ReCalculatePerspectiveMatrix();
@@ -30,12 +34,16 @@ ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
 	                                 float         aspect,
 	                                 float         movementSpeed, 
 	                                 float         rotationSpeed)
-	: BaseCamera(inputHandler, Vector3D::zero, right, up, FOV, nearPlane, farPlane, aspect, movementSpeed, rotationSpeed)
+	: BaseCamera(inputHandler, Vector3D::zero, right.Normalised(), up.Normalised(), FOV, nearPlane, farPlane, aspect, movementSpeed, rotationSpeed)
 	, mFocalPoint(focalPoint)
 	, mDistanceFromFocalPoint(distanceFromFocalPoint)
 	, mYRotationAngle(0.0f)
 	, mXRotationAngle(0.0f)
 {
+	float zero = 0.0f;
+	CapToYRotationBounds(zero);
+	CapToXRotationBounds(zero);
+
 	ReCalculatePosition();
 
 	ReCalculatePerspectiveMatrix();
@@ -143,8 +151,8 @@ void ThirdPersonCamera::MovementCheck(bool& changed, const float deltaTime)
 		mFocalPoint += (mRight * mMovementSpeed) * deltaTime;
 	}
 
-	// Up/down
-	if (mInputHandler->GetIsKeyPressed(VK_SPACE))
+	// Up/down - only one layer so disabled
+	/*if (mInputHandler->GetIsKeyPressed(VK_SPACE))
 	{
 		changed = true;
 		mFocalPoint += (Vector3D::worldUp * mMovementSpeed) * deltaTime;
@@ -153,7 +161,7 @@ void ThirdPersonCamera::MovementCheck(bool& changed, const float deltaTime)
 	{
 		changed = true;
 		mFocalPoint += (Vector3D::worldUp * -mMovementSpeed) * deltaTime;
-	}
+	}*/
 
 
 	// As we need to restrict the movement to the X/Z plane we need to adjust the facing direction
@@ -279,10 +287,10 @@ void ThirdPersonCamera::CapToXRotationBounds(float& angleToRotateBy)
 
 void ThirdPersonCamera::CapToYRotationBounds(float& angleToRotateBy)
 {
-	if (mYRotationAngle + angleToRotateBy > PIDIV4)
+	if (mYRotationAngle + angleToRotateBy > -0.1f)
 	{
-		angleToRotateBy = PIDIV4 - mYRotationAngle;
-		mYRotationAngle = PIDIV4;
+		angleToRotateBy = -0.1f - mYRotationAngle;
+		mYRotationAngle = -0.1f;
 	}
 	else if (mYRotationAngle + angleToRotateBy < -PIDIV4)
 	{

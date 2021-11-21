@@ -25,15 +25,15 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
 									Vector3D(0.0f, 0.0f, 0.0f),
-									10.0f,
+									14.0f,
 									Vector3D(1.0f, 0.0f, 0.0f),
-									Vector3D::worldUp,
+									Vector3D(0.0f, 0.9f, 0.05f),
 									DirectX::XMConvertToRadians(60.0f),
 									0.01f,
 									800.0f,
 									16.0f / 9.0f,
 									0.01f,
-									0.05f);
+									0.1f);
 
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);
