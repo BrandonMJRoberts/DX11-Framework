@@ -21,7 +21,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	mGround   = new Ground(shaderHandler);
 
-	mSkyDome  = new SkyDome(shaderHandler, Vector3D::zero, 50.0f, 50);
+	mSkyDome  = new SkyDome(shaderHandler, Vector3D::zero, 200.0f, 50);
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
 									Vector3D(0.0f, 0.0f, 0.0f),

@@ -83,11 +83,11 @@ void PostProcessing::RenderFinal()
 	mShaderHandler.SetVertexShader(mVertexShader);
 	mShaderHandler.SetPixelShader(mPixelShader);
 
-	//if(mPostProcessingRenderBuffer)
-	//	mPostProcessingRenderBuffer->BindTextureToShaders(0, 1);
+	if(mPostProcessingRenderBuffer)
+		mPostProcessingRenderBuffer->BindTextureToShaders(0, 1);
 
-	if (mClouds)
-		mClouds->BindNoiseTest();
+	//if (mClouds)
+	//	mClouds->BindNoiseTest();
 
 	if(mSamplerState)
 		mSamplerState->BindSamplerState(0, 1);

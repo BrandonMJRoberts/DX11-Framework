@@ -15,7 +15,7 @@ Ground::Ground(ShaderHandler& shaderHandler)
 						mPixelShader = mShaderHandler.CompilePixelShader(L"ModelLightingRender.fx", "PS");
 
 	// Now load in the model for the ground
-	//mGroundModel = new Model(shaderHandler, "Models/Ground/Ground.obj", mVertexShader, mPixelShader, returnData.Blob);
+	mGroundModel = new Model(shaderHandler, "Models/Ground/Ground.obj", mVertexShader, mPixelShader, returnData.Blob);
 }
 
 // ------------------------------------------------------- //

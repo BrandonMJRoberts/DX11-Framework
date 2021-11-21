@@ -32,11 +32,11 @@ public:
 	EditorGrid(ShaderHandler& shaderHandler);
 	~EditorGrid();
 
-	GridPiece GetTrackPiece(unsigned int x, unsigned int y, unsigned int z);
-	GridPiece GetTrackPiece(Vector3D position);
+	GridPiece GetTrackPiece(unsigned int x, unsigned int y);
+	GridPiece GetTrackPiece(Vector2D position);
 
-	void      SetGridPiece(TrackPieceType typeToAdd, Vector3D position);
-	void      SetGridPiece(TrackPieceType typeToAdd, unsigned int x, unsigned int y, unsigned int z);
+	void      SetGridPiece(TrackPieceType typeToAdd, Vector2D position);
+	void      SetGridPiece(TrackPieceType typeToAdd, unsigned int x, unsigned int y);
 
 	void      ClearGrid();
 
@@ -48,7 +48,7 @@ public:
 
 private:
 	// Internal grid store
-	GridPiece mGrid[Constants::GRID_WIDTH][Constants::GRID_HEIGHT][Constants::GRID_DEPTH];
+	GridPiece mGrid[Constants::GRID_WIDTH][Constants::GRID_HEIGHT];
 
 	std::vector<GridPiece> mPiecesOnScreen;
 	std::vector<GridPiece> mVisibleGridPieces;

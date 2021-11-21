@@ -34,42 +34,42 @@ EditorGrid::~EditorGrid()
 
 // ------------------------------------------------------------------------ //
 
-GridPiece EditorGrid::GetTrackPiece(unsigned int x, unsigned int y, unsigned int z)
+GridPiece EditorGrid::GetTrackPiece(unsigned int x, unsigned int y)
 {
-	return mGrid[x][y][z];
+	return mGrid[x][y];
 }
 
 // ------------------------------------------------------------------------ //
 
-GridPiece EditorGrid::GetTrackPiece(Vector3D position)
+GridPiece EditorGrid::GetTrackPiece(Vector2D position)
 {
-	return mGrid[(unsigned int)position.x][(unsigned int)position.y][(unsigned int)position.z];
+	return mGrid[(unsigned int)position.x][(unsigned int)position.y];
 }
 
 // ------------------------------------------------------------------------ //
 
-void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, Vector3D position)
+void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, Vector2D position)
 {
 	// First check to see if the piece is not already the same thing
 	if (typeToAdd == GetTrackPiece(position).pieceType)
 		return;
 
-	mGrid[(unsigned int)position.x][(unsigned int)position.y][(unsigned int)position.z].pieceType  = typeToAdd;
-	mGrid[(unsigned int)position.x][(unsigned int)position.y][(unsigned int)position.z].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd);
+	mGrid[(unsigned int)position.x][(unsigned int)position.y].pieceType  = typeToAdd;
+	mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd);
 }
 
 // ------------------------------------------------------------------------ //
 
-void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, unsigned int x, unsigned int y, unsigned int z)
+void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, unsigned int x, unsigned int y)
 {
-	if (typeToAdd == mGrid[x][y][z].pieceType)
+	if (typeToAdd == mGrid[x][y].pieceType)
 		return;
 
 	// Set the new type
-	mGrid[x][y][z].pieceType  = typeToAdd;
+	mGrid[x][y].pieceType  = typeToAdd;
 
 	// Assign the track piece
-	mGrid[x][y][z].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd); 
+	mGrid[x][y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd); 
 }
 
 // ------------------------------------------------------------------------ //
@@ -80,11 +80,8 @@ void EditorGrid::ClearGrid()
 	{
 		for (unsigned int j = 0; j < Constants::GRID_HEIGHT; j++)
 		{
-			for (unsigned int k = 0; k < Constants::GRID_DEPTH; k++)
-			{
-				mGrid[i][j][k].pieceType  = TrackPieceType::EMPTY;
-				mGrid[i][j][k].trackPiece = nullptr;
-			}
+			mGrid[i][j].pieceType  = TrackPieceType::EMPTY;
+			mGrid[i][j].trackPiece = nullptr;	
 		}
 	}
 }
