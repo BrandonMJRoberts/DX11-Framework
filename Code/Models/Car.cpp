@@ -17,13 +17,8 @@ Car::Car(ShaderHandler& shaderHandler)
 
 			            mFullRenderPixelShader  = mShaderHandler.CompilePixelShader(L"ModelLightingRender.fx", "PS");
 
-    VertexShaderReturnData returnDataGeometryRender = mShaderHandler.CompileVertexShader(L"ModelGeometryRender.fx", "VS");
-			               mGeometryVertexShader    = returnDataGeometryRender.vertexShader;
-
-						   mGeometryPixelShader     = mShaderHandler.CompilePixelShader(L"ModelGeometryRender.fx", "PS");
-
     // Now load in the model
-	mCarModel = new Model(mShaderHandler, "Models/Car/Car.obj", mGeometryVertexShader, mGeometryPixelShader, returnDataGeometryRender.Blob, mFullRenderVertexShader, mFullRenderPixelShader, returnDataFullRender.Blob);
+	mCarModel = new Model(mShaderHandler, "Models/Car/Car.obj", mFullRenderVertexShader, mFullRenderPixelShader, returnDataFullRender.Blob);
 }
 
 // ------------------------------------------------------------------ //
@@ -65,16 +60,6 @@ void Car::RenderFull(BaseCamera* camera)
 	if (mCarModel)
 	{
 		mCarModel->FullRender(camera, mModelMat);
-	}
-}
-
-// ------------------------------------------------------------------ //
-
-void Car::RenderGeometry(BaseCamera* camera)
-{
-	if (mCarModel)
-	{
-		mCarModel->RenderGeometry(camera, mModelMat);
 	}
 }
 

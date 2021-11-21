@@ -9,9 +9,6 @@
 
 Model::Model(ShaderHandler&      shaderHandler, 
 	         std::string         filePathToLoadFrom, 
-	         ID3D11VertexShader* geometryRenderVertexShader, 
-	         ID3D11PixelShader*  geometryRenderPixelShader, 
-	         ID3DBlob*           geometryBlob,
 
 	         ID3D11VertexShader* fullRenderVertexShader, 
 	         ID3D11PixelShader*  fullRenderPixelShader,
@@ -21,11 +18,8 @@ Model::Model(ShaderHandler&      shaderHandler,
 
 	  , mFullRenderVertexShader(fullRenderVertexShader)
 	  , mFullRenderPixelShader(fullRenderPixelShader)
-	  , mGeometryRenderVertexShader(geometryRenderVertexShader)
-	  , mGeometryRenderPixelShader(geometryRenderPixelShader)
 
 	  , mFullRenderInputLayout(nullptr)
-	  , mGeometryInputLayout(nullptr)
 
 	  , mVertexBuffer(nullptr)
 	  , mVertexCount(0)
@@ -48,7 +42,7 @@ Model::Model(ShaderHandler&      shaderHandler,
 		LoadInModelFromFile(filePathToLoadFrom);
 
 	// Now create the input layouts
-	SetupInputLayouts(geometryBlob, fullRenderBlob);
+	SetupInputLayouts(fullRenderBlob);
 
 	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);
 
@@ -77,18 +71,6 @@ Model::~Model()
 	{
 		mFullRenderPixelShader->Release();
 		mFullRenderPixelShader = nullptr;
-	}
-
-	if (mGeometryRenderVertexShader)
-	{
-		mGeometryRenderVertexShader->Release();
-		mGeometryRenderVertexShader = nullptr;
-	}
-
-	if (mGeometryRenderPixelShader)
-	{
-		mGeometryRenderPixelShader->Release();
-		mGeometryRenderPixelShader = nullptr;
 	}
 
 	if (mVertexBuffer)
@@ -288,20 +270,6 @@ void Model::RemoveAllPriorDataStored()
 		delete[] mFaceData;
 		mFaceData = nullptr;
 	}
-}
-
-// --------------------------------------------------------- //
-
-void Model::RenderGeometry(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
-{
-	UNREFERENCED_PARAMETER(modelMat);
-	UNREFERENCED_PARAMETER(camera);
-
-	if (!mGeometryRenderVertexShader || !mGeometryRenderPixelShader)
-		return;
-
-	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
-		return;
 }
 
 // --------------------------------------------------------- //
@@ -572,42 +540,8 @@ void Model::SetShadersForFullRender(ID3D11VertexShader* vertexShader, ID3D11Pixe
 
 // --------------------------------------------------------- //
 
-void Model::SetShadersForGeometryRender(ID3D11VertexShader* vertexShader, ID3D11PixelShader* pixelShader)
+void Model::SetupInputLayouts(ID3DBlob* fullRenderBlob)
 {
-	if (vertexShader)
-	{
-		if (mGeometryRenderVertexShader)
-		{
-			mGeometryRenderVertexShader->Release();
-		}
-
-		mGeometryRenderVertexShader = vertexShader;
-	}
-
-	if (pixelShader)
-	{
-		if (mGeometryRenderPixelShader)
-		{
-			mGeometryRenderPixelShader->Release();
-		}
-
-		mGeometryRenderPixelShader = pixelShader;
-	}
-}
-
-// --------------------------------------------------------- //
-
-void Model::SetupInputLayouts(ID3DBlob* geometryBlob, ID3DBlob* fullRenderBlob)
-{
-	// Just the position
-	D3D11_INPUT_ELEMENT_DESC geometryLayout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	if (!mShaderHandler.SetDeviceInputLayout(geometryBlob, geometryLayout, 1, &mGeometryInputLayout))
-		return;
-
 	// Position, normal and texture coord
 	D3D11_INPUT_ELEMENT_DESC fullRenderLayout[] =
 	{

@@ -318,9 +318,6 @@
     <FxCompile Include="PostProcessingFinalRender.fx">
       <Filter>Shaders\Post Processing</Filter>
     </FxCompile>
-    <FxCompile Include="ModelGeometryRender.fx">
-      <Filter>Shaders\Models</Filter>
-    </FxCompile>
     <FxCompile Include="ModelLightingRender.fx">
       <Filter>Shaders\Models</Filter>
     </FxCompile>

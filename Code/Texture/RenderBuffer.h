@@ -31,6 +31,30 @@ private:
 };
 
 // -------------------------------------------------------------------------------------------------- //
+//
+//class RenderBuffer3D final
+//{
+//public:
+//	RenderBuffer3D() = delete;
+//	RenderBuffer3D(ShaderHandler& shaderHandler, unsigned int width, unsigned int height, unsigned int depth, unsigned int mipLevels, unsigned int arraySize, DXGI_FORMAT format, D3D11_USAGE usage);
+//	~RenderBuffer3D();
+//
+//	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews);
+//	void BindRenderTargetAsActive(ID3D11DepthStencilView* depthStencilViewToBind = nullptr);
+//
+//	void ClearRenderBuffer(ID3D11DepthStencilView* depthStencilViewToClear = nullptr);
+//
+//private:
+//	// Texture - stores the actual data
+//	Texture3D* mTexture3D;
+//
+//	// Render target view - used for binding things to render to this
+//	ID3D11RenderTargetView* mRenderTargetView;
+//
+//	ShaderHandler& mShaderHandler;
+//};
+
+// -------------------------------------------------------------------------------------------------- //
 
 class DepthStencilBuffer final
 {

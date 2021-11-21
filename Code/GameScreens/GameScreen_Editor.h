@@ -7,6 +7,7 @@
 #include "../Camera/ThirdPersonCamera.h"
 
 #include "../Editor/Grid/Grid.h"
+#include "../Editor/Ground/Ground.h"
 
 #include "../Post Processing/PostProcessing.h"
 
@@ -39,6 +40,7 @@ private:
 	Car* testCar;
 
 	SkyDome* mSkyDome;
+	Ground*  mGround;
 
 	ID3D11RasterizerState* renderState;
 };

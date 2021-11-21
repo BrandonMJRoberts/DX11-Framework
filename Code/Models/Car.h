@@ -16,7 +16,6 @@ public:
 	~Car();
 
 	void RenderFull(BaseCamera* camera);
-	void RenderGeometry(BaseCamera* camera);
 
 	void Update(const float deltaTime);
 
