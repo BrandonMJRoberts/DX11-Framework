@@ -18,7 +18,7 @@ Car::Car(ShaderHandler& shaderHandler)
 			            mFullRenderPixelShader  = mShaderHandler.CompilePixelShader(L"ModelLightingRender.fx", "PS");
 
     // Now load in the model
-	mCarModel = new Model(mShaderHandler, "Models/Car/Car.obj", mFullRenderVertexShader, mFullRenderPixelShader, returnDataFullRender.Blob);
+	mCarModel = new Model(mShaderHandler, "Models/Car/Car.obj", mFullRenderVertexShader, mFullRenderPixelShader, returnDataFullRender.Blob, true);
 }
 
 // ------------------------------------------------------------------ //

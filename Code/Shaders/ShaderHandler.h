@@ -38,7 +38,7 @@ public:
 	// -----------------------------------------
 
 	// Setting how the device will be accessing from shader buffers
-	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray, ID3D11InputLayout** vertexLayout);
+	bool SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray, ID3D11InputLayout** vertexLayout, bool clearBlob = true);
 	void SetInputLayout(ID3D11InputLayout* vertexLayout);
 
 	bool CreateSamplerState(D3D11_SAMPLER_DESC* samplerDescription, ID3D11SamplerState** samplerState);

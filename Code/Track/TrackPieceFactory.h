@@ -29,13 +29,7 @@ enum class TrackPieceType : unsigned int
 		END_AIR,	
 
 	// Checkpoints //
-		CHECKPOINT_STRAIGHT_TRACK,
-		CHECKPOINT_AIR,
-		CHECKPOINT_CURVE_LEFT,
-		CHECKPOINT_CURVE_RIGHT,
-		CHECKPOINT_SLOPE_UP,
-		CHECKPOINT_SLOPE_DOWN,
-
+		CHECKPOINT,
 
 	// Normal Pieces //
 
@@ -90,6 +84,12 @@ private:
 
 	std::vector<Model*>                mModels;
 	std::vector<TrackCollision*>       mCollisions;
+
+	ID3D11VertexShader* mDefaultRenderVertexShader;
+	ID3D11PixelShader*  mDefaultRenderPixelShader;
+
+	ID3D11VertexShader* mGhostRenderVertexShader;
+	ID3D11PixelShader*  mGhostRenderPixelShader;
 };
 
 // -------------------------------------------------------------------- //

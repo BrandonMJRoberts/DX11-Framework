@@ -3,6 +3,9 @@
 
 #include <DirectXMath.h>
 
+#include "../Camera/BaseCamera.h"
+#include "../Maths/CommonMaths.h"
+
 class Model;
 class TrackCollision;
 
@@ -11,18 +14,20 @@ class TrackCollision;
 class TrackPiece final
 {
 public:
-	TrackPiece(Model& model, TrackCollision& collision);
+	TrackPiece(Model& model);//, TrackCollision& collision);
 	~TrackPiece();
 
-	void RenderGeometry();
-	void RenderFull();
+	void RenderFull(BaseCamera* camera);
+	void SetNewGridPosition(Vector2D newPos) { mGridPosition.x = newPos.x, mGridPosition.y = newPos.y; }
 
 private:
-	DirectX::XMUINT3  mGridPosition;
+	DirectX::XMUINT2  mGridPosition;
 	DirectX::XMFLOAT3 mFacingDirection;
 
+	DirectX::XMFLOAT4X4 mModelMatrix;
+
 	Model&            mModel;
-	TrackCollision&   mCollision;
+	//TrackCollision&   mCollision;
 };
 
 // -------------------------------------------------------------------- //

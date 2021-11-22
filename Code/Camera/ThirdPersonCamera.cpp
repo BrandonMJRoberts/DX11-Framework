@@ -305,3 +305,10 @@ void ThirdPersonCamera::CapToYRotationBounds(float& angleToRotateBy)
 }
 
 // ------------------------------------------------------------ //
+
+Vector3D ThirdPersonCamera::GetFacingDirection()
+{
+	return (mFocalPoint - mPosition).Normalised();
+}
+
+// ------------------------------------------------------------ //

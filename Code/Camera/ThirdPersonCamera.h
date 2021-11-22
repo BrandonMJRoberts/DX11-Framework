@@ -26,6 +26,7 @@ public:
 	void Update(const float deltaTime) override;
 
 	void ReCalculateViewMatrix() override;
+	Vector3D GetFacingDirection() override;
 
 private:
 	void ReCalculatePosition();

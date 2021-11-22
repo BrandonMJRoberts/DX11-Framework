@@ -78,7 +78,8 @@ public:
 
 	         ID3D11VertexShader* fullRenderVertexShader, 
 	         ID3D11PixelShader*  fullRenderPixelShader,
-	         ID3DBlob*           fullRenderBlob);
+	         ID3DBlob*           fullRenderBlob,
+		     bool                cleanupBlobData);
 	~Model();
 
 	bool LoadInModelFromFile(std::string filePath);
@@ -100,7 +101,7 @@ private:
 
 	void     ExtractFaceIndexDataFromFile(std::string& line, Vector3D indexDataFromFile[3]);
 
-	void     SetupInputLayouts(ID3DBlob* fullRenderBlob);
+	void     SetupInputLayouts(ID3DBlob* fullRenderBlob, bool clearBlob);
 
 	void     LoadInMaterialData(std::string filePath);
 

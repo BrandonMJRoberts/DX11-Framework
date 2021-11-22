@@ -30,6 +30,7 @@ class EditorGrid
 {
 public:
 	EditorGrid(ShaderHandler& shaderHandler);
+	EditorGrid(ShaderHandler& shaderHandler, std::string filePathForTrackLoad);
 	~EditorGrid();
 
 	GridPiece GetTrackPiece(unsigned int x, unsigned int y);
@@ -48,17 +49,10 @@ public:
 
 private:
 	// Internal grid store
-	GridPiece mGrid[Constants::GRID_WIDTH][Constants::GRID_HEIGHT];
+	GridPiece      mGrid[Constants::GRID_WIDTH][Constants::GRID_HEIGHT];
+	GridPiece      mPotentialNewPiece;
 
-	std::vector<GridPiece> mPiecesOnScreen;
-	std::vector<GridPiece> mVisibleGridPieces;
-
-	ShaderHandler&         mShaderHandler;
-
-	// Texture for the occlusion text
-	RenderBuffer* mOcclusionRenderBuffer;
-
-	DepthStencilBuffer* mDepthStencilBufferOcclusion;
+	ShaderHandler& mShaderHandler;
 };
 
 // ------------------------------------------------------------------------ //

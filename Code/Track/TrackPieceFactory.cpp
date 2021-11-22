@@ -11,6 +11,10 @@ ShaderHandler*     TrackPieceFactory::mShaderHandler = nullptr;
 TrackPieceFactory::TrackPieceFactory(ShaderHandler* shaderHander) 
 	: kFilePathsToModels({ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", })
 	, kFilePathsToCollisionData({ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", })
+	, mDefaultRenderVertexShader(nullptr)
+	, mDefaultRenderPixelShader(nullptr)
+	, mGhostRenderVertexShader(nullptr)
+	, mGhostRenderPixelShader(nullptr)
 {
 	
 }
@@ -21,18 +25,42 @@ TrackPieceFactory::~TrackPieceFactory()
 {
 	mModels.clear();
 	mCollisions.clear();
+
+	if (mDefaultRenderVertexShader)
+	{
+		mDefaultRenderVertexShader->Release();
+		mDefaultRenderVertexShader = nullptr;
+	}
+
+	if (mDefaultRenderPixelShader)
+	{
+		mDefaultRenderPixelShader->Release();
+		mDefaultRenderPixelShader = nullptr;
+	}
+
+	if (mGhostRenderVertexShader)
+	{
+		mGhostRenderVertexShader->Release();
+		mGhostRenderVertexShader = nullptr;
+	}
+
+	if (mGhostRenderPixelShader)
+	{
+		mGhostRenderPixelShader->Release();
+		mGhostRenderPixelShader = nullptr;
+	}
 }
 
 // -------------------------------------------------------------------- //
 
 TrackPiece* TrackPieceFactory::CreateTrackPiece(TrackPieceType pieceType)
 {
-	// Error checking just incase we are de-referencing a nullptr
-	if (!mModels[(unsigned int)pieceType] || !mCollisions[(unsigned int)pieceType])
+	// Error checking just in case we are de-referencing a nullptr
+	if (mModels.size() < (unsigned int)pieceType || !mModels[(unsigned int)pieceType])// || !mCollisions[(unsigned int)pieceType])
 		return nullptr;
 
 	// Create the piece with the correct data
-	TrackPiece* returnTrackPiece = new TrackPiece(*(mModels[(unsigned int)pieceType]), *(mCollisions[(unsigned int)pieceType]));
+	TrackPiece* returnTrackPiece = new TrackPiece(*(mModels[(unsigned int)pieceType])); //, *(mCollisions[(unsigned int)pieceType]));
 
 	// If not a created for some reason then return nullptr
 	return returnTrackPiece;
@@ -45,21 +73,47 @@ void TrackPieceFactory::Init(ShaderHandler* shaderHander)
 	if (!shaderHander)
 		return;
 
+	// Set the shader handler
 	mShaderHandler = shaderHander;
+
+	// Load in the shaders
+	VertexShaderReturnData returnDataDefault = mShaderHandler->CompileVertexShader(L"ModelLightingRender.fx", "VS");
+	VertexShaderReturnData returnDataGhostly = mShaderHandler->CompileVertexShader(L"ModelGhostlyRender", "VS");
+
+	// Pixel shaders
+	mDefaultRenderPixelShader = mShaderHandler->CompilePixelShader(L"ModelLightingRender.fx", "PS");
+	mGhostRenderPixelShader   = mShaderHandler->CompilePixelShader(L"ModelGhostlyRender", "PS");
 
 	// Load in the models for the track pieces
 	for (unsigned int i = 0; i < (unsigned int)TrackPieceType::MAX; i++)
 	{
-		//if (kFilePathsToModels.size() > i)
-		//	mModels.push_back(new Model(*mShaderHandler, kFilePathsToModels[i]));
+		if (kFilePathsToModels.size() > i && kFilePathsToModels[i] != "")
+		{
+			// Pass through the ghostly version of the shader
+			if ((TrackPieceType)i == TrackPieceType::EMPTY)
+			{
+				mModels.push_back(new Model(*mShaderHandler, kFilePathsToModels[i], mGhostRenderVertexShader, mGhostRenderPixelShader, returnDataGhostly.Blob, false));
+			}
+			else
+			{
+				// Otherwise just pass through the normal render of the shader
+				mModels.push_back(new Model(*mShaderHandler, kFilePathsToModels[i], mDefaultRenderVertexShader, mDefaultRenderPixelShader, returnDataDefault.Blob, false));
+			}
+		}
 	}
 
+	if(returnDataDefault.Blob)
+		returnDataDefault.Blob->Release();
+
+	if(returnDataGhostly.Blob)
+		returnDataGhostly.Blob->Release();
+
 	// Load in the collision data for the track pieces
-	for (unsigned int i = 0; i < (unsigned int)TrackPieceType::MAX; i++)
-	{
-		if (kFilePathsToCollisionData.size() > i)
-			mCollisions.push_back(new TrackCollision(kFilePathsToCollisionData[i]));
-	}
+	//for (unsigned int i = 0; i < (unsigned int)TrackPieceType::MAX; i++)
+	//{
+		//if (kFilePathsToCollisionData.size() > i)
+		//	mCollisions.push_back(new TrackCollision(kFilePathsToCollisionData[i]));
+	//}
 }
 
 // -------------------------------------------------------------------- //

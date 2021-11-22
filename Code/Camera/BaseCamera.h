@@ -28,6 +28,7 @@ public:
 	DirectX::XMFLOAT4X4 GetPerspectiveMatrix() { return mPerspectiveMatrix; };
 
 	Vector3D GetPosition() { return mPosition; }
+	virtual Vector3D GetFacingDirection() = 0;
 
 protected:
 	virtual void ReCalculateViewMatrix();

@@ -327,6 +327,9 @@
     <FxCompile Include="DetailNoiseGenerator.fx">
       <Filter>Shaders\Clouds</Filter>
     </FxCompile>
+    <FxCompile Include="ModelGhostlyRender.fx">
+      <Filter>Shaders\Models</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Models\Car\Car.obj">

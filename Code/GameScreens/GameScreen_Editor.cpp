@@ -107,7 +107,7 @@ void GameScreen_Editor::Render()
 		mSkyDome->Render(mCamera);
 
 	// Now render the grid for the track
-	//mGrid.Render(mCamera);
+	mGrid.Render(mCamera);
 
 	// ------------------------------------------------------------------------------------------- //
 

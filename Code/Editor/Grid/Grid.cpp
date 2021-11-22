@@ -5,16 +5,24 @@
 // ------------------------------------------------------------------------ //
 
 EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
-	: mOcclusionRenderBuffer(nullptr)
-	, mShaderHandler(shaderHandler)
-	, mDepthStencilBufferOcclusion(nullptr)
+	: mShaderHandler(shaderHandler)
 {
 	// Make sure that the grid is empty
 	ClearGrid();
 
-	mOcclusionRenderBuffer = new RenderBuffer(shaderHandler, 320, 240, 1, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
+	// Create the highlight object that will change as new track types are selected
+	mPotentialNewPiece.trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(TrackPieceType::EMPTY);
+}
 
-	mDepthStencilBufferOcclusion = new DepthStencilBuffer(shaderHandler, 320, 240, 1, 1, DXGI_FORMAT_D24_UNORM_S8_UINT, D3D11_USAGE_DEFAULT, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
+// ------------------------------------------------------------------------ //
+
+EditorGrid::EditorGrid(ShaderHandler& shaderHandler, std::string filePathForTrackLoad)
+	: mShaderHandler(shaderHandler)
+{
+	// Make sure that the grid is empty
+	ClearGrid();
+
+	LoadInGridFromFile(filePathForTrackLoad);
 }
 
 // ------------------------------------------------------------------------ //
@@ -22,14 +30,6 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 EditorGrid::~EditorGrid()
 {
 	ClearGrid();
-
-	mVisibleGridPieces.clear();
-
-	delete mOcclusionRenderBuffer;
-	mOcclusionRenderBuffer = nullptr;
-
-	delete mDepthStencilBufferOcclusion;
-	mDepthStencilBufferOcclusion = nullptr;
 }
 
 // ------------------------------------------------------------------------ //
@@ -105,53 +105,39 @@ void      EditorGrid::SaveOutGridToFile()
 void EditorGrid::Update(const float deltaTime)
 {
 	UNREFERENCED_PARAMETER(deltaTime);
-
-	// Update what is now visible and now not visible
-
 }
 
 // ------------------------------------------------------------------------ //
 
 void EditorGrid::Render(BaseCamera* camera)
 {
-	UNREFERENCED_PARAMETER(camera);
-
-	// First bind the correct texture for the draw calls
-	if (mOcclusionRenderBuffer && mDepthStencilBufferOcclusion)
+	for (unsigned int i = 0; i < Constants::GRID_WIDTH; i++)
 	{
-		mOcclusionRenderBuffer->BindRenderTargetAsActive(mDepthStencilBufferOcclusion->GetDepthStencilView());
-		mOcclusionRenderBuffer->ClearRenderBuffer(mDepthStencilBufferOcclusion->GetDepthStencilView());
+		for (unsigned int j = 0; j < Constants::GRID_HEIGHT; j++)
+		{
+			if(mGrid[i][j].trackPiece)
+				mGrid[i][j].trackPiece->RenderFull(camera);
+		}
 	}
-	else 
+
+	// We need to also render the potential new placment piece based off of where the player is hovering over
+	// Find where the camera is currently pointing to and set the potential piece's grid position to be there
+	// To do this we get the camera's position and facing direction, and find when they cross the X-Z plane
+	if (!camera || !mPotentialNewPiece.trackPiece)
 		return;
-	
-	// First find what elements of the grid are visible
-	// Do this by rendering to a occlusion test
-	Vector3D piecePosition;
-	for (unsigned int i = 0; i < mPiecesOnScreen.size(); i++)
-	{
-		// Render the geometry (without anything fancy) to the occlusion buffer
-		//mPiecesOnScreen[i].trackPiece->RenderGeometry();
-	}
 
-	// Now loop through the grid again to see what is actually visible
-	for (unsigned int i = 0; i < mPiecesOnScreen.size(); i++)
-	{
-		// Render the geometry (without anything fancy) again, but perform an occlusion query on it now that everything has been drawn before
+	Vector3D cameraPos = camera->GetPosition();
+	Vector3D facingDir = camera->GetFacingDirection();
+	float t = -cameraPos.y / facingDir.y;
 
-		// The test has passed so add it to the list of visible elements
-		mVisibleGridPieces.push_back(mPiecesOnScreen[i]);
-	}
+	if (t < 0.0f)
+		return;
 
-	// Now re-bind the previous render targets from before this function
-	mShaderHandler.SetPriorRenderTarget();
+	Vector2D newPos = Vector2D(cameraPos.x + t * facingDir.x, 
+		                       cameraPos.z + t * facingDir.z);
 
-	// Now render what can be seen to the actual back buffer
-	for (unsigned int i = 0; i < mVisibleGridPieces.size(); i++)
-	{
-		// Now render the geometry normally to the default back buffer
-		//mVisibleGridPieces[i].trackPiece->RenderComplete();
-	}
+	mPotentialNewPiece.trackPiece->SetNewGridPosition(newPos);
+	mPotentialNewPiece.trackPiece->RenderFull(camera);
 }
 
 // ------------------------------------------------------------------------ //

@@ -12,7 +12,8 @@ Model::Model(ShaderHandler&      shaderHandler,
 
 	         ID3D11VertexShader* fullRenderVertexShader, 
 	         ID3D11PixelShader*  fullRenderPixelShader,
-	         ID3DBlob*           fullRenderBlob)
+	         ID3DBlob*           fullRenderBlob,
+	         bool                clearBlob)
 	:   mShaderHandler(shaderHandler)
 	  , mFaceData(nullptr)
 
@@ -42,7 +43,7 @@ Model::Model(ShaderHandler&      shaderHandler,
 		LoadInModelFromFile(filePathToLoadFrom);
 
 	// Now create the input layouts
-	SetupInputLayouts(fullRenderBlob);
+	SetupInputLayouts(fullRenderBlob, clearBlob);
 
 	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);
 
@@ -540,7 +541,7 @@ void Model::SetShadersForFullRender(ID3D11VertexShader* vertexShader, ID3D11Pixe
 
 // --------------------------------------------------------- //
 
-void Model::SetupInputLayouts(ID3DBlob* fullRenderBlob)
+void Model::SetupInputLayouts(ID3DBlob* fullRenderBlob, bool clearBlob)
 {
 	// Position, normal and texture coord
 	D3D11_INPUT_ELEMENT_DESC fullRenderLayout[] =
@@ -550,7 +551,7 @@ void Model::SetupInputLayouts(ID3DBlob* fullRenderBlob)
 		{ "NORMAL",       0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	if (!mShaderHandler.SetDeviceInputLayout(fullRenderBlob, fullRenderLayout, 3, &mFullRenderInputLayout))
+	if (!mShaderHandler.SetDeviceInputLayout(fullRenderBlob, fullRenderLayout, 3, &mFullRenderInputLayout, clearBlob))
 		return;
 
 	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST))

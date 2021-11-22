@@ -104,20 +104,27 @@ ID3D11PixelShader* ShaderHandler::CompilePixelShader(WCHAR* filePathToOverallSha
 // ------------------------------------------------------------------------------------------ //
 
 // Setting how the device will be accessing from shader buffers - when 
-bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray, ID3D11InputLayout** vertexLayout)
+bool ShaderHandler::SetDeviceInputLayout(ID3DBlob* vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC layout[], unsigned int numberOfElementsInArray, ID3D11InputLayout** vertexLayout, bool clearBlob)
 {
     // Create the input layout
     HRESULT hr;
     hr = mDeviceHandle->CreateInputLayout(layout, numberOfElementsInArray, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), vertexLayout);
     if (FAILED(hr))
     {
-        vertexShaderBlob->Release();
+        if (clearBlob)
+        {
+            vertexShaderBlob->Release();
+        }
+
         return false;
     }
 
     // Free the data we dont need anymore
-    vertexShaderBlob->Release();
-    vertexShaderBlob = nullptr;
+    if (clearBlob)
+    {
+        vertexShaderBlob->Release();
+        vertexShaderBlob = nullptr;
+    }
 
     return true;
 }
