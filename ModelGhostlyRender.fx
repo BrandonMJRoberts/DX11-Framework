@@ -70,6 +70,9 @@ float4 PS( VS_OUTPUT input ) : SV_Target
     // Now extract the base colour from the texture
     float4 colourFromTexture = texurePallet.Sample(sampler1, input.TexCoord);
     
+    // -----------------------------------------------------------------------------------
+    // Lighting
+    
     // Calculate the ambient component of the lighting
     float3 ambientPart = ambient * lightColour * colourFromTexture;
     
@@ -86,6 +89,13 @@ float4 PS( VS_OUTPUT input ) : SV_Target
     
     float3 specularPart = pow(max(dot(reflectVec, toEye), 0.0f), shinniness);
     
-    // For now just use the texture colour
-    return float4(ambientPart + specularPart + diffusePart, colourFromTexture.a);
+    // ------------------------------------------------------------------------------------
+    
+    // Pass out the final colour as a transparent, more white version of the normal colours
+    float3 finalColour = ambientPart + specularPart + diffusePart;
+    
+    // Now make the final colour a whitey, ghostly colour
+    finalColour = finalColour / length(finalColour);
+    
+    return float4(finalColour, 0.1f);
 }

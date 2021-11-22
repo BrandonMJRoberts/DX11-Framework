@@ -3,6 +3,9 @@
 
 #include "BaseCamera.h"
 
+class Model;
+class ShaderHandler;
+
 #define CAMERA_UP_TILT_MAX (2.0f * (PI / 3.0f))
 #define CAMERA_UP_TILT_MIN (5.0f * (PI / 9.0f))
 
@@ -11,6 +14,7 @@ class ThirdPersonCamera : public BaseCamera
 public:
 	ThirdPersonCamera();
 	ThirdPersonCamera(InputHandler* inputHandler, 
+		              ShaderHandler& shaderHandler,
 		              Vector3D      focalPoint, 
 		              float         distanceFromFocalPoint, 
 		              Vector3D      right, 
@@ -25,8 +29,10 @@ public:
 
 	void Update(const float deltaTime) override;
 
-	void ReCalculateViewMatrix() override;
-	Vector3D GetFacingDirection() override;
+	void     ReCalculateViewMatrix() override;
+	Vector3D GetFacingDirection()    override;
+
+	void     RenderFocusPoint();
 
 private:
 	void ReCalculatePosition();
@@ -38,8 +44,11 @@ private:
 	void CapToXRotationBounds(float& angleToRotateBy);
 	void CapToYRotationBounds(float& angleToRotateBy);
 
-	const float kMaxDistance = 20.0f;
-	const float kMinDistance = 5.0f;
+	Model*              mFocusPointIcon;
+	DirectX::XMFLOAT4X4 mFocusModelMatrix;
+
+	const float kMaxDistance = 50.0f;
+	const float kMinDistance = 12.0f;
 
 	Vector3D mFocalPoint;
 	float    mDistanceFromFocalPoint;

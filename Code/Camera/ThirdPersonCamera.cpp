@@ -1,6 +1,7 @@
 #include "ThirdPersonCamera.h"
 
 #include "../GameScreens/ScreenManager.h"
+#include "../Models/Model.h"
 
 // ------------------------------------------------------------------------- //
 
@@ -10,6 +11,8 @@ ThirdPersonCamera::ThirdPersonCamera()
 	, mDistanceFromFocalPoint(10.0f)
 	, mYRotationAngle(0.0f)
 	, mXRotationAngle(0.0f)
+	, mFocusPointIcon(nullptr)
+	, mFocusModelMatrix(MatrixMaths::Identity4X4)
 {
 	float zero = 0.0f;
 	CapToYRotationBounds(zero);
@@ -23,7 +26,8 @@ ThirdPersonCamera::ThirdPersonCamera()
 
 // ------------------------------------------------------------------------- //
 
-ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler, 
+ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
+									 ShaderHandler& shaderHandler,
 	                                 Vector3D      focalPoint, 
 	                                 float         distanceFromFocalPoint, 
 	                                 Vector3D      right, 
@@ -39,6 +43,8 @@ ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
 	, mDistanceFromFocalPoint(distanceFromFocalPoint)
 	, mYRotationAngle(0.0f)
 	, mXRotationAngle(0.0f)
+	, mFocusPointIcon(nullptr)
+	, mFocusModelMatrix(MatrixMaths::Identity4X4)
 {
 	float zero = 0.0f;
 	CapToYRotationBounds(zero);
@@ -48,13 +54,24 @@ ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
 
 	ReCalculatePerspectiveMatrix();
 	ReCalculateViewMatrix();
+
+	ID3D11VertexShader* vertexShader = nullptr;
+	ID3D11PixelShader*  pixelShader  = nullptr;
+
+	VertexShaderReturnData returnData = shaderHandler.CompileVertexShader(L"ModelLightingRender.fx", "VS");
+	                     vertexShader = returnData.vertexShader;
+
+						 pixelShader = shaderHandler.CompilePixelShader(L"ModelLightingRender.fx", "PS");
+
+	mFocusPointIcon = new Model(shaderHandler, "Models/CameraFocus/CameraSphere.obj", vertexShader, pixelShader, returnData.Blob, true);
 }
 
 // ------------------------------------------------------------------------- //
 
 ThirdPersonCamera::~ThirdPersonCamera()
 {
-	
+	delete mFocusPointIcon;
+	mFocusPointIcon = nullptr;
 }
 
 // ------------------------------------------------------------------------- //
@@ -180,6 +197,16 @@ void ThirdPersonCamera::MovementCheck(bool& changed, const float deltaTime)
 		changed = true;
 		mFocalPoint += (facingDirection * -mMovementSpeed) * deltaTime;
 	}
+
+	if (mFocalPoint.x > 64.0f)
+		mFocalPoint.x = 64.0f;
+	else if (mFocalPoint.x < -64.0f)
+		mFocalPoint.x = -64.0f;
+
+	if (mFocalPoint.z > 64.0f)
+		mFocalPoint.z = 64.0f;
+	else if (mFocalPoint.z < -64.0f)
+		mFocalPoint.z = -64.0f;
 
 	// Now re-calculate the position of the camera after the changes have been made
 	ReCalculatePosition();
@@ -309,6 +336,31 @@ void ThirdPersonCamera::CapToYRotationBounds(float& angleToRotateBy)
 Vector3D ThirdPersonCamera::GetFacingDirection()
 {
 	return (mFocalPoint - mPosition).Normalised();
+}
+
+// ------------------------------------------------------------ //
+
+void ThirdPersonCamera::RenderFocusPoint()
+{
+	if (mFocusPointIcon)
+	{
+		Vector3D facingDir = GetFacingDirection();
+
+		float t = -mPosition.y / facingDir.y;
+
+		if (t < 0.0f)
+			return;
+
+		Vector2D newPos = Vector2D(mPosition.x + t * facingDir.x, 
+								   mPosition.z + t * facingDir.z);
+
+		// Calculate the position of the focus point
+		float scale = 0.1f;
+		DirectX::XMStoreFloat4x4(&mFocusModelMatrix, DirectX::XMMatrixScaling(scale, scale, scale));
+		DirectX::XMStoreFloat4x4(&mFocusModelMatrix, DirectX::XMMatrixTranslation(newPos.x, 0.0f, newPos.y));
+
+		mFocusPointIcon->FullRender(this, mFocusModelMatrix);
+	}
 }
 
 // ------------------------------------------------------------ //

@@ -24,8 +24,9 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	mSkyDome  = new SkyDome(shaderHandler, Vector3D::zero, 200.0f, 50);
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
+		                               shaderHandler,
 									Vector3D(0.0f, 0.0f, 0.0f),
-									14.0f,
+									30.0f,
 									Vector3D(1.0f, 0.0f, 0.0f),
 									Vector3D(0.0f, 0.9f, 0.05f),
 									DirectX::XMConvertToRadians(60.0f),
@@ -103,15 +104,16 @@ void GameScreen_Editor::Render()
 	if (testCar)
 		testCar->RenderFull(mCamera);
 
+	// The grid for the track
+	mGrid.Render(mCamera);
+
+	if(mCamera)
+		mCamera->RenderFocusPoint();
+
 	if (mSkyDome)
 		mSkyDome->Render(mCamera);
 
-	// Now render the grid for the track
-	mGrid.Render(mCamera);
-
 	// ------------------------------------------------------------------------------------------- //
-
-
 
 	mShaderHandler.BindRasterizerState(renderState);
 	mPostProcessing->Render();

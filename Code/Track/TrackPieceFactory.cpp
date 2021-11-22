@@ -9,7 +9,31 @@ ShaderHandler*     TrackPieceFactory::mShaderHandler = nullptr;
 // -------------------------------------------------------------------- //
 
 TrackPieceFactory::TrackPieceFactory(ShaderHandler* shaderHander) 
-	: kFilePathsToModels({ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", })
+	: kFilePathsToModels({ "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj",
+		                   "Models/Track/Empty/PlaceholderGhost.obj",  
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                   "Models/Track/Empty/PlaceholderGhost.obj" })
 	, kFilePathsToCollisionData({ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", })
 	, mDefaultRenderVertexShader(nullptr)
 	, mDefaultRenderPixelShader(nullptr)
@@ -78,11 +102,14 @@ void TrackPieceFactory::Init(ShaderHandler* shaderHander)
 
 	// Load in the shaders
 	VertexShaderReturnData returnDataDefault = mShaderHandler->CompileVertexShader(L"ModelLightingRender.fx", "VS");
-	VertexShaderReturnData returnDataGhostly = mShaderHandler->CompileVertexShader(L"ModelGhostlyRender", "VS");
+	VertexShaderReturnData returnDataGhostly = mShaderHandler->CompileVertexShader(L"ModelGhostlyRender.fx", "VS");
+
+	mDefaultRenderVertexShader = returnDataDefault.vertexShader;
+	mGhostRenderVertexShader   = returnDataGhostly.vertexShader;
 
 	// Pixel shaders
 	mDefaultRenderPixelShader = mShaderHandler->CompilePixelShader(L"ModelLightingRender.fx", "PS");
-	mGhostRenderPixelShader   = mShaderHandler->CompilePixelShader(L"ModelGhostlyRender", "PS");
+	mGhostRenderPixelShader   = mShaderHandler->CompilePixelShader(L"ModelGhostlyRender.fx", "PS");
 
 	// Load in the models for the track pieces
 	for (unsigned int i = 0; i < (unsigned int)TrackPieceType::MAX; i++)

@@ -10,6 +10,9 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	// Make sure that the grid is empty
 	ClearGrid();
 
+	// Make sure to initialise the factory
+	TrackPieceFactory::GetInstance()->Init(&shaderHandler);
+
 	// Create the highlight object that will change as new track types are selected
 	mPotentialNewPiece.trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(TrackPieceType::EMPTY);
 }
@@ -126,18 +129,19 @@ void EditorGrid::Render(BaseCamera* camera)
 	if (!camera || !mPotentialNewPiece.trackPiece)
 		return;
 
-	Vector3D cameraPos = camera->GetPosition();
+	/*Vector3D cameraPos = camera->GetPosition();
 	Vector3D facingDir = camera->GetFacingDirection();
 	float t = -cameraPos.y / facingDir.y;
 
 	if (t < 0.0f)
 		return;
 
-	Vector2D newPos = Vector2D(cameraPos.x + t * facingDir.x, 
-		                       cameraPos.z + t * facingDir.z);
+	Vector2D newPos = Vector2D((int)(cameraPos.x + t * facingDir.x), 
+		                       (int)(cameraPos.z + t * facingDir.z));
 
 	mPotentialNewPiece.trackPiece->SetNewGridPosition(newPos);
-	mPotentialNewPiece.trackPiece->RenderFull(camera);
+
+	mPotentialNewPiece.trackPiece->RenderFull(camera);*/
 }
 
 // ------------------------------------------------------------------------ //

@@ -18,10 +18,10 @@ public:
 	~TrackPiece();
 
 	void RenderFull(BaseCamera* camera);
-	void SetNewGridPosition(Vector2D newPos) { mGridPosition.x = newPos.x, mGridPosition.y = newPos.y; }
+	void SetNewGridPosition(Vector2D newPos);
 
 private:
-	DirectX::XMUINT2  mGridPosition;
+	DirectX::XMINT2  mGridPosition;
 	DirectX::XMFLOAT3 mFacingDirection;
 
 	DirectX::XMFLOAT4X4 mModelMatrix;
