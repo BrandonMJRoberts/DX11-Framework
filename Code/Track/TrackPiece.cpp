@@ -36,7 +36,7 @@ void TrackPiece::SetNewGridPosition(Vector2D newPos)
 	mGridPosition.x = newPos.x; 
 	mGridPosition.y = newPos.y;
 
-	DirectX::XMStoreFloat4x4(&mModelMatrix, DirectX::XMMatrixTranslation(mGridPosition.x * 4.0f, 0.0f, mGridPosition.y * 4.0f));
+	DirectX::XMStoreFloat4x4(&mModelMatrix, DirectX::XMMatrixTranslation(mGridPosition.x, 0.0f, mGridPosition.y));
 
 	//mModelMatrix = DirectX::XMMatrixTranslation(mGridPosition.x * 4.0f, 0.0f, mGridPosition.y * 4.0f);
 }

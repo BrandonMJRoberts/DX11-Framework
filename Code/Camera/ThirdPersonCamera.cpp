@@ -168,19 +168,6 @@ void ThirdPersonCamera::MovementCheck(bool& changed, const float deltaTime)
 		mFocalPoint += (mRight * mMovementSpeed) * deltaTime;
 	}
 
-	// Up/down - only one layer so disabled
-	/*if (mInputHandler->GetIsKeyPressed(VK_SPACE))
-	{
-		changed = true;
-		mFocalPoint += (Vector3D::worldUp * mMovementSpeed) * deltaTime;
-	}
-	else if (mInputHandler->GetIsKeyPressed('X'))
-	{
-		changed = true;
-		mFocalPoint += (Vector3D::worldUp * -mMovementSpeed) * deltaTime;
-	}*/
-
-
 	// As we need to restrict the movement to the X/Z plane we need to adjust the facing direction
 	Vector3D facingDirection = mRight.Cross(mUp);
 	facingDirection.y = 0.0f;
@@ -198,6 +185,7 @@ void ThirdPersonCamera::MovementCheck(bool& changed, const float deltaTime)
 		mFocalPoint += (facingDirection * -mMovementSpeed) * deltaTime;
 	}
 
+	// Cap the point to the playable area
 	if (mFocalPoint.x > 64.0f)
 		mFocalPoint.x = 64.0f;
 	else if (mFocalPoint.x < -64.0f)
@@ -361,6 +349,32 @@ void ThirdPersonCamera::RenderFocusPoint()
 
 		mFocusPointIcon->FullRender(this, mFocusModelMatrix);
 	}
+}
+
+// ------------------------------------------------------------ //
+
+DirectX::XMFLOAT4X4 ThirdPersonCamera::GetInverseViewMatrix()
+{
+	DirectX::XMMATRIX viewMat = DirectX::XMLoadFloat4x4(&mViewMatrix);
+	DirectX::XMVECTOR det     = DirectX::XMMatrixDeterminant(viewMat);
+
+	DirectX::XMFLOAT4X4 returnMat;
+	DirectX::XMStoreFloat4x4(&returnMat, DirectX::XMMatrixInverse(&det, viewMat));
+
+	return returnMat;
+}
+
+// ------------------------------------------------------------ //
+
+DirectX::XMFLOAT4X4 ThirdPersonCamera::GetInversePerspectiveMatrix()
+{
+	DirectX::XMMATRIX perspMat = DirectX::XMLoadFloat4x4(&mPerspectiveMatrix);
+	DirectX::XMVECTOR det      = DirectX::XMMatrixDeterminant(perspMat);
+
+	DirectX::XMFLOAT4X4 returnMat;
+	DirectX::XMStoreFloat4x4(&returnMat, DirectX::XMMatrixInverse(&det, perspMat));
+
+	return returnMat;
 }
 
 // ------------------------------------------------------------ //

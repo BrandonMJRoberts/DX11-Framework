@@ -635,6 +635,32 @@ Vector4D& Vector4D::operator*=(const int& factor)
 
 // ------------------------------------------------------------------------------------------------
 
+Vector4D  Vector4D::operator*(const DirectX::XMFLOAT4X4 matrix)
+{
+	// Traverse across the vector and multiply with the matrix
+	Vector4D returnVector = Vector4D((x * matrix._11) + (y * matrix._21) + (z * matrix._31) + (w * matrix._41),
+									 (x * matrix._12) + (y * matrix._22) + (z * matrix._32) + (w * matrix._42),
+									 (x * matrix._13) + (y * matrix._23) + (z * matrix._33) + (w * matrix._43),
+									 (x * matrix._14) + (y * matrix._24) + (z * matrix._34) + (w * matrix._44));
+
+	return returnVector;
+}
+
+// ------------------------------------------------------------------------------------------------
+
+Vector4D& Vector4D::operator*=(const DirectX::XMFLOAT4X4 matrix)
+{
+	// Traverse across the vector and multiply with the matrix
+	x = (x * matrix._11) + (y * matrix._21) + (z * matrix._31) + (w * matrix._41);
+	y = (x * matrix._12) + (y * matrix._22) + (z * matrix._32) + (w * matrix._42);
+	z = (x * matrix._13) + (y * matrix._23) + (z * matrix._33) + (w * matrix._43);
+	w = (x * matrix._14) + (y * matrix._24) + (z * matrix._34) + (w * matrix._44);
+
+	return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+
 Vector4D Vector4D::operator/(const float& factor)
 {
 	return Vector4D(x / factor, y / factor, z / factor, w / factor);

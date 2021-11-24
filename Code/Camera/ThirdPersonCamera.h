@@ -34,6 +34,9 @@ public:
 
 	void     RenderFocusPoint();
 
+	DirectX::XMFLOAT4X4 GetInverseViewMatrix()        override;
+	DirectX::XMFLOAT4X4 GetInversePerspectiveMatrix() override;
+
 private:
 	void ReCalculatePosition();
 

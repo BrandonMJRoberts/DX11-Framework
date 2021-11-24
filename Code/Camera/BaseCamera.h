@@ -25,7 +25,10 @@ public:
 
 
 	DirectX::XMFLOAT4X4 GetViewMatrix()        { return mViewMatrix; };
+	virtual DirectX::XMFLOAT4X4 GetInverseViewMatrix() { return MatrixMaths::Identity4X4; }
+
 	DirectX::XMFLOAT4X4 GetPerspectiveMatrix() { return mPerspectiveMatrix; };
+	virtual DirectX::XMFLOAT4X4 GetInversePerspectiveMatrix() { return MatrixMaths::Identity4X4; }
 
 	Vector3D GetPosition() { return mPosition; }
 	virtual Vector3D GetFacingDirection() = 0;

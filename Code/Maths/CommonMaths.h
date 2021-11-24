@@ -143,6 +143,9 @@ public:
 	Vector4D operator*(const int& factor);      // Multiply (int)
 	Vector4D& operator*=(const int& factor);     // Multiply equals (int)
 
+	Vector4D  operator*(const DirectX::XMFLOAT4X4 matrix);
+	Vector4D& operator*=(const DirectX::XMFLOAT4X4 matrix);
+
 	Vector4D operator/(const float& factor);    // Divide (float)
 	Vector4D& operator/=(const float& factor);   // Divide equals (float)
 
@@ -254,6 +257,22 @@ public:
 
 		return returnMatrix;
 	}
+
+	// ---------------------------------------------------------------------------------------------------------
+
+	static DirectX::XMFLOAT4X4 MultiplyMatricies(DirectX::XMFLOAT4X4 mat1, DirectX::XMFLOAT4X4 mat2)
+	{
+		DirectX::XMMATRIX matrixMat1 = DirectX::XMLoadFloat4x4(&mat1);
+		DirectX::XMMATRIX matrixMat2 = DirectX::XMLoadFloat4x4(&mat2);
+
+		DirectX::XMMATRIX   returnMat = DirectX::XMMatrixMultiply(matrixMat1, matrixMat2);
+		DirectX::XMFLOAT4X4 returnMat4X4;
+
+		DirectX::XMStoreFloat4x4(&returnMat4X4, returnMat);
+		return returnMat4X4;
+	}
+
+	// ---------------------------------------------------------------------------------------------------------
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------- //

@@ -1,6 +1,7 @@
 #include "Grid.h"
 
 #include "../../Camera/BaseCamera.h"
+#include "../../GameScreens/ScreenManager.h"
 
 // ------------------------------------------------------------------------ //
 
@@ -112,7 +113,7 @@ void EditorGrid::Update(const float deltaTime)
 
 // ------------------------------------------------------------------------ //
 
-void EditorGrid::Render(BaseCamera* camera)
+void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 {
 	for (unsigned int i = 0; i < Constants::GRID_WIDTH; i++)
 	{
@@ -124,24 +125,69 @@ void EditorGrid::Render(BaseCamera* camera)
 	}
 
 	// We need to also render the potential new placment piece based off of where the player is hovering over
-	// Find where the camera is currently pointing to and set the potential piece's grid position to be there
-	// To do this we get the camera's position and facing direction, and find when they cross the X-Z plane
 	if (!camera || !mPotentialNewPiece.trackPiece)
 		return;
 
-	/*Vector3D cameraPos = camera->GetPosition();
-	Vector3D facingDir = camera->GetFacingDirection();
-	float t = -cameraPos.y / facingDir.y;
+	// Get the mouse position on the screen
+	Vector2D mousePos = inputHandler.GetMousePosition();
 
-	if (t < 0.0f)
-		return;
+	// First convert the mouse pos into projection space
+	Vector2D normalisedDeviceCoords = Vector2D(( (2.0f * mousePos.x) / GameScreenManager::ScreenWidth) - 1, 
+		                                       (-(2.0f * mousePos.y) / GameScreenManager::ScreenHeight) + 1);
 
-	Vector2D newPos = Vector2D((int)(cameraPos.x + t * facingDir.x), 
-		                       (int)(cameraPos.z + t * facingDir.z));
+	// Now convert the projection space point into view space
+	DirectX::XMFLOAT4X4 projectionMat = camera->GetPerspectiveMatrix();
+	normalisedDeviceCoords.x         /= projectionMat(0, 0);
+	normalisedDeviceCoords.y         /= projectionMat(1, 1);
 
-	mPotentialNewPiece.trackPiece->SetNewGridPosition(newPos);
+	// View space definition of the ray
+	DirectX::XMVECTOR rayOriginViewSpace    = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	DirectX::XMVECTOR rayDirectionViewSpace = DirectX::XMVectorSet(normalisedDeviceCoords.x, normalisedDeviceCoords.y, 1.0f, 0.0f);
+	
+	// Get the inverse view matrix from the camera
+	DirectX::XMFLOAT4X4 inverseView = camera->GetInverseViewMatrix();
+	
+	// Using the inverse view matrix we can convert the ray into world space for the intersection tests
+	rayOriginViewSpace    = DirectX::XMVector3TransformCoord(rayOriginViewSpace,     DirectX::XMLoadFloat4x4(&inverseView));
+	rayDirectionViewSpace = DirectX::XMVector3TransformNormal(rayDirectionViewSpace, DirectX::XMLoadFloat4x4(&inverseView));
 
-	mPotentialNewPiece.trackPiece->RenderFull(camera);*/
+	// Now make the vector unit length for the calculations
+	DirectX::XMFLOAT4 rayDirDirectX;
+	DirectX::XMFLOAT4 rayOriginDirectX;
+	DirectX::XMStoreFloat4(&rayDirDirectX,    rayDirectionViewSpace);
+	DirectX::XMStoreFloat4(&rayOriginDirectX, rayOriginViewSpace);
+
+	Vector3D rayDirection = Vector3D(rayDirDirectX.x, rayDirDirectX.y, rayDirDirectX.z);
+	rayDirection.Normalise();
+
+	Vector3D rayOrigin    = Vector3D(rayOriginDirectX.x, rayOriginDirectX.y, rayOriginDirectX.z);
+
+	// Calculate the t factor
+	float t = (-rayOrigin.y) / rayDirection.y;
+
+	// Check that it is not behind the camera
+	//if (t < 0.0f)
+	//	return;
+
+	Vector2D gridPos;
+
+	// Set the new position
+	gridPos.x = rayOrigin.x + (t * rayDirection.x);
+	gridPos.y = rayOrigin.z + (t * rayDirection.z);
+
+	if (gridPos.x > 64.0f)
+		gridPos.x = 64.0f;
+	else if (gridPos.x < -64.0f)
+		gridPos.x = -64.0f;
+
+	if (gridPos.y > 64.0f)
+		gridPos.y = 64.0f;
+	else if (gridPos.y < -64.0f)
+		gridPos.y = -64.0f;
+
+	mPotentialNewPiece.trackPiece->SetNewGridPosition(gridPos);
+
+	mPotentialNewPiece.trackPiece->RenderFull(camera);
 }
 
 // ------------------------------------------------------------------------ //

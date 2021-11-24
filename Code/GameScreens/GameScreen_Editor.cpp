@@ -105,7 +105,7 @@ void GameScreen_Editor::Render()
 		testCar->RenderFull(mCamera);
 
 	// The grid for the track
-	mGrid.Render(mCamera);
+	mGrid.Render(mCamera, mInputHandler);
 
 	if(mCamera)
 		mCamera->RenderFocusPoint();

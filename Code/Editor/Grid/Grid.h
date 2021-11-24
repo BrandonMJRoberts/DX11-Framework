@@ -44,7 +44,7 @@ public:
 	void      LoadInGridFromFile(std::string filePath);
 	void      SaveOutGridToFile();
 
-	void	  Render(BaseCamera* camera);
+	void	  Render(BaseCamera* camera, InputHandler& inputHandler);
 	void	  Update(const float deltaTime);
 
 private:
