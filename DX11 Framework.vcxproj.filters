@@ -336,4 +336,9 @@
       <Filter>Models</Filter>
     </Object>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="SkyDomeLUTGeneration.fx">
+      <Filter>Shaders\Sky</Filter>
+    </None>
+  </ItemGroup>
 </Project>

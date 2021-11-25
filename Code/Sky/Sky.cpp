@@ -19,12 +19,18 @@ SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, un
 	, mInputLayout(nullptr)
 	, mModelMat(MatrixMaths::Identity4X4)
 	, renderState(nullptr)
+	, mLUTTexture(nullptr)
+
+	, mLUTGenerationComputeShader(nullptr)
 {
 	// First generate the dome
 	GenerateDome();
 
 	// Now setup the shaders requred for rendering the dome
 	SetupShaders();
+
+	// Now fill the LUT
+	FillLUT();
 
 	mShaderHandler.CreateRasterizerState(&renderState, D3D11_FILL_WIREFRAME, D3D11_CULL_FRONT);
 }
@@ -61,6 +67,15 @@ SkyDome::~SkyDome()
 	{
 		mInputLayout->Release();
 		mInputLayout = nullptr;
+	}
+
+	delete mLUTTexture;
+	mLUTTexture = nullptr;
+
+	if (mLUTGenerationComputeShader)
+	{
+		mLUTGenerationComputeShader->Release();
+		mLUTGenerationComputeShader = nullptr;
 	}
 }
 
@@ -148,6 +163,8 @@ void SkyDome::GenerateDome()
 
 void SkyDome::SetupShaders()
 {
+	// --------------------------------------------------------------------------------------------------
+
 	// Generate the vertex shader
 	VertexShaderReturnData returnData = mShaderHandler.CompileVertexShader(L"SkyDomeRender.fx", "VS");
 		                mVertexShader = returnData.vertexShader;
@@ -167,6 +184,14 @@ void SkyDome::SetupShaders()
 	// Create the constant buffer
 	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(ConstantBuffer), &mConstantBuffer))
 		return;
+
+	// --------------------------------------------------------------------------------------------------
+
+	// Create the compute shader
+	mShaderHandler.CreateComputeShader(L"SkyDomeLUTGeneration.fx", "main", &mLUTGenerationComputeShader);
+
+	// Create the texture with the correct flags set
+	mLUTTexture = new Texture3D(mShaderHandler, 128, 128, 128, 1, 1, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, DXGI_FORMAT_R32G32B32A32_FLOAT);
 }
 
 // ---------------------------------------------------------------- 
@@ -284,6 +309,28 @@ void SkyDome::CalculateIndicies()
 		return;
 
 	indexData.clear();
+}
+
+// ---------------------------------------------------------------- 
+
+void SkyDome::FillLUT()
+{
+	if (!mLUTTexture)
+		return;
+
+	// Bind the compute shader
+	mShaderHandler.BindComputeShader(mLUTGenerationComputeShader);
+
+	// Now bind the texture we are going to be writing to, to the shader
+	mLUTTexture->BindTextureToComputeShader(0, 1);
+
+	// Now call the draw call so that the texture is rendered to 
+	mShaderHandler.DispatchComputeShader(16, 16, 16);
+
+	mLUTTexture->UnbindTextureFromComputeShader(0);
+
+	// Unbind the compute shader
+	mShaderHandler.BindComputeShader(nullptr);
 }
 
 // ---------------------------------------------------------------- 

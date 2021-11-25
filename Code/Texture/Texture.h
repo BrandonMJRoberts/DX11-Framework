@@ -30,6 +30,8 @@ public:
 	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews);
 
 	ID3D11Texture2D* GetInternalTexture() { return mInternalTexture; }
+	
+	ID3D11UnorderedAccessView* GetUnorderedAccessView() { return mUnorderedAccessView; }
 
 private:
 	// Windows Imaging Context
@@ -41,6 +43,8 @@ private:
 
 	ID3D11ShaderResourceView* mShaderResourceView;
 	bool                      mShaderResource;
+
+	ID3D11UnorderedAccessView* mUnorderedAccessView;
 };
 
 // ---------------------------------------------------------------- //
@@ -54,15 +58,23 @@ public:
 
 	void LoadTextureInFromFile(std::string& filePath);
 
-	ID3D11Texture3D* GetInternalTexture() { return mInternalTexture; }
+	void BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews);
+
+	void BindTextureToComputeShader(unsigned int startSlot, unsigned int numberOfViews);
+	void UnbindTextureFromComputeShader(unsigned int startSlot);
+
+	ID3D11Texture3D*           GetInternalTexture() { return mInternalTexture; }
+	ID3D11UnorderedAccessView* GetUnorderedAccessView() { return mUnorderedAccessView; }
 
 private:
-	ID3D11Texture3D*         mInternalTexture;
+	ID3D11Texture3D*           mInternalTexture;
 
-	ShaderHandler&            mShaderHandler;
+	ShaderHandler&             mShaderHandler;
 
-	ID3D11ShaderResourceView* mShaderResourceView;
-	bool                      mShaderResource;
+	ID3D11ShaderResourceView*  mShaderResourceView;
+	bool                       mShaderResource;
+
+	ID3D11UnorderedAccessView* mUnorderedAccessView;
 };
 
 // ---------------------------------------------------------------- //

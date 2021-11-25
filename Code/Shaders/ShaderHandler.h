@@ -125,6 +125,18 @@ public:
 		                       bool                    multiSampleEnabled = false, 
 		                       bool                    antialiasedLineEnabled = false);
 
+	// Compute Shaders
+	void DispatchComputeShader(unsigned int threadGroupCountX, unsigned int threadGroupCountY, unsigned int threadGroupCountZ);
+
+	void BindComputeShader(ID3D11ComputeShader* shader);
+	void BindShaderResouceToComputeShader(unsigned int startSlot, unsigned int numberOfViews, ID3D11ShaderResourceView* const* views);
+
+	bool CreateUnorderedAccessView(ID3D11Resource* resource, D3D11_UNORDERED_ACCESS_VIEW_DESC* desc, ID3D11UnorderedAccessView** viewReturn);
+	void BindUnorderedAccessViewToComputeShader(unsigned int startSlot, unsigned int numberToBind, ID3D11UnorderedAccessView* const* accessViews, const unsigned int* UAVInitialCounts);
+	void UnbindUnorderedAccessViewFromComputeShader(unsigned int startSlot, unsigned int count);
+
+	bool CreateComputeShader(LPCWSTR fileName, LPCSTR entryPoint, ID3D11ComputeShader** computeShaderReturn);
+
 private:
 	// Shader compilation 
 	bool CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);

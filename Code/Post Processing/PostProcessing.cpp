@@ -69,6 +69,8 @@ PostProcessing::~PostProcessing()
 
 // ------------------------------------------------------------------ 
 
+#include "../Sky/Sky.h"
+
 void PostProcessing::RenderFinal()
 {
 	// Re-bind the default render target so we can render to it

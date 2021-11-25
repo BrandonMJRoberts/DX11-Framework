@@ -362,7 +362,7 @@ bool ShaderHandler::CreateTexture2D(D3D11_TEXTURE2D_DESC* description, const D3D
 
 bool ShaderHandler::CreateTexture3D(D3D11_TEXTURE3D_DESC* description, const D3D11_SUBRESOURCE_DATA* initialData, ID3D11Texture3D** texture)
 {
-    if (mDeviceHandle)
+    if (!mDeviceHandle)
         return false;
 
     HRESULT hr;
@@ -688,6 +688,128 @@ void ShaderHandler::BindRasterizerState(ID3D11RasterizerState* state)
         return;
 
     mDeviceContext->RSSetState(state);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::DispatchComputeShader(unsigned int threadGroupCountX, unsigned int threadGroupCountY, unsigned int threadGroupCountZ)
+{
+    if (!mDeviceContext)
+    {
+        return;
+    }
+
+    mDeviceContext->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::CreateUnorderedAccessView(ID3D11Resource* resource, D3D11_UNORDERED_ACCESS_VIEW_DESC* desc, ID3D11UnorderedAccessView** viewReturn)
+{
+    if (!mDeviceHandle)
+    {
+        return false;
+    }
+
+    HRESULT hr;
+    hr = mDeviceHandle->CreateUnorderedAccessView(resource, desc, viewReturn);
+
+    if (FAILED(hr))
+        return false;
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindComputeShader(ID3D11ComputeShader* shader)
+{
+    if (!mDeviceContext)
+    {
+        return;
+    }
+
+    mDeviceContext->CSSetShader(shader, nullptr, 0);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindShaderResouceToComputeShader(unsigned int startSlot, unsigned int numberOfViews, ID3D11ShaderResourceView* const* views)
+{
+    if (!mDeviceContext)
+    {
+        return;
+    }
+
+    mDeviceContext->CSSetShaderResources(startSlot, numberOfViews, views);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindUnorderedAccessViewToComputeShader(unsigned int startSlot, unsigned int numberToBind, ID3D11UnorderedAccessView* const* accessViews, const unsigned int* UAVInitialCounts)
+{
+    if (!mDeviceContext)
+    {
+        return;
+    }
+
+    mDeviceContext->CSSetUnorderedAccessViews(startSlot, numberToBind, accessViews, UAVInitialCounts);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+bool ShaderHandler::CreateComputeShader(LPCWSTR fileName, LPCSTR entryPoint, ID3D11ComputeShader** computeShaderReturn)
+{
+    if (!mDeviceHandle)
+    {
+        return false;
+    }
+
+    ID3DBlob* shaderBlob = nullptr;
+    ID3DBlob* errorBlob  = nullptr;
+
+    UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+    #if defined( DEBUG ) || defined( _DEBUG )
+        flags |= D3DCOMPILE_DEBUG;
+    #endif
+
+    LPCSTR profile = (mDeviceHandle->GetFeatureLevel() >= D3D_FEATURE_LEVEL_11_0) ? "cs_5_0" : "cs_4_0";
+
+    HRESULT hr = D3DCompileFromFile(fileName, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, entryPoint, profile, flags, 0, &shaderBlob, &errorBlob);
+
+    if (FAILED(hr))
+    {
+        if (errorBlob)
+        {
+            const char* errorMessage = (const char*)errorBlob->GetBufferPointer();
+
+            errorBlob->Release();
+        }
+
+        if (shaderBlob)
+            shaderBlob->Release();
+
+        return false;
+    }
+
+    hr = mDeviceHandle->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, computeShaderReturn);
+
+    if (FAILED(hr))
+        return false;
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::UnbindUnorderedAccessViewFromComputeShader(unsigned int startSlot, unsigned int count)
+{
+    if (!mDeviceContext)
+        return;
+
+    ID3D11UnorderedAccessView* nullUAV[1] = { 0 };
+
+    mDeviceContext->CSSetUnorderedAccessViews(startSlot, count, nullUAV, 0);
 }
 
 // ------------------------------------------------------------------------------------------ //

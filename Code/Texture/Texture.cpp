@@ -111,7 +111,8 @@ Texture2D::Texture2D(ShaderHandler& shaderHandler)
 	: mInternalTexture(nullptr),
 	  mShaderResource(false),
 	  mShaderResourceView(nullptr),
-	  mShaderHandler(shaderHandler)
+	  mShaderHandler(shaderHandler),
+	  mUnorderedAccessView(nullptr)
 {
 
 }
@@ -122,7 +123,8 @@ Texture2D::Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 	: mInternalTexture(nullptr),
 	  mShaderResource(false),
 	  mShaderResourceView(nullptr),
-	  mShaderHandler(shaderHandler)
+	  mShaderHandler(shaderHandler),
+	  mUnorderedAccessView(nullptr)
 {
 		D3D11_TEXTURE2D_DESC desc;
 	desc.Width              = width;
@@ -157,6 +159,18 @@ Texture2D::Texture2D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 		if (!mShaderHandler.CreateShaderResourceView(mInternalTexture, &shaderResourceViewDesc, &mShaderResourceView))
 			return;
 	}
+
+	// If we are going to use this for a compute shader
+	if (bindFlags & D3D11_BIND_UNORDERED_ACCESS)
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedDesc;
+		unorderedDesc.Format             = internalFormat;
+		unorderedDesc.ViewDimension      = D3D11_UAV_DIMENSION_TEXTURE2D;
+		unorderedDesc.Texture3D.MipSlice = 0;
+
+		if (!mShaderHandler.CreateUnorderedAccessView(mInternalTexture, &unorderedDesc, &mUnorderedAccessView))
+			return;
+	}
 }
 
 // --------------------------------------------------------------------- //
@@ -173,6 +187,12 @@ Texture2D::~Texture2D()
 	{
 		mShaderResourceView->Release();
 		mShaderResourceView = nullptr;
+	}
+
+	if (mUnorderedAccessView)
+	{
+		mUnorderedAccessView->Release();
+		mUnorderedAccessView = nullptr;
 	}
 }
 
@@ -343,7 +363,8 @@ Texture3D::Texture3D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 	: mInternalTexture(nullptr),
 	  mShaderResource(false),
 	  mShaderResourceView(nullptr),
-	  mShaderHandler(shaderHandler)
+	  mShaderHandler(shaderHandler),
+	  mUnorderedAccessView(nullptr)
 {
 	D3D11_TEXTURE3D_DESC desc;
 	desc.Width			= width;
@@ -353,8 +374,8 @@ Texture3D::Texture3D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 	desc.Format         = internalFormat;
 	desc.BindFlags      = bindFlags;
 	desc.CPUAccessFlags = 0;
-	desc.CPUAccessFlags = 0;
 	desc.Usage          = usage;
+	desc.MiscFlags      = 0;
 
 	// Create the texture
 	if (!shaderHandler.CreateTexture3D(&desc, nullptr, &mInternalTexture))
@@ -376,6 +397,20 @@ Texture3D::Texture3D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 		if (!mShaderHandler.CreateShaderResourceView(mInternalTexture, &shaderResourceViewDesc, &mShaderResourceView))
 			return;
 	}
+
+	// If we are going to use this for a compute shader
+	if (bindFlags & D3D11_BIND_UNORDERED_ACCESS)
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedDesc;
+		unorderedDesc.Format             = internalFormat;
+		unorderedDesc.ViewDimension      = D3D11_UAV_DIMENSION_TEXTURE3D;
+		unorderedDesc.Texture3D.MipSlice = 0;
+		unorderedDesc.Texture3D.FirstWSlice = 0;
+		unorderedDesc.Texture3D.WSize       = depth;
+
+		if (!mShaderHandler.CreateUnorderedAccessView(mInternalTexture, &unorderedDesc, &mUnorderedAccessView))
+			return;
+	}
 }
 
 // --------------------------------------------------------------------- //
@@ -393,6 +428,12 @@ Texture3D::~Texture3D()
 		mShaderResourceView->Release();
 		mShaderResourceView = nullptr;
 	}
+	
+	if (mUnorderedAccessView)
+	{
+		mUnorderedAccessView->Release();
+		mUnorderedAccessView = nullptr;
+	}
 }
 
 // --------------------------------------------------------------------- //
@@ -401,6 +442,40 @@ void Texture3D::LoadTextureInFromFile(std::string& filePath)
 {
 
 }
+
+// --------------------------------------------------------------------- //
+
+void Texture3D::BindTextureToShaders(unsigned int startSlot, unsigned int numberOfViews)
+{
+	// If have the functionality to bind to the shaders
+	if (mShaderResource && mShaderResourceView)
+	{
+		mShaderHandler.BindTextureToShaders(startSlot, numberOfViews, &mShaderResourceView);
+	}
+}
+
+// --------------------------------------------------------------------- //
+
+void Texture3D::BindTextureToComputeShader(unsigned int startSlot, unsigned int numberOfViews)
+{
+	if (mUnorderedAccessView)
+	{
+		ID3D11UnorderedAccessView* views[] = { mUnorderedAccessView };
+
+		mShaderHandler.BindUnorderedAccessViewToComputeShader(startSlot, numberOfViews, views, 0);
+	}
+}
+
+// --------------------------------------------------------------------- //
+
+void Texture3D::UnbindTextureFromComputeShader(unsigned int startSlot)
+{
+	mShaderHandler.UnbindUnorderedAccessViewFromComputeShader(startSlot, 1);
+}
+
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
 // Sampler State

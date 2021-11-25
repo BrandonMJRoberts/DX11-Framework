@@ -4,6 +4,8 @@
 #include "../Camera/BaseCamera.h"
 #include "../Maths/CommonMaths.h"
 
+#include "../Texture/Texture.h"
+
 #include <d3d11_1.h>
 
 #include "../Shaders/ShaderHandler.h"
@@ -27,13 +29,18 @@ private:
 
 	void SetupShaders();
 
+	void FillLUT();
+
 	Vector3D     mDomeCentre;
 	float        mRadius;
 	unsigned int mDivisions;
 	
-	// Shaders required
+	// Shaders for the final render
 	ID3D11VertexShader* mVertexShader;
 	ID3D11PixelShader*  mPixelShader;
+
+	// Shaders for the LUT texture
+	ID3D11ComputeShader* mLUTGenerationComputeShader;
 
 	// Buffer holding the vertex data for the dome
 	ID3D11Buffer*       mVertexBuffer;
@@ -51,6 +58,12 @@ private:
 	DirectX::XMFLOAT4X4 mModelMat;
 
 	ID3D11RasterizerState* renderState;
+
+	// 3D Lookup table for the pre-computed data
+	// U - height
+	// V - View angle 
+	// S - Sun angle
+	Texture3D*             mLUTTexture;
 };
 
 #endif
