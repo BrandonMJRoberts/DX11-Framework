@@ -2,6 +2,7 @@
 #define _THIRD_PERSON_CAMERA_H_
 
 #include "BaseCamera.h"
+#include "../Shaders/ShaderHandler.h"
 
 class Model;
 class ShaderHandler;
@@ -12,7 +13,7 @@ class ShaderHandler;
 class ThirdPersonCamera : public BaseCamera
 {
 public:
-	ThirdPersonCamera();
+	/*ThirdPersonCamera();*/
 	ThirdPersonCamera(InputHandler* inputHandler, 
 		              ShaderHandler& shaderHandler,
 		              Vector3D      focalPoint, 
@@ -49,6 +50,9 @@ private:
 
 	Model*              mFocusPointIcon;
 	DirectX::XMFLOAT4X4 mFocusModelMatrix;
+
+	ShaderHandler&      mShaderHandler;
+	ID3D11BlendState*   mTransparencyBlendState;
 
 	const float kMaxDistance = 50.0f;
 	const float kMinDistance = 12.0f;

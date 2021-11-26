@@ -13,6 +13,7 @@ public:
 	void Update(const float deltaTime) override;
 
 	Vector3D GetFacingDirection() override { return Vector3D(); }
+
 private:
 };
 

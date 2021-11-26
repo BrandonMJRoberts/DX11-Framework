@@ -4,25 +4,26 @@
 #include "../Models/Model.h"
 
 // ------------------------------------------------------------------------- //
-
-ThirdPersonCamera::ThirdPersonCamera()
-	: BaseCamera()
-	, mFocalPoint(0.0f, 0.0f, 0.0f)
-	, mDistanceFromFocalPoint(10.0f)
-	, mYRotationAngle(0.0f)
-	, mXRotationAngle(0.0f)
-	, mFocusPointIcon(nullptr)
-	, mFocusModelMatrix(MatrixMaths::Identity4X4)
-{
-	float zero = 0.0f;
-	CapToYRotationBounds(zero);
-	CapToXRotationBounds(zero);
-
-	ReCalculatePosition();
-
-	ReCalculatePerspectiveMatrix();
-	ReCalculateViewMatrix();
-}
+//
+//ThirdPersonCamera::ThirdPersonCamera()
+//	: BaseCamera()
+//	, mFocalPoint(0.0f, 0.0f, 0.0f)
+//	, mDistanceFromFocalPoint(10.0f)
+//	, mYRotationAngle(0.0f)
+//	, mXRotationAngle(0.0f)
+//	, mFocusPointIcon(nullptr)
+//	, mFocusModelMatrix(MatrixMaths::Identity4X4)
+//	, mTransparencyBlendState(nullptr)
+//{
+//	float zero = 0.0f;
+//	CapToYRotationBounds(zero);
+//	CapToXRotationBounds(zero);
+//
+//	ReCalculatePosition();
+//
+//	ReCalculatePerspectiveMatrix();
+//	ReCalculateViewMatrix();
+//}
 
 // ------------------------------------------------------------------------- //
 
@@ -45,6 +46,8 @@ ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
 	, mXRotationAngle(0.0f)
 	, mFocusPointIcon(nullptr)
 	, mFocusModelMatrix(MatrixMaths::Identity4X4)
+	, mTransparencyBlendState(nullptr)
+	, mShaderHandler(shaderHandler)
 {
 	float zero = 0.0f;
 	CapToYRotationBounds(zero);
@@ -58,12 +61,24 @@ ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
 	ID3D11VertexShader* vertexShader = nullptr;
 	ID3D11PixelShader*  pixelShader  = nullptr;
 
-	VertexShaderReturnData returnData = shaderHandler.CompileVertexShader(L"ModelLightingRender.fx", "VS");
-	                     vertexShader = returnData.vertexShader;
+	//VertexShaderReturnData returnData = shaderHandler.CompileVertexShader(L"ModelLightingRender.fx", "VS");
+	  VertexShaderReturnData returnData = shaderHandler.CompileVertexShader(L"ModelGhostlyRender.fx", "VS");
+	                       vertexShader = returnData.vertexShader;
 
-						 pixelShader = shaderHandler.CompilePixelShader(L"ModelLightingRender.fx", "PS");
+						 //pixelShader = shaderHandler.CompilePixelShader(L"ModelLightingRender.fx", "PS");
+						   pixelShader = shaderHandler.CompilePixelShader(L"ModelGhostlyRender.fx", "PS");
 
 	mFocusPointIcon = new Model(shaderHandler, "Models/CameraFocus/CameraSphere.obj", vertexShader, pixelShader, returnData.Blob, true);
+
+	shaderHandler.CreateBlendState(&mTransparencyBlendState, 
+		                            true,  
+		                            D3D11_BLEND_SRC_COLOR, 
+		                            D3D11_BLEND_BLEND_FACTOR,  
+		                            D3D11_BLEND_OP_ADD, 
+		                            D3D11_BLEND_ONE,
+		                            D3D11_BLEND_ZERO, 
+		                            D3D11_BLEND_OP_ADD, 
+		                            D3D11_COLOR_WRITE_ENABLE_ALL);
 }
 
 // ------------------------------------------------------------------------- //
@@ -347,7 +362,14 @@ void ThirdPersonCamera::RenderFocusPoint()
 		DirectX::XMStoreFloat4x4(&mFocusModelMatrix, DirectX::XMMatrixScaling(scale, scale, scale));
 		DirectX::XMStoreFloat4x4(&mFocusModelMatrix, DirectX::XMMatrixTranslation(newPos.x, 0.0f, newPos.y));
 
+		// Bind the transparency blend state
+		float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+		mShaderHandler.BindBlendState(mTransparencyBlendState, blendFactor);
+
 		mFocusPointIcon->FullRender(this, mFocusModelMatrix);
+
+		// Re-bind the default transparent blend state
+		mShaderHandler.BindDefaultBlendState();
 	}
 }
 
