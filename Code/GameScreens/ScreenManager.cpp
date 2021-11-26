@@ -9,8 +9,8 @@
 
 #include <iostream>
 
-const int GameScreenManager::ScreenWidth  = 960;
-const int GameScreenManager::ScreenHeight = 540;
+unsigned int GameScreenManager::ScreenWidth  = 960;
+unsigned int GameScreenManager::ScreenHeight = 540;
 
 // -------------------------------------------------------------------------- //
 
@@ -118,6 +118,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
         PostQuitMessage(0);
+    break;
+
+    // Detected a change of window size
+    case WM_SIZE:
+        UINT width = LOWORD(lParam);
+        UINT height = HIWORD(lParam);
+
+        // Now we need to re-size the window to being the new size
+        // For now just change the variable store
+        GameScreenManager::ScreenWidth  = width;
+        GameScreenManager::ScreenHeight = height;
     break;
 
     case WM_INPUT:

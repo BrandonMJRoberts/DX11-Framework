@@ -32,8 +32,8 @@ public:
 
 	void SwitchToWindow(ScreenTypes screenType, ShaderHandler& shaderHandler);
 
-	static const int ScreenWidth;
-	static const int ScreenHeight;
+	static unsigned int ScreenWidth;
+	static unsigned int ScreenHeight;
 
 private:
 
