@@ -171,16 +171,20 @@ void ThirdPersonCamera::MovementCheck(bool& changed, const float deltaTime)
 {
 	// ---------------------------------------------------------------------------------------------------
 
+	Vector3D movementDistance = Vector3D::zero;
+
 	// Left/right
 	if (mInputHandler->GetIsKeyPressed('A'))
 	{
 		changed = true;
-		mFocalPoint += (mRight * -mMovementSpeed) * deltaTime;
+		//mFocalPoint += (mRight * -mMovementSpeed) * deltaTime;
+		movementDistance -= mRight;
 	}
 	else if (mInputHandler->GetIsKeyPressed('D'))
 	{
 		changed = true;
-		mFocalPoint += (mRight * mMovementSpeed) * deltaTime;
+		//mFocalPoint += (mRight * mMovementSpeed) * deltaTime;
+		movementDistance += mRight;
 	}
 
 	// As we need to restrict the movement to the X/Z plane we need to adjust the facing direction
@@ -192,13 +196,19 @@ void ThirdPersonCamera::MovementCheck(bool& changed, const float deltaTime)
 	if (mInputHandler->GetIsKeyPressed('W'))
 	{
 		changed = true;
-		mFocalPoint += (facingDirection * mMovementSpeed) * deltaTime;
+		//mFocalPoint += (facingDirection * mMovementSpeed) * deltaTime;
+		movementDistance += facingDirection;
 	}
 	else if (mInputHandler->GetIsKeyPressed('S'))
 	{
 		changed = true;
-		mFocalPoint += (facingDirection * -mMovementSpeed) * deltaTime;
+		//mFocalPoint += (facingDirection * -mMovementSpeed) * deltaTime;
+		movementDistance -= facingDirection;
 	}
+
+	movementDistance *= deltaTime * mMovementSpeed;
+
+	mFocalPoint += movementDistance;
 
 	// Cap the point to the playable area
 	if (mFocalPoint.x > 64.0f)
