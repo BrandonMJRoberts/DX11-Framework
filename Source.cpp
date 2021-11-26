@@ -26,6 +26,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     DWORD dwTimeCur   = 0;
     float deltaTime   = 0.0f;
 
+    float frameRate;
+
     // While the window is not being told to close
     while (WM_QUIT != msg.message)
     {
@@ -39,7 +41,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         else
         {
             // Calculate deltaTime
-            dwTimeCur = GetTickCount();
+            dwTimeStart = dwTimeCur;
+            dwTimeCur  = GetTickCount();
 
             if (dwTimeStart == 0)
                 dwTimeStart = dwTimeCur;
@@ -49,6 +52,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
             // If no windows message then update and render the game
             gameScreenManager->Update(deltaTime);
             gameScreenManager->Render();
+
+            frameRate = 1.0f / deltaTime;
         }
     }
 
