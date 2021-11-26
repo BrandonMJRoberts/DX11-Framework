@@ -354,13 +354,12 @@ void ThirdPersonCamera::RenderFocusPoint()
 		if (t < 0.0f)
 			return;
 
-		Vector2D newPos = Vector2D(mPosition.x + t * facingDir.x, 
-								   mPosition.z + t * facingDir.z);
+		Vector2D newPos = Vector2D(mPosition.x + (t * facingDir.x), 
+								   mPosition.z + (t * facingDir.z));
 
 		// Calculate the position of the focus point
-		float scale = 0.1f;
-		DirectX::XMStoreFloat4x4(&mFocusModelMatrix, DirectX::XMMatrixScaling(scale, scale, scale));
-		DirectX::XMStoreFloat4x4(&mFocusModelMatrix, DirectX::XMMatrixTranslation(newPos.x, 0.0f, newPos.y));
+		float scale = 0.5f;
+		DirectX::XMStoreFloat4x4(&mFocusModelMatrix, DirectX::XMMatrixScaling(scale, scale, scale) * DirectX::XMMatrixTranslation(newPos.x, 0.0f, newPos.y));
 
 		// Bind the transparency blend state
 		float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };

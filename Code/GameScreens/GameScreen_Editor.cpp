@@ -104,11 +104,11 @@ void GameScreen_Editor::Render()
 	if (testCar)
 		testCar->RenderFull(mCamera);
 
-	if(mCamera)
-		mCamera->RenderFocusPoint();
-
 	// The grid for the track
 	mGrid.Render(mCamera, mInputHandler);
+
+	if (mCamera)
+		mCamera->RenderFocusPoint();
 
 	if (mSkyDome)
 		mSkyDome->Render(mCamera);
