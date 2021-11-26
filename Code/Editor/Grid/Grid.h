@@ -52,6 +52,8 @@ private:
 	GridPiece      mGrid[Constants::GRID_WIDTH][Constants::GRID_HEIGHT];
 	GridPiece      mPotentialNewPiece;
 
+	ID3D11BlendState* mBlendState;
+
 	ShaderHandler& mShaderHandler;
 };
 

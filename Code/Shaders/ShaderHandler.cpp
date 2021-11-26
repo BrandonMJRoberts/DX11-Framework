@@ -16,8 +16,20 @@ ShaderHandler::ShaderHandler(ID3D11Device* deviceHandle, ID3D11DeviceContext* de
 
     , mPriorRenderBuffer(defaultBackBuffer)
     , mPriorDepthStencilBuffer(defaultDepthBuffer)
-{
+
+    , mCurrentBlendState(nullptr)
+    , mCurrentBlendFactor{ 1.0f, 1.0f, 1.0f, 1.0f }
     
+    , mPriorBlendState(nullptr)
+    , mPriorBlendFactor{ 1.0f, 1.0f, 1.0f, 1.0f }
+
+    , mDefaultBlendState(nullptr)
+{
+    // Create the default blend state and set the prior and current states to it
+    CreateBlendState(&mDefaultBlendState, false, D3D11_BLEND_ONE, D3D11_BLEND_ZERO, D3D11_BLEND_OP_ADD, D3D11_BLEND_ONE, D3D11_BLEND_ZERO, D3D11_BLEND_OP_ADD, D3D11_COLOR_WRITE_ENABLE_ALL);
+
+    mPriorBlendState   = mDefaultBlendState;
+    mCurrentBlendState = mDefaultBlendState;
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -26,6 +38,33 @@ ShaderHandler::~ShaderHandler()
 {
     mDeviceHandle      = nullptr;
     mDeviceContext     = nullptr;
+
+    if (mDefaultBlendState)
+    {
+        if (mDefaultBlendState == mPriorBlendState)
+            mPriorBlendState = nullptr;
+
+        if (mDefaultBlendState == mCurrentBlendState)
+            mCurrentBlendState = nullptr;
+
+        mDefaultBlendState->Release();
+        mDefaultBlendState = nullptr;
+    }
+
+    if (mPriorBlendState)
+    {
+        if (mPriorBlendState == mCurrentBlendState)
+            mCurrentBlendState = nullptr;
+
+        mPriorBlendState->Release();
+        mPriorBlendState = nullptr;
+    }
+
+    if (mCurrentBlendState)
+    {
+        mCurrentBlendState->Release();
+        mCurrentBlendState = nullptr;
+    }
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -810,6 +849,115 @@ void ShaderHandler::UnbindUnorderedAccessViewFromComputeShader(unsigned int star
     ID3D11UnorderedAccessView* nullUAV[1] = { 0 };
 
     mDeviceContext->CSSetUnorderedAccessViews(startSlot, count, nullUAV, 0);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::CreateBlendState(const D3D11_BLEND_DESC* desc, ID3D11BlendState** returnBlendState)
+{
+    if (!mDeviceHandle)
+        return;
+
+    mDeviceHandle->CreateBlendState(desc, returnBlendState);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::CreateBlendState(ID3D11BlendState** returnBlendState, 
+                                     bool               blendEnabled,  
+                                     D3D11_BLEND        srcBlend,  
+                                     D3D11_BLEND        destBlend, 
+                                     D3D11_BLEND_OP     blendOp,
+                                     D3D11_BLEND        srcBlendAlpha,
+                                     D3D11_BLEND        destBlendAlpha,
+                                     D3D11_BLEND_OP     blendOpAlpha,
+                                     UINT8              renderTargetWriteMask)
+{
+    if (!mDeviceHandle)
+        return;
+
+    D3D11_BLEND_DESC desc;
+    desc.AlphaToCoverageEnable  = false;
+    desc.IndependentBlendEnable = false;
+
+    desc.RenderTarget[0].BlendEnable           = blendEnabled;
+    desc.RenderTarget[0].SrcBlend              = srcBlend;
+    desc.RenderTarget[0].DestBlend             = destBlend;
+    desc.RenderTarget[0].BlendOp               = blendOp;
+    desc.RenderTarget[0].SrcBlendAlpha         = srcBlendAlpha;
+    desc.RenderTarget[0].DestBlendAlpha        = destBlendAlpha;
+    desc.RenderTarget[0].BlendOpAlpha          = blendOpAlpha;
+    desc.RenderTarget[0].RenderTargetWriteMask = renderTargetWriteMask; 
+
+    HRESULT hr;
+
+    hr = mDeviceHandle->CreateBlendState(&desc, returnBlendState);
+
+    if (FAILED(hr))
+        return;
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindBlendState(ID3D11BlendState* blendState, float blendFactor[4], UINT sampleMask)
+{
+    if (!mDeviceContext)
+        return;
+
+    mDeviceContext->OMSetBlendState(blendState, blendFactor, sampleMask);
+
+    // Store the old state as the prior state in case we want to swap back to it
+    mPriorBlendState     = mCurrentBlendState;
+    mPriorBlendFactor[0] = mCurrentBlendFactor[0];
+    mPriorBlendFactor[1] = mCurrentBlendFactor[1];
+    mPriorBlendFactor[2] = mCurrentBlendFactor[2];
+    mPriorBlendFactor[3] = mCurrentBlendFactor[3];
+
+    // Store this as the current blend state
+    mCurrentBlendState     = blendState;
+    mCurrentBlendFactor[0] = blendFactor[0];
+    mCurrentBlendFactor[1] = blendFactor[1];
+    mCurrentBlendFactor[2] = blendFactor[2];
+    mCurrentBlendFactor[3] = blendFactor[3];
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindPriorBlendState()
+{
+    if (!mDeviceContext)
+        return;
+
+    // Bind the prior state
+    mDeviceContext->OMSetBlendState(mPriorBlendState, mPriorBlendFactor, 0xffffffff);
+
+    // Swap the prior and current states
+    float             placeHolderFactor[4]  = { mPriorBlendFactor[0], mPriorBlendFactor[1], mPriorBlendFactor[2], mPriorBlendFactor[3] };
+    ID3D11BlendState* placeholderBlendState = mPriorBlendState;
+
+    // Swap them over
+    mPriorBlendState     = mCurrentBlendState;
+    mPriorBlendFactor[0] = mCurrentBlendFactor[0];
+    mPriorBlendFactor[1] = mCurrentBlendFactor[1];
+    mPriorBlendFactor[2] = mCurrentBlendFactor[2];
+    mPriorBlendFactor[3] = mCurrentBlendFactor[3];
+
+    mCurrentBlendState     = placeholderBlendState;
+    mCurrentBlendFactor[0] = placeHolderFactor[0];
+    mCurrentBlendFactor[1] = placeHolderFactor[1];
+    mCurrentBlendFactor[2] = placeHolderFactor[2];
+    mCurrentBlendFactor[3] = placeHolderFactor[3];
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void ShaderHandler::BindDefaultBlendState()
+{
+    if (!mDeviceContext)
+        return;
+
+    float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    mDeviceContext->OMSetBlendState(mDefaultBlendState, blendFactor, 0xffffffff);
 }
 
 // ------------------------------------------------------------------------------------------ //

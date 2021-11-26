@@ -7,6 +7,7 @@
 
 EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	: mShaderHandler(shaderHandler)
+	, mBlendState(nullptr)
 {
 	// Make sure that the grid is empty
 	ClearGrid();
@@ -16,6 +17,17 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 
 	// Create the highlight object that will change as new track types are selected
 	mPotentialNewPiece.trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(TrackPieceType::EMPTY);
+
+	// Create the transparency blend state
+	mShaderHandler.CreateBlendState(&mBlendState, 
+		                            true,  
+		                            D3D11_BLEND_SRC_COLOR, 
+		                            D3D11_BLEND_BLEND_FACTOR,  
+		                            D3D11_BLEND_OP_ADD, 
+		                            D3D11_BLEND_ONE,
+		                            D3D11_BLEND_ZERO, 
+		                            D3D11_BLEND_OP_ADD, 
+		                            D3D11_COLOR_WRITE_ENABLE_ALL);
 }
 
 // ------------------------------------------------------------------------ //
@@ -185,9 +197,18 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 	else if (gridPos.y < -64.0f)
 		gridPos.y = -64.0f;
 
+	gridPos = Vector2D(0, 0);
 	mPotentialNewPiece.trackPiece->SetNewGridPosition(gridPos);
 
+	// Bind the transparency state before rendering 
+
+	float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	mShaderHandler.BindBlendState(mBlendState, blendFactor);
+
 	mPotentialNewPiece.trackPiece->RenderFull(camera);
+
+	// Re-bind the normal blend state
+	mShaderHandler.BindDefaultBlendState();
 }
 
 // ------------------------------------------------------------------------ //

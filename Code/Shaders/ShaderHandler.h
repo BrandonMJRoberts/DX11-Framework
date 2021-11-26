@@ -137,6 +137,23 @@ public:
 
 	bool CreateComputeShader(LPCWSTR fileName, LPCSTR entryPoint, ID3D11ComputeShader** computeShaderReturn);
 
+	// Alpha blend state code
+	void CreateBlendState(const D3D11_BLEND_DESC* desc, ID3D11BlendState** returnBlendState);
+	void CreateBlendState(ID3D11BlendState** returnBlendState, 
+                          bool               blendEnabled		   = true,  
+                          D3D11_BLEND        srcBlend			   = D3D11_BLEND_SRC1_COLOR,  
+                          D3D11_BLEND        destBlend			   = D3D11_BLEND_BLEND_FACTOR, 
+		                  D3D11_BLEND_OP     blendOp			   = D3D11_BLEND_OP_ADD,
+                          D3D11_BLEND        srcBlendAlpha		   = D3D11_BLEND_ONE,
+                          D3D11_BLEND        destBlendAlpha		   = D3D11_BLEND_ZERO,
+                          D3D11_BLEND_OP     blendOpAlpha		   = D3D11_BLEND_OP_ADD,
+                          UINT8              renderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL);
+	 
+	void BindBlendState(ID3D11BlendState* blendState, float blendFactor[4], UINT sampleMask = 0xffffffff);
+
+	void BindDefaultBlendState();
+	void BindPriorBlendState();
+
 private:
 	// Shader compilation 
 	bool CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
@@ -145,14 +162,26 @@ private:
 	ID3D11Device*        mDeviceHandle;   // Device handle - used for creating the input layout for shaders
 	ID3D11DeviceContext* mDeviceContext;  // The device context - used for setting the input layout for the shaders
 
+	// Default
 	ID3D11RenderTargetView* mDefaultBackBuffer;
 	ID3D11DepthStencilView* mDefaultDepthStencilBuffer;
 
+	ID3D11BlendState*       mDefaultBlendState;
+
+	// Current
 	ID3D11RenderTargetView* mCurrentRenderBuffer;
 	ID3D11DepthStencilView* mCurrentDepthStencilBuffer;
 
+	ID3D11BlendState*       mCurrentBlendState;
+	float                   mCurrentBlendFactor[4];
+
+	// Prior
 	ID3D11RenderTargetView* mPriorRenderBuffer;
 	ID3D11DepthStencilView* mPriorDepthStencilBuffer;
+
+	ID3D11BlendState*       mPriorBlendState;
+	float                   mPriorBlendFactor[4];
+
 };
 
 // ----------------------------------------------------------------------------------------------- /
