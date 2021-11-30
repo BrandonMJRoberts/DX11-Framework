@@ -163,26 +163,24 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 
 	// Now convert the projection space point into view space
 	DirectX::XMFLOAT4X4 projectionMat = camera->GetPerspectiveMatrix();
-//	DirectX::XMMATRIX   projMat       = DirectX::XMLoadFloat4x4(&projectionMat);
 
 	// Get the ray in view space
-	normalisedDeviceCoords.x /= projectionMat(0, 0);
-	normalisedDeviceCoords.y /= projectionMat(1, 1);
+	normalisedDeviceCoords.x   /= projectionMat(0, 0);
+	normalisedDeviceCoords.y   /= projectionMat(1, 1);
 
 	// Define the ray origin and direction in view space
 	DirectX::XMVECTOR rayOrigin = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	DirectX::XMVECTOR rayDir    = DirectX::XMVectorSet(normalisedDeviceCoords.x, normalisedDeviceCoords.y, 1.0f, 0.0f);
 
 	// Now convert the ray dir and origin into world space by applying the inverse view matrix
-
 	DirectX::XMFLOAT4X4 inverseView = camera->GetInverseViewMatrix();
-	DirectX::XMMATRIX   invView = DirectX::XMLoadFloat4x4(&inverseView);
+	DirectX::XMMATRIX   invView     = DirectX::XMLoadFloat4x4(&inverseView);
 
 	rayOrigin = DirectX::XMVector3TransformCoord(rayOrigin, invView);
 	rayDir    = DirectX::XMVector3TransformNormal(rayDir, invView);
 
 	// Normalise the direction vector
-	rayDir = DirectX::XMVector3Normalize(rayDir);
+	rayDir    = DirectX::XMVector3Normalize(rayDir);
 
 	// Convert to useful variables
 	DirectX::XMFLOAT4 origin, direction;
@@ -191,13 +189,8 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 
 	// Now we have the ray origin and direction in world space, so check for the intersection with the ground
 
-
 	// Calculate the time factor
 	float t = (-origin.y) / direction.y;
-
-	// Check that it is not behind the camera
-	//if (t < 0.0f)
-	//	return;
 
 	Vector2D gridPos;
 
