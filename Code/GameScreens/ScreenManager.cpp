@@ -109,6 +109,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT ps;
     HDC hdc;
 
+    UINT width, height;
+
     switch (message)
     {
     case WM_PAINT:
@@ -122,17 +124,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     // Detected a change of window size
     case WM_SIZE:
-        UINT width = LOWORD(lParam);
-        UINT height = HIWORD(lParam);
 
         // Now we need to re-size the window to being the new size
         // For now just change the variable store
-        GameScreenManager::ScreenWidth  = width;
-        GameScreenManager::ScreenHeight = height;
+        //GameScreenManager::ScreenWidth  = LOWORD(lParam);
+        //GameScreenManager::ScreenHeight = HIWORD(lParam);
     break;
 
     case WM_INPUT:
-        InputHandler::HandleWindowsInput(message, lParam);
+        InputHandler::HandleWindowsInput(hWnd, message, lParam);
     break;
 
     default:

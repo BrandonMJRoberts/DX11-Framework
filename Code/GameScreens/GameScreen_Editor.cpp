@@ -33,8 +33,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 									0.01f,
 									800.0f,
 									16.0f / 9.0f,
-									0.01f,
-									0.1f);
+									8.0f,
+									90.0);
 
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);

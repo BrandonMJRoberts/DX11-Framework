@@ -10,7 +10,7 @@ int			  InputHandler::mMouseY = 0;
 char          InputHandler::mMouseButtons[6];
 Vector2D      InputHandler::mMouseDelta = Vector2D::zero;
 
-void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
+void InputHandler::HandleWindowsInput(HWND hwnd, UINT message, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -37,7 +37,7 @@ void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
 			delete[] lpb;
 			return;
 		}
-
+		
 
 		// Convert the data into the correct format
 		RAWINPUT* rawInput = (RAWINPUT*)lpb;
@@ -59,10 +59,17 @@ void InputHandler::HandleWindowsInput(UINT message, LPARAM lParam)
 		}
 		else if (rawInput->header.dwType == RIM_TYPEMOUSE) 
 		{
-			mMouseDelta = Vector2D((float)rawInput->data.mouse.lLastX, (float)rawInput->data.mouse.lLastY);
+			POINT cursorPoint;
+			if (GetCursorPos(&cursorPoint))
+			{
+				if (ScreenToClient(hwnd, &cursorPoint))
+				{
+					mMouseX = cursorPoint.x;
+					mMouseY = cursorPoint.y;
+				}
+			}
 
-			mMouseX += rawInput->data.mouse.lLastX;
-			mMouseY += rawInput->data.mouse.lLastY;
+			mMouseDelta = Vector2D(rawInput->data.mouse.lLastX, rawInput->data.mouse.lLastY);
 
 			switch (rawInput->data.mouse.usButtonFlags)
 			{

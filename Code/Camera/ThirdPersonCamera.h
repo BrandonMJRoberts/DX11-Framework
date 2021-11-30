@@ -62,6 +62,8 @@ private:
 
 	float    mXRotationAngle;
 	float    mYRotationAngle;
+
+	float    mScrollSpeed;
 };
 
 #endif

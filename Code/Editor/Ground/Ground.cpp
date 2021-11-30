@@ -39,7 +39,7 @@ void Ground::Render(BaseCamera* camera)
 
 void Ground::Update(const float deltaTime)
 {
-
+	UNREFERENCED_PARAMETER(deltaTime);
 }
 
 // ------------------------------------------------------- //

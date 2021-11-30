@@ -330,6 +330,9 @@
     <FxCompile Include="ModelGhostlyRender.fx">
       <Filter>Shaders\Models</Filter>
     </FxCompile>
+    <FxCompile Include="SkyDomeMultipleScatteringLUTGeneration.fx">
+      <Filter>Shaders\Sky</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Models\Car\Car.obj">
@@ -337,7 +340,7 @@
     </Object>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SkyDomeLUTGeneration.fx">
+    <None Include="SkyDomeSingleScatteringLUTGeneration.fx">
       <Filter>Shaders\Sky</Filter>
     </None>
   </ItemGroup>

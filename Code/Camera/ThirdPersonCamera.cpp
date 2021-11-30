@@ -48,6 +48,7 @@ ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
 	, mFocusModelMatrix(MatrixMaths::Identity4X4)
 	, mTransparencyBlendState(nullptr)
 	, mShaderHandler(shaderHandler)
+	, mScrollSpeed(12.0f)
 {
 	float zero = 0.0f;
 	CapToYRotationBounds(zero);
@@ -150,14 +151,14 @@ void ThirdPersonCamera::MouseWheelCheck(bool& changed, const float deltaTime)
 		// Change the distance 
 		if (wheelDelta > 0)
 		{
-			mDistanceFromFocalPoint += deltaTime * mMovementSpeed;
+			mDistanceFromFocalPoint += deltaTime * mScrollSpeed;
 
 			if (mDistanceFromFocalPoint > kMaxDistance)
 				mDistanceFromFocalPoint = kMaxDistance;
 		}
 		else
 		{
-			mDistanceFromFocalPoint -= deltaTime * mMovementSpeed;
+			mDistanceFromFocalPoint -= deltaTime * mScrollSpeed;
 
 			if (mDistanceFromFocalPoint < kMinDistance)
 				mDistanceFromFocalPoint = kMinDistance;

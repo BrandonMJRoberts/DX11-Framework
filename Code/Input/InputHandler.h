@@ -15,7 +15,7 @@ public:
 	bool Init(HINSTANCE instance, HWND windowInstance, int width, int height);
 
 	// Windows callback input handler
-	static void HandleWindowsInput(UINT message, LPARAM lParam);
+	static void HandleWindowsInput(HWND hwnd, UINT message, LPARAM lParam);
 
 	// Input state getters
 	bool     GetIsKeyPressed(unsigned char keyToCheck);

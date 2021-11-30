@@ -136,6 +136,8 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 		}
 	}
 
+	// ---------------------------------------------------------------------------------------------------------------
+
 	// We need to also render the potential new placment piece based off of where the player is hovering over
 	if (!camera || !mPotentialNewPiece.trackPiece)
 		return;
@@ -143,39 +145,55 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 	// Get the mouse position on the screen
 	Vector2D mousePos = inputHandler.GetMousePosition();
 
-	// First convert the mouse pos into projection space
-	Vector2D normalisedDeviceCoords = Vector2D(( (2.0f * mousePos.x) / GameScreenManager::ScreenWidth) - 1, 
-		                                       (-(2.0f * mousePos.y) / GameScreenManager::ScreenHeight) + 1);
+	if (inputHandler.GetIsKeyPressed('P'))
+	{
+		int a = 0;
+		a++;
+	}
+
+	// First convert the mouse pos into NDC
+	Vector2D normalisedDeviceCoords = Vector2D((2.0f * mousePos.x) / GameScreenManager::ScreenWidth - 1.0f,
+		                                        1.0f - (2.0f * mousePos.y) / GameScreenManager::ScreenHeight);
+
+	if (normalisedDeviceCoords.x < -1.0f || normalisedDeviceCoords.x > 1.0f ||
+-		normalisedDeviceCoords.y < -1.0f || normalisedDeviceCoords.y > 1.0f)
+	{
+		return;
+	}
 
 	// Now convert the projection space point into view space
 	DirectX::XMFLOAT4X4 projectionMat = camera->GetPerspectiveMatrix();
-	normalisedDeviceCoords.x         /= projectionMat(0, 0);
-	normalisedDeviceCoords.y         /= projectionMat(1, 1);
+//	DirectX::XMMATRIX   projMat       = DirectX::XMLoadFloat4x4(&projectionMat);
 
-	// View space definition of the ray
-	DirectX::XMVECTOR rayOriginViewSpace    = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-	DirectX::XMVECTOR rayDirectionViewSpace = DirectX::XMVectorSet(normalisedDeviceCoords.x, normalisedDeviceCoords.y, 1.0f, 0.0f);
-	
-	// Get the inverse view matrix from the camera
+	// Get the ray in view space
+	normalisedDeviceCoords.x /= projectionMat(0, 0);
+	normalisedDeviceCoords.y /= projectionMat(1, 1);
+
+	// Define the ray origin and direction in view space
+	DirectX::XMVECTOR rayOrigin = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	DirectX::XMVECTOR rayDir    = DirectX::XMVectorSet(normalisedDeviceCoords.x, normalisedDeviceCoords.y, 1.0f, 0.0f);
+
+	// Now convert the ray dir and origin into world space by applying the inverse view matrix
+
 	DirectX::XMFLOAT4X4 inverseView = camera->GetInverseViewMatrix();
-	
-	// Using the inverse view matrix we can convert the ray into world space for the intersection tests
-	rayOriginViewSpace    = DirectX::XMVector3TransformCoord(rayOriginViewSpace,     DirectX::XMLoadFloat4x4(&inverseView));
-	rayDirectionViewSpace = DirectX::XMVector3TransformNormal(rayDirectionViewSpace, DirectX::XMLoadFloat4x4(&inverseView));
+	DirectX::XMMATRIX   invView = DirectX::XMLoadFloat4x4(&inverseView);
 
-	// Now make the vector unit length for the calculations
-	DirectX::XMFLOAT4 rayDirDirectX;
-	DirectX::XMFLOAT4 rayOriginDirectX;
-	DirectX::XMStoreFloat4(&rayDirDirectX,    rayDirectionViewSpace);
-	DirectX::XMStoreFloat4(&rayOriginDirectX, rayOriginViewSpace);
+	rayOrigin = DirectX::XMVector3TransformCoord(rayOrigin, invView);
+	rayDir    = DirectX::XMVector3TransformNormal(rayDir, invView);
 
-	Vector3D rayDirection = Vector3D(rayDirDirectX.x, rayDirDirectX.y, rayDirDirectX.z);
-	rayDirection.Normalise();
+	// Normalise the direction vector
+	rayDir = DirectX::XMVector3Normalize(rayDir);
 
-	Vector3D rayOrigin    = Vector3D(rayOriginDirectX.x, rayOriginDirectX.y, rayOriginDirectX.z);
+	// Convert to useful variables
+	DirectX::XMFLOAT4 origin, direction;
+	DirectX::XMStoreFloat4(&origin, rayOrigin);
+	DirectX::XMStoreFloat4(&direction, rayDir);
 
-	// Calculate the t factor
-	float t = (-rayOrigin.y) / rayDirection.y;
+	// Now we have the ray origin and direction in world space, so check for the intersection with the ground
+
+
+	// Calculate the time factor
+	float t = (-origin.y) / direction.y;
 
 	// Check that it is not behind the camera
 	//if (t < 0.0f)
@@ -184,8 +202,8 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 	Vector2D gridPos;
 
 	// Set the new position
-	gridPos.x = rayOrigin.x + (t * rayDirection.x);
-	gridPos.y = rayOrigin.z + (t * rayDirection.z);
+	gridPos.x = origin.x + (t * direction.x);
+	gridPos.y = origin.z + (t * direction.z);
 
 	if (gridPos.x > 64.0f)
 		gridPos.x = 64.0f;
@@ -197,8 +215,9 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 	else if (gridPos.y < -64.0f)
 		gridPos.y = -64.0f;
 
-	gridPos = Vector2D(0, 0);
 	mPotentialNewPiece.trackPiece->SetNewGridPosition(gridPos);
+
+	// ---------------------------------------------------------------------------------------------------------------
 
 	// Bind the transparency state before rendering 
 

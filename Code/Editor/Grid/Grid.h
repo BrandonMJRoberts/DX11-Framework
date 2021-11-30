@@ -54,7 +54,7 @@ private:
 
 	ID3D11BlendState* mBlendState;
 
-	ShaderHandler& mShaderHandler;
+	ShaderHandler&    mShaderHandler;
 };
 
 // ------------------------------------------------------------------------ //
