@@ -32,6 +32,7 @@ TrackPieceFactory::TrackPieceFactory(ShaderHandler* shaderHander)
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+						   "Models/Track/Empty/PlaceholderGhost.obj",
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj" })
 	, kFilePathsToCollisionData({ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", })
@@ -77,14 +78,14 @@ TrackPieceFactory::~TrackPieceFactory()
 
 // -------------------------------------------------------------------- //
 
-TrackPiece* TrackPieceFactory::CreateTrackPiece(TrackPieceType pieceType)
+TrackPiece* TrackPieceFactory::CreateTrackPiece(TrackPieceType pieceType, Vector2D worldPosition)
 {
 	// Error checking just in case we are de-referencing a nullptr
 	if (mModels.size() < (unsigned int)pieceType || !mModels[(unsigned int)pieceType])// || !mCollisions[(unsigned int)pieceType])
 		return nullptr;
 
 	// Create the piece with the correct data
-	TrackPiece* returnTrackPiece = new TrackPiece(*(mModels[(unsigned int)pieceType])); //, *(mCollisions[(unsigned int)pieceType]));
+	TrackPiece* returnTrackPiece = new TrackPiece(*(mModels[(unsigned int)pieceType]), worldPosition); //, *(mCollisions[(unsigned int)pieceType]));
 
 	// If not a created for some reason then return nullptr
 	return returnTrackPiece;
@@ -117,7 +118,7 @@ void TrackPieceFactory::Init(ShaderHandler* shaderHander)
 		if (kFilePathsToModels.size() > i && kFilePathsToModels[i] != "")
 		{
 			// Pass through the ghostly version of the shader
-			if ((TrackPieceType)i == TrackPieceType::EMPTY)
+			if ((TrackPieceType)i == TrackPieceType::GHOST)
 			{
 				mModels.push_back(new Model(*mShaderHandler, kFilePathsToModels[i], mGhostRenderVertexShader, mGhostRenderPixelShader, returnDataGhostly.Blob, false));
 			}

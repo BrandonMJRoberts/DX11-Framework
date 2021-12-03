@@ -49,7 +49,7 @@ public:
 
 
 	void	  Render(BaseCamera* camera, InputHandler& inputHandler);
-	void	  Update(const float deltaTime);
+	void	  Update(const float deltaTime, InputHandler& inputHandler);
 
 private:
 	// Internal grid store

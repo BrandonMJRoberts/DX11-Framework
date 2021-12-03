@@ -65,7 +65,7 @@ void RaceTrack::Update(const float deltaTime)
 
 	if (mRaceTrack)
 	{
-		mRaceTrack->Update(deltaTime);
+		mRaceTrack->Update(deltaTime, mInputHandler);
 	}
 }
 

@@ -54,6 +54,7 @@ enum class TrackPieceType : unsigned int
 		JUMP_UP,
 		JUMP_DOWN,
 
+		GHOST,
 		EMPTY,
 
 		MAX
@@ -69,7 +70,7 @@ public:
 	void               SetNewShaderHandler(ShaderHandler* shaderHandler);
 
 	void               Init(ShaderHandler* shaderHander);
-	TrackPiece*        CreateTrackPiece(TrackPieceType pieceToMake);
+	TrackPiece*        CreateTrackPiece(TrackPieceType pieceToMake, Vector2D worldPosition);
 
 private:
 	TrackPieceFactory(ShaderHandler* shaderHander);

@@ -18,7 +18,8 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	TrackPieceFactory::GetInstance()->Init(&shaderHandler);
 
 	// Create the highlight object that will change as new track types are selected
-	mPotentialNewPiece.trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(TrackPieceType::EMPTY);
+	mPotentialNewPiece.pieceType  = TrackPieceType::GHOST;
+	mPotentialNewPiece.trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(TrackPieceType::GHOST, Vector2D::zero);
 
 	// Create the transparency blend state
 	mShaderHandler.CreateBlendState(&mBlendState, 
@@ -73,7 +74,7 @@ void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, Vector2D position)
 		return;
 
 	mGrid[(unsigned int)position.x][(unsigned int)position.y].pieceType  = typeToAdd;
-	mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd);
+	mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd, TrackPiece::ConvertFromGridToWorldPosition(position));
 }
 
 // ------------------------------------------------------------------------ //
@@ -87,7 +88,7 @@ void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, unsigned int x, uns
 	mGrid[x][y].pieceType  = typeToAdd;
 
 	// Assign the track piece
-	mGrid[x][y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd); 
+	mGrid[x][y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd, TrackPiece::ConvertFromGridToWorldPosition(Vector2D((float)x, (float)y)));
 }
 
 // ------------------------------------------------------------------------ //
@@ -106,9 +107,27 @@ void EditorGrid::ClearGrid()
 
 // ------------------------------------------------------------------------ //
 
-void EditorGrid::Update(const float deltaTime)
+void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler)
 {
 	UNREFERENCED_PARAMETER(deltaTime);
+
+	if (!mPotentialNewPiece.trackPiece)
+		return;
+
+	// Check to see if the player has clicked the left mouse button
+	if (inputHandler.GetIsMouseButtonPressed(0))
+	{
+		// Place the new piece in the internal grid where the highlight shows
+		Vector2D gridPos                      = mPotentialNewPiece.trackPiece->GetGridPosition();
+		SetGridPiece(mPotentialNewPiece.pieceType, gridPos);
+	}
+
+	// Check to see if the player has pressed the right mouse button
+	if (inputHandler.GetIsMouseButtonPressed(1))
+	{
+		// Rotate the potential piece 90 degrees every time the right mouse button is pressed, but the mouse is not moved
+
+	}
 }
 
 // ------------------------------------------------------------------------ //
@@ -119,8 +138,25 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 	{
 		for (unsigned int j = 0; j < Constants::GRID_HEIGHT; j++)
 		{
-			if(mGrid[i][j].trackPiece)
+			if (mGrid[i][j].trackPiece)
+			{
+				if (mGrid[i][j].pieceType == TrackPieceType::GHOST)
+				{
+					float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+					mShaderHandler.BindBlendState(mBlendState, blendFactor);
+
+					// Render the piece
+					mGrid[i][j].trackPiece->RenderFull(camera);
+
+					// Bind the default state again
+					mShaderHandler.BindDefaultBlendState();
+
+					continue;
+				}
+
+				// Render the piece
 				mGrid[i][j].trackPiece->RenderFull(camera);
+			}
 		}
 	}
 
