@@ -10,6 +10,7 @@
 EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	: mShaderHandler(shaderHandler)
 	, mBlendState(nullptr)
+	, mAddPieceState(true)
 {
 	// Make sure that the grid is empty
 	ClearGrid();
@@ -73,6 +74,16 @@ void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, Vector2D position)
 	if (typeToAdd == GetTrackPiece(position).pieceType)
 		return;
 
+	if (typeToAdd == TrackPieceType::EMPTY)
+	{
+		// If we are setting this point to being empty, and it is not already empty then we need to clear up some memory
+		delete mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece;
+		mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece = nullptr;
+
+		mGrid[(unsigned int)position.x][(unsigned int)position.y].pieceType  = TrackPieceType::EMPTY;
+		return;
+	}
+
 	mGrid[(unsigned int)position.x][(unsigned int)position.y].pieceType  = typeToAdd;
 	mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd, TrackPiece::ConvertFromGridToWorldPosition(position));
 }
@@ -111,22 +122,33 @@ void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler)
 {
 	UNREFERENCED_PARAMETER(deltaTime);
 
-	if (!mPotentialNewPiece.trackPiece)
-		return;
+	// Check to see if the player wants to switch state between adding and removing
+	if (inputHandler.GetIsMouseButtonPressed(2))
+	{
+		mAddPieceState = !mAddPieceState;
+	}
 
 	// Check to see if the player has clicked the left mouse button
 	if (inputHandler.GetIsMouseButtonPressed(0))
 	{
-		// Place the new piece in the internal grid where the highlight shows
-		Vector2D gridPos                      = mPotentialNewPiece.trackPiece->GetGridPosition();
-		SetGridPiece(mPotentialNewPiece.pieceType, gridPos);
-	}
+		Vector2D gridPos;
 
-	// Check to see if the player has pressed the right mouse button
-	if (inputHandler.GetIsMouseButtonPressed(1))
-	{
-		// Rotate the potential piece 90 degrees every time the right mouse button is pressed, but the mouse is not moved
+		// If in the create mode then add a piece
+		if(mAddPieceState)
+		{
+			if (!mPotentialNewPiece.trackPiece)
+				return;
 
+			// Place the new piece in the internal grid where the highlight shows
+			gridPos = mPotentialNewPiece.trackPiece->GetGridPosition();
+			SetGridPiece(mPotentialNewPiece.pieceType, gridPos);
+		}
+		else
+		{
+			// If the player presses the right mouse button over a piece then it is removed
+			gridPos = mPotentialNewPiece.trackPiece->GetGridPosition();
+			SetGridPiece(TrackPieceType::EMPTY, gridPos);
+		}
 	}
 }
 

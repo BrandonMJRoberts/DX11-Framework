@@ -59,6 +59,8 @@ private:
 	ID3D11BlendState* mBlendState;
 
 	ShaderHandler&    mShaderHandler;
+
+	bool              mAddPieceState;
 };
 
 // ------------------------------------------------------------------------ //
