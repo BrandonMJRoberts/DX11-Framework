@@ -3,6 +3,8 @@
 #include "../../Camera/BaseCamera.h"
 #include "../../GameScreens/ScreenManager.h"
 
+#include <fstream>
+
 // ------------------------------------------------------------------------ //
 
 EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
@@ -104,20 +106,6 @@ void EditorGrid::ClearGrid()
 
 // ------------------------------------------------------------------------ //
 
-void      EditorGrid::LoadInGridFromFile(std::string filePath)
-{
-
-}
-
-// ------------------------------------------------------------------------ //
-
-void      EditorGrid::SaveOutGridToFile()
-{
-
-}
-
-// ------------------------------------------------------------------------ //
-
 void EditorGrid::Update(const float deltaTime)
 {
 	UNREFERENCED_PARAMETER(deltaTime);
@@ -198,16 +186,6 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 	gridPos.x = origin.x + (t * direction.x);
 	gridPos.y = origin.z + (t * direction.z);
 
-	if (gridPos.x > 64.0f)
-		gridPos.x = 64.0f;
-	else if (gridPos.x < -64.0f)
-		gridPos.x = -64.0f;
-
-	if (gridPos.y > 64.0f)
-		gridPos.y = 64.0f;
-	else if (gridPos.y < -64.0f)
-		gridPos.y = -64.0f;
-
 	mPotentialNewPiece.trackPiece->SetNewGridPosition(gridPos);
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -221,6 +199,20 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 
 	// Re-bind the normal blend state
 	mShaderHandler.BindDefaultBlendState();
+}
+
+// ------------------------------------------------------------------------ //
+
+void EditorGrid::LoadInGridFromFile(std::string filePath)
+{
+
+}
+
+// ------------------------------------------------------------------------ //
+
+void EditorGrid::SaveOutTrackInternalDataToFile()
+{
+
 }
 
 // ------------------------------------------------------------------------ //

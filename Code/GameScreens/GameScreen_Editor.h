@@ -3,19 +3,13 @@
 
 #include "GameScreen.h"
 
-#include "../Test/TestCube.h"
-#include "../Camera/ThirdPersonCamera.h"
-
-#include "../Editor/Grid/Grid.h"
-#include "../Editor/Ground/Ground.h"
-
-#include "../Post Processing/PostProcessing.h"
-
-#include "../Models/Car.h"
-
-#include "../Sky/Sky.h"
-
+class RaceTrack;
 class Model;
+class PostProcessing;
+class ThirdPersonCamera;
+class Car;
+class TestCube;
+class SkyDome;
 
 class GameScreen_Editor final : public GameScreen
 {
@@ -27,21 +21,13 @@ public:
 	void Update(const float deltaTime) override;
 
 private:
-	PostProcessing* mPostProcessing;
-
-	// Internal grid for the track
-	EditorGrid         mGrid;
-
-	ThirdPersonCamera* mCamera;
-
-	TestCube* testCube;
-	TestCube* testCube2;
-
-	Car* testCar;
-
-	SkyDome* mSkyDome;
-	Ground*  mGround;
-
+	PostProcessing*        mPostProcessing;
+	ThirdPersonCamera*     mCamera;
+	TestCube*              testCube;
+	TestCube*              testCube2;
+	Car*                   testCar;
+	SkyDome*               mSkyDome;
+	RaceTrack*             mRaceTrack;
 	ID3D11RasterizerState* renderState;
 };
 

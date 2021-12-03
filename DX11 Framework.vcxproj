@@ -392,6 +392,7 @@
     <ClCompile Include="Code\Collisions\TrackCollision.cpp" />
     <ClCompile Include="Code\Editor\Grid\Grid.cpp" />
     <ClCompile Include="Code\Editor\Ground\Ground.cpp" />
+    <ClCompile Include="Code\Editor\RaceTrack.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_Editor.cpp" />
     <ClCompile Include="Code\GameScreens\GameScreen_InGame.cpp" />
@@ -420,6 +421,7 @@
     <ClInclude Include="Code\Collisions\TrackCollision.h" />
     <ClInclude Include="Code\Editor\Grid\Grid.h" />
     <ClInclude Include="Code\Editor\Ground\Ground.h" />
+    <ClInclude Include="Code\Editor\RaceTrack.h" />
     <ClInclude Include="Code\GameScreens\GameScreen.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_Editor.h" />
     <ClInclude Include="Code\GameScreens\GameScreen_InGame.h" />

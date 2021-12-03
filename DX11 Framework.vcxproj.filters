@@ -210,6 +210,9 @@
     <ClCompile Include="Code\Editor\Ground\Ground.cpp">
       <Filter>Source\Editor\Ground</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Editor\RaceTrack.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -295,6 +298,9 @@
     </ClInclude>
     <ClInclude Include="Code\Editor\Ground\Ground.h">
       <Filter>Headers\Editor\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Editor\RaceTrack.h">
+      <Filter>Headers\Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

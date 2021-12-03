@@ -25,20 +25,13 @@
 		
 		<!-- Can be 'Sun', 'Rain', 'Snow' or 'Fog' -->
 		<Type>Sun</Type>
-		
-		
 	</Weather>
 
-	<!-- Dimensions of the track -->
-	<Width>16</Width>
-	<Height>2</Height>
-	<Depth>16</Depth>
-
-	<!-- A layer is a x-z plane slice, defining all positions at that Y level -->
-	<!-- The layers start at the bottom and work up -->
+    <!-- The dimensions are always the same so no need to store the specific dimensions -->
+	<!-- A layer is a x-z plane slice -->
 	<!-- These files are usally computer generated so writing layers is not a normal probelm with this approach-->
 	<!-- The ID's stored here refer to an interal enum of values in the grid class -->
-	<Layer>
+	<TrackData>
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
@@ -55,25 +48,6 @@
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-	</Layer>
-	
-	<Layer>
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-	</Layer>
+	</TrackData>
 
 </TrackGrid>

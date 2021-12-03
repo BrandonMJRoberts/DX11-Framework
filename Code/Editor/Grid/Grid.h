@@ -10,6 +10,8 @@
 
 #include "../../Texture/RenderBuffer.h"
 
+#include <string>
+
 // ------------------------------------------------------------------------ //
 
 struct GridPiece
@@ -42,7 +44,9 @@ public:
 	void      ClearGrid();
 
 	void      LoadInGridFromFile(std::string filePath);
-	void      SaveOutGridToFile();
+
+	void      SaveOutTrackInternalDataToFile();
+
 
 	void	  Render(BaseCamera* camera, InputHandler& inputHandler);
 	void	  Update(const float deltaTime);

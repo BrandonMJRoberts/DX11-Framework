@@ -1,6 +1,12 @@
 #include "GameScreen_Editor.h"
 
 #include "../Models/Model.h"
+#include "../Sky/Sky.h"
+#include "../Test/TestCube.h"
+#include "../Camera/ThirdPersonCamera.h"
+#include "../Models/Car.h"
+#include "../Post Processing/PostProcessing.h"
+#include "../Editor/RaceTrack.h"
 
 // --------------------------------------------------------- //
 
@@ -9,9 +15,9 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, testCube(nullptr)
 	, testCube2(nullptr)
 	, mCamera(nullptr)
-	, mGrid(shaderHandler)
 	, mPostProcessing(nullptr)
 	, mSkyDome(nullptr)
+    , mRaceTrack(nullptr)
 {
 	testCube  = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
@@ -19,9 +25,9 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	testCar   = new Car(shaderHandler);
 
-	mGround   = new Ground(shaderHandler);
-
 	mSkyDome  = new SkyDome(shaderHandler, Vector3D::zero, 200.0f, 50);
+
+	mRaceTrack = new RaceTrack(shaderHandler, inputHandler, "filler");
 
 	mCamera   = new ThirdPersonCamera(&inputHandler,
 		                               shaderHandler,
@@ -64,8 +70,8 @@ GameScreen_Editor::~GameScreen_Editor()
 	delete mSkyDome;
 	mSkyDome = nullptr;
 
-	delete mGround;
-	mGround = nullptr;
+	delete mRaceTrack;
+	mRaceTrack = nullptr;
 
 	if (renderState)
 	{
@@ -91,8 +97,8 @@ void GameScreen_Editor::Render()
 
 	mShaderHandler.BindRasterizerState(renderState);
 
-	if(mGround)
-		mGround->Render(mCamera);
+	if(mRaceTrack)
+		mRaceTrack->RenderGround(mCamera);
 
 	// Render the test cubes
 	if (testCube)
@@ -104,11 +110,11 @@ void GameScreen_Editor::Render()
 	if (testCar)
 		testCar->RenderFull(mCamera);
 
-	// The grid for the track
-	mGrid.Render(mCamera, mInputHandler);
-
 	if (mCamera)
 		mCamera->RenderFocusPoint();
+
+	if (mRaceTrack)
+		mRaceTrack->RenderGrid(mCamera);
 
 	if (mSkyDome)
 		mSkyDome->Render(mCamera);
@@ -133,8 +139,8 @@ void GameScreen_Editor::Update(const float deltaTime)
 		testCube->move(deltaTime);
 	}
 
-	if (mGround)
-		mGround->Update(deltaTime);
+	if (mRaceTrack)
+		mRaceTrack->Update(deltaTime);
 
 	if (testCube)
 		testCube->Update(deltaTime);
@@ -149,8 +155,6 @@ void GameScreen_Editor::Update(const float deltaTime)
 
 	if (mSkyDome)
 		mSkyDome->Update(deltaTime);
-
-	mGrid.Update(deltaTime);
 }
 
 // ------------------------------------------------------------------- //
