@@ -41,9 +41,9 @@ public:
 	void      LoadInTrackFromFile(std::string filePath);
 
 private:
-	void      SaveOutGridToFile(std::ofstream& file);
-	void      SaveOutBestTimesToFile(std::ofstream& file);
-	void      SaveOutweatherDataToFile(std::ofstream& file);
+	void      SaveOutGridToFile(std::ofstream& file, std::string filePath);
+	void      SaveOutBestTimesToFile(std::ofstream& file, std::string filePath);
+	void      SaveOutweatherDataToFile(std::ofstream& file, std::string filePath);
 
 	float          mBestTrackTimes[5];
 	std::string    mTrackName;
@@ -51,6 +51,7 @@ private:
 	Vector2D       mCloudMovementSpeed;
 	WeatherType    mWeatherType;
 	InputHandler&  mInputHandler;
+	float          mGlobalCoverage;
 
 	EditorGrid*    mRaceTrack;
 	Ground*        mTrackGround;

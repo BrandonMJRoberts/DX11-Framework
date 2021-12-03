@@ -18,6 +18,7 @@ RaceTrack::RaceTrack(ShaderHandler& shaderHandler, InputHandler& inputHandler, s
 	, mRaceTrack(nullptr)
 	, mTrackGround(nullptr)
 	, mInputHandler(inputHandler)
+	, mGlobalCoverage(0.5f)
 {
 	mRaceTrack   = new EditorGrid(shaderHandler);
 	mTrackGround = new Ground(shaderHandler);
@@ -67,6 +68,11 @@ void RaceTrack::Update(const float deltaTime)
 	{
 		mRaceTrack->Update(deltaTime, mInputHandler);
 	}
+
+	if (mInputHandler.GetIsKeyPressed('M'))
+	{
+		SaveTrack("Saved Tracks/ComputerGeneratedExample.xml");
+	}
 }
 
 // -------------------------------------------------------------------------------- //
@@ -82,34 +88,35 @@ void RaceTrack::SaveTrack(std::string filePath)
 		// First write out the xml format header
 		std::string outLine = "<?xml version=";
 		outLine += '"' + std::to_string(1.0) + '"';
-		outLine += " encoding=" + '"';
+		outLine.append(" encoding=");
+		outline.append('"');
 		outLine += "UTF-8" + '"';
-		outLine += "?>";
+		outLine += "?>\n";
 		file.write(outLine.c_str(), outLine.length());
 
 		// Now open the first grouping of brackets
-		outLine = "<TrackGrid>";
+		outLine = "\n<TrackGrid>\n";
 		file.write(outLine.c_str(), outLine.length());
 
 		// Now go through each section of the track and output the data
 		// First make sure to close the file as we are going to have to re-open it
 		file.close();
 
-		SaveOutBestTimesToFile(file);
+		SaveOutBestTimesToFile(file, filePath);
 
-		SaveOutweatherDataToFile(file);
+		SaveOutweatherDataToFile(file, filePath);
 
-		SaveOutGridToFile(file);
+		SaveOutGridToFile(file, filePath);
 
 		// Now re-open the file
-		file.open(filePath);
+		file.open(filePath, std::ios::app);
 		if (!file.is_open() || !file.good())
 		{
 			return;
 		}
 
 		// Close the backets grouping
-		outLine = "</TrackGrid>";
+		outLine = "\n</TrackGrid>\n";
 		file.write(outLine.c_str(), outLine.length());
 	}
 
@@ -118,28 +125,159 @@ void RaceTrack::SaveTrack(std::string filePath)
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::SaveOutGridToFile(std::ofstream& file)
+void RaceTrack::SaveOutGridToFile(std::ofstream& file, std::string filePath)
 {
-	
+	// First re-open the file
+	file.open(filePath.c_str(), std::ios::app);
+
+	if (file.is_open() && file.good())
+	{
+		// Now write the data to the file
+		std::string lineToWrite = "\n\t\t<!-- The dimensions are always the same so no need to store the specific dimensions -->\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t\t<!-- These files are usally computer generated so writing layers is not a normal probelm with this approach-->\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t\t<!-- The ID's stored here refer to an interal enum of values in the grid class -->\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t<TrackData>\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			// Now write out the internal store of the track
+			for (unsigned int i = 0; i < 16; i++)
+			{
+				lineToWrite = "\t\t";
+
+				for (unsigned int j = 0; j < 16; j++)
+				{
+					lineToWrite.append(std::to_string((int)(mRaceTrack->GetTrackPiece(i, j).pieceType)) + " ");
+				}
+
+				lineToWrite.append("\n");
+				file.write(lineToWrite.c_str(), lineToWrite.length());
+			}
+
+		lineToWrite = "\t</TrackData>\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+	}
+
+	file.close();
 }
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::SaveOutBestTimesToFile(std::ofstream& file)
+void RaceTrack::SaveOutBestTimesToFile(std::ofstream& file, std::string filePath)
 {
+	// First re-open the file
+	file.open(filePath.c_str(), std::ios::app);
 
+	if (file.is_open() && file.good())
+	{
+		// Now write the data to the file
+		std::string lineToWrite = "\n\t<!-- Times stored in seconds -->";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\n\t<Times>\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<First>" + std::to_string(mBestTrackTimes[0]) + "</First>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<Second>" + std::to_string(mBestTrackTimes[1]) + "</Second>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<Third>" + std::to_string(mBestTrackTimes[2]) + "</Third>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<Fourth>" + std::to_string(mBestTrackTimes[3]) + "</Fourth>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<Fifth>" + std::to_string(mBestTrackTimes[4]) + "</Fifth>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t</Times>\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+	}
+
+	file.close();
 }
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::SaveOutweatherDataToFile(std::ofstream& file)
+void RaceTrack::SaveOutweatherDataToFile(std::ofstream& file, std::string filePath)
 {
+	// First re-open the file
+	file.open(filePath.c_str(), std::ios::app);
 
+	if (file.is_open() && file.good())
+	{
+		// Now write the data to the file
+		std::string lineToWrite = "\n\t<!-- Weather data for this track design-->\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t<Weather>\n\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<!-- Time of day stored as a 24 hour time -->\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<TimeOfDay>" + std::to_string((int)mTimeOfDay) + "</TimeOfDay>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\n\t\t<Clouds>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+		
+				lineToWrite = "\t\t\t<MovementSpeedX>" + std::to_string(mCloudMovementSpeed.x) + "</MovementSpeedX>\n";
+				file.write(lineToWrite.c_str(), lineToWrite.length());
+
+				lineToWrite = "\t\t\t<MovementSpeedY>" + std::to_string(mCloudMovementSpeed.y) + "</MovementSpeedY>\n";
+				file.write(lineToWrite.c_str(), lineToWrite.length());
+
+				lineToWrite = "\n\t\t\t<GlobalCoverage>" + std::to_string(mGlobalCoverage) + "</GlobalCoverage>\n";
+				file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t</Clouds>\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\n\t\t<!-- Can be 'Sun', 'Rain', 'Snow', or 'Fog' -->\n";
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			lineToWrite = "\t\t<Type>";
+
+			switch (mWeatherType)
+			{
+			case WeatherType::SUN:
+				lineToWrite.append("SUN");
+			break;
+
+			case WeatherType::ICE:
+				lineToWrite.append("ICE");
+			break;
+
+			case WeatherType::RAIN:
+				lineToWrite.append("RAIN");
+			break;
+
+			case WeatherType::SNOW:
+				lineToWrite.append("SNOW");
+			break;
+			}
+
+			lineToWrite.append("</Type>\n");
+			file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t</Weather>\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+	}
+
+	file.close();
 }
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::LoadInTrackFromFile(std::string filePath) 
+void RaceTrack::LoadInTrackFromFile(std::string filePath)
 {
 
 }

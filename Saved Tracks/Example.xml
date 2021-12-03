@@ -28,7 +28,6 @@
 	</Weather>
 
     <!-- The dimensions are always the same so no need to store the specific dimensions -->
-	<!-- A layer is a x-z plane slice -->
 	<!-- These files are usally computer generated so writing layers is not a normal probelm with this approach-->
 	<!-- The ID's stored here refer to an interal enum of values in the grid class -->
 	<TrackData>

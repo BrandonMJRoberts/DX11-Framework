@@ -1,0 +1,53 @@
+<?xml version="1.000000"F-8?>
+
+<TrackGrid>
+
+	<!-- Times stored in seconds -->
+	<Times>
+		<First>30.000000</First>
+		<Second>40.000000</Second>
+		<Third>50.000000</Third>
+		<Fourth>60.000000</Fourth>
+		<Fifth>70.000000</Fifth>
+	</Times>
+
+	<!-- Weather data for this track design-->
+	<Weather>
+
+		<!-- Time of day stored as a 24 hour time -->
+		<TimeOfDay>1200</TimeOfDay>
+
+		<Clouds>
+			<MovementSpeedX>0.000000</MovementSpeedX>
+			<MovementSpeedY>0.000000</MovementSpeedY>
+
+			<GlobalCoverage>0.500000</GlobalCoverage>
+		</Clouds>
+
+		<!-- Can be 'Sun', 'Rain', 'Snow', or 'Fog' -->
+		<Type>SUN</Type>
+	</Weather>
+
+		<!-- The dimensions are always the same so no need to store the specific dimensions -->
+		<!-- These files are usally computer generated so writing layers is not a normal probelm with this approach-->
+		<!-- The ID's stored here refer to an interal enum of values in the grid class -->
+	<TrackData>
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 24 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+	</TrackData>
+
+</TrackGrid>
