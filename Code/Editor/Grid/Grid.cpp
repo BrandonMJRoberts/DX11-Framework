@@ -11,6 +11,7 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	: mShaderHandler(shaderHandler)
 	, mBlendState(nullptr)
 	, mAddPieceState(true)
+	, mSwappedState(false)
 {
 	// Make sure that the grid is empty
 	ClearGrid();
@@ -38,6 +39,8 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 
 EditorGrid::EditorGrid(ShaderHandler& shaderHandler, std::string filePathForTrackLoad)
 	: mShaderHandler(shaderHandler)
+	, mSwappedState(false)
+	, mAddPieceState(true)
 {
 	// Make sure that the grid is empty
 	ClearGrid();
@@ -125,7 +128,15 @@ void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler)
 	// Check to see if the player wants to switch state between adding and removing
 	if (inputHandler.GetIsMouseButtonPressed(2))
 	{
-		mAddPieceState = !mAddPieceState;
+		if (!mSwappedState)
+		{
+			mAddPieceState = !mAddPieceState;
+			mSwappedState  = true;
+		}
+	}
+	else
+	{
+		mSwappedState = false;
 	}
 
 	// Check to see if the player has clicked the left mouse button

@@ -61,6 +61,7 @@ private:
 	ShaderHandler&    mShaderHandler;
 
 	bool              mAddPieceState;
+	bool              mSwappedState;
 };
 
 // ------------------------------------------------------------------------ //

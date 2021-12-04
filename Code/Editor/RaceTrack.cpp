@@ -82,16 +82,11 @@ void RaceTrack::SaveTrack(std::string filePath)
 	// First create a file in the correct place
 	std::ofstream file;
 	file.open(filePath);
-
+	
 	if (file.is_open() && file.good())
 	{
 		// First write out the xml format header
-		std::string outLine = "<?xml version=";
-		outLine += '"' + std::to_string(1.0) + '"';
-		outLine.append(" encoding=");
-		outline.append('"');
-		outLine += "UTF-8" + '"';
-		outLine += "?>\n";
+		std::string outLine = "<?xml version=\"" + std::to_string(1.0) + "\" encoding=\"UTF-8\"?>\n";
 		file.write(outLine.c_str(), outLine.length());
 
 		// Now open the first grouping of brackets

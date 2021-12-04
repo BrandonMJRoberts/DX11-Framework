@@ -48,7 +48,7 @@ ThirdPersonCamera::ThirdPersonCamera(InputHandler* inputHandler,
 	, mFocusModelMatrix(MatrixMaths::Identity4X4)
 	, mTransparencyBlendState(nullptr)
 	, mShaderHandler(shaderHandler)
-	, mScrollSpeed(12.0f)
+	, mScrollSpeed(15.0f)
 {
 	float zero = 0.0f;
 	CapToYRotationBounds(zero);
