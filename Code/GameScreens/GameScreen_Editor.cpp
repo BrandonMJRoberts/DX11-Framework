@@ -62,7 +62,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	mShaderHandler.CreateRasterizerState(&renderState);
 
-	mCurrentCamera = mFirstPersonCamera;
+	mCurrentCamera = mThirdPersonCamera;
 }
 
 // --------------------------------------------------------- //
@@ -162,7 +162,7 @@ void GameScreen_Editor::Update(const float deltaTime)
 	}
 
 	if (mRaceTrack)
-		mRaceTrack->Update(deltaTime);
+		mRaceTrack->Update(deltaTime, mCurrentCamera);
 
 	if (testCube)
 		testCube->Update(deltaTime);

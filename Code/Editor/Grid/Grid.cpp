@@ -121,7 +121,7 @@ void EditorGrid::ClearGrid()
 
 // ------------------------------------------------------------------------ //
 
-void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler)
+void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler, BaseCamera* camera)
 {
 	UNREFERENCED_PARAMETER(deltaTime);
 
@@ -160,6 +160,8 @@ void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler)
 			gridPos = mPotentialNewPiece.trackPiece->GetGridPosition();
 			SetGridPiece(TrackPieceType::EMPTY, gridPos);
 		}
+
+		FindAllVisibleGridPieces(camera);
 	}
 }
 
@@ -199,33 +201,6 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 			mVisiblePieces[i].trackPiece->RenderFull(camera);
 		}
 	}
-
-
-	//for (unsigned int i = 0; i < Constants::GRID_WIDTH; i++)
-	//{
-	//	for (unsigned int j = 0; j < Constants::GRID_HEIGHT; j++)
-	//	{
-	//		if (mGrid[i][j].trackPiece)
-	//		{
-	//			if (mGrid[i][j].pieceType == TrackPieceType::GHOST)
-	//			{
-	//				float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	//				mShaderHandler.BindBlendState(mBlendState, blendFactor);
-
-	//				// Render the piece
-	//				mGrid[i][j].trackPiece->RenderFull(camera);
-
-	//				// Bind the default state again
-	//				mShaderHandler.BindDefaultBlendState();
-
-	//				continue;
-	//			}
-
-	//			// Render the piece
-	//			mGrid[i][j].trackPiece->RenderFull(camera);
-	//		}
-	//	}
-	//}
 
 	// ---------------------------------------------------------------------------------------------------------------
 

@@ -58,7 +58,7 @@ void RaceTrack::RenderGrid(BaseCamera* camera)
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::Update(const float deltaTime)
+void RaceTrack::Update(const float deltaTime, BaseCamera* camera)
 {
 	if (mTrackGround)
 	{
@@ -67,12 +67,16 @@ void RaceTrack::Update(const float deltaTime)
 
 	if (mRaceTrack)
 	{
-		mRaceTrack->Update(deltaTime, mInputHandler);
+		mRaceTrack->Update(deltaTime, mInputHandler, camera);
 	}
 
 	if (mInputHandler.GetIsKeyPressed('M'))
 	{
 		SaveTrack("Saved Tracks/ComputerGeneratedExample.xml");
+	}
+	else if (mInputHandler.GetIsKeyPressed('L'))
+	{
+		LoadInTrackFromFile("Saved Tracks/ComputerGeneratedExample.xml");
 	}
 }
 
@@ -279,6 +283,7 @@ void RaceTrack::LoadInTrackFromFile(std::string filePath)
 	std::ifstream file;
 	file.open(filePath.c_str(), std::ios::in);
 
+	// Error checking
 	if (file.is_open() && file.good())
 	{
 		// Clear the prior grid
@@ -288,6 +293,7 @@ void RaceTrack::LoadInTrackFromFile(std::string filePath)
 		std::string line;
 		std::getline(file, line);
 
+		// Check if the file is of the correct version
 		if (line != "<?xml version=\"" + std::to_string(1.0) + "\" encoding=\"UTF-8\"?>")
 		{
 			file.close();
@@ -333,6 +339,7 @@ void RaceTrack::LoadInTimes(std::ifstream& file, std::string filePath)
 		std::string       placeHolder;
 		std::stringstream ssLine;
 		unsigned int      timesRead = 0;
+		float             currentTimeBeingRead = 0.0f;
 
 		while (std::getline(file, line))
 		{
@@ -342,25 +349,42 @@ void RaceTrack::LoadInTimes(std::ifstream& file, std::string filePath)
 
 			if (placeHolder == "<First>")
 			{
-				// Extract the time stored and save it into the internal times store
+				ssLine >> currentTimeBeingRead;
 
+				mBestTrackTimes[0] = currentTimeBeingRead;
 
 				timesRead++;
 			}
 			else if (placeHolder == "<Second>")
 			{
+				ssLine >> currentTimeBeingRead;
+
+				mBestTrackTimes[1] = currentTimeBeingRead;
+
 				timesRead++;
 			}
 			else if (placeHolder == "<Third>")
 			{
+				ssLine >> currentTimeBeingRead;
+
+				mBestTrackTimes[2] = currentTimeBeingRead;
+
 				timesRead++;
 			}
 			else if (placeHolder == "<Fourth>")
 			{
+				ssLine >> currentTimeBeingRead;
+
+				mBestTrackTimes[3] = currentTimeBeingRead;
+
 				timesRead++;
 			}
 			else if (placeHolder == "<Fifth>")
 			{
+				ssLine >> currentTimeBeingRead;
+
+				mBestTrackTimes[4] = currentTimeBeingRead;
+
 				timesRead++;
 			}
 
@@ -379,9 +403,63 @@ void RaceTrack::LoadInWeather(std::ifstream& file, std::string filePath)
 	// First re-open the file
 	file.open(filePath.c_str(), std::ios::in);
 
+	std::string       line;
+	std::string       placeholder;
+	std::stringstream ssLine;
+
 	if (file.is_open() && file.good())
 	{
+		// Read in the lines from the file
+		while (std::getline(file, line))
+		{
+			ssLine = std::stringstream(line);
 
+			ssLine >> placeholder;
+
+			// Handle time of day
+			if (placeholder == "<TimeOfDay>")
+			{
+				// Extract the time of day for this track
+				ssLine >> mTimeOfDay;
+
+				continue;
+			}
+
+			// Handle clouds
+			if (placeholder == "<Clouds>")
+			{
+				// Get the next line until we hit the end of the declaration
+				while (std::getline(file, line))
+				{
+					if (line == "</Clouds>")
+						break;
+
+					ssLine >> placeholder;
+
+					if (placeholder == "<MovementSpeedX>")
+					{
+						// Extract the movement speed from the file
+						ssLine >> mCloudMovementSpeed.x;
+					}
+					else if (placeholder == "<MovementSpeedY>")
+					{
+						// Extract the movement speed from the file
+						ssLine >> mCloudMovementSpeed.y;
+					}
+					else if (placeholder == "<GlobalCoverage>")
+					{
+						// Extract the coverage factor from the file
+						ssLine >> mGlobalCoverage;
+					}
+
+					continue;
+				}
+
+				continue;
+			}
+
+			break;
+		}
 	}
 
 	file.close();
@@ -394,9 +472,31 @@ void RaceTrack::LoadInTrackData(std::ifstream& file, std::string filePath)
 	// First re-open the file
 	file.open(filePath.c_str(), std::ios::in);
 
+	std::string       line;
+	std::stringstream ssLine;
+	unsigned int      trackID;
+
+	// Error checking
 	if (file.is_open() && file.good())
 	{
+		unsigned int row = 0, col = 0;
 
+		while (std::getline(file, line))
+		{
+			if (line == "</TrackData>")
+				break;
+
+			col = 0;
+
+			while (ssLine >> trackID)
+			{
+				mRaceTrack->SetGridPiece((TrackPieceType)trackID, Vector2D(row, col));
+
+				col++;
+			}
+
+			row++;
+		}
 	}
 
 	file.close();

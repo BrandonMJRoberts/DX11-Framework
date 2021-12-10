@@ -34,7 +34,7 @@ public:
 	void      RenderGround(BaseCamera* camera);
 	void      RenderGrid(BaseCamera* camera);
 
-	void      Update(const float deltaTime);
+	void      Update(const float deltaTime, BaseCamera* camera);
 
 	void      SaveTrack(std::string filePath);
 
