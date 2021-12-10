@@ -167,31 +167,65 @@ void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler)
 
 void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 {
-	for (unsigned int i = 0; i < Constants::GRID_WIDTH; i++)
+	// If the camera has moved then we will need to re-calculate which grid pieces are visible to the camera
+	if (camera)
 	{
-		for (unsigned int j = 0; j < Constants::GRID_HEIGHT; j++)
+		if (camera->GetHasMovedFromLastFrame())
 		{
-			if (mGrid[i][j].trackPiece)
-			{
-				if (mGrid[i][j].pieceType == TrackPieceType::GHOST)
-				{
-					float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-					mShaderHandler.BindBlendState(mBlendState, blendFactor);
-
-					// Render the piece
-					mGrid[i][j].trackPiece->RenderFull(camera);
-
-					// Bind the default state again
-					mShaderHandler.BindDefaultBlendState();
-
-					continue;
-				}
-
-				// Render the piece
-				mGrid[i][j].trackPiece->RenderFull(camera);
-			}
+			FindAllVisibleGridPieces(camera);
 		}
 	}
+
+	// Loop through all grid pieces that are visible to the camera
+	for (unsigned int i = 0; i < mVisiblePieces.size(); i++)
+	{
+		if (mVisiblePieces[i].trackPiece)
+		{
+			if (mVisiblePieces[i].pieceType == TrackPieceType::GHOST)
+			{
+				float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+				mShaderHandler.BindBlendState(mBlendState, blendFactor);
+
+				// Render the piece
+				mVisiblePieces[i].trackPiece->RenderFull(camera);
+
+				// Bind the default state again
+				mShaderHandler.BindDefaultBlendState();
+
+				continue;
+			}
+
+			// Render the piece
+			mVisiblePieces[i].trackPiece->RenderFull(camera);
+		}
+	}
+
+
+	//for (unsigned int i = 0; i < Constants::GRID_WIDTH; i++)
+	//{
+	//	for (unsigned int j = 0; j < Constants::GRID_HEIGHT; j++)
+	//	{
+	//		if (mGrid[i][j].trackPiece)
+	//		{
+	//			if (mGrid[i][j].pieceType == TrackPieceType::GHOST)
+	//			{
+	//				float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	//				mShaderHandler.BindBlendState(mBlendState, blendFactor);
+
+	//				// Render the piece
+	//				mGrid[i][j].trackPiece->RenderFull(camera);
+
+	//				// Bind the default state again
+	//				mShaderHandler.BindDefaultBlendState();
+
+	//				continue;
+	//			}
+
+	//			// Render the piece
+	//			mGrid[i][j].trackPiece->RenderFull(camera);
+	//		}
+	//	}
+	//}
 
 	// ---------------------------------------------------------------------------------------------------------------
 
@@ -282,6 +316,95 @@ void EditorGrid::LoadInGridFromFile(std::string filePath)
 void EditorGrid::SaveOutTrackInternalDataToFile()
 {
 
+}
+
+// ------------------------------------------------------------------------ //
+
+void EditorGrid::FindAllVisibleGridPieces(BaseCamera* camera)
+{
+	// Loop through the entire grid and see if it is visible to the camera
+	mVisiblePieces.clear();
+
+	// For now just add all actual pieces to the list
+	for(unsigned int i = 0; i < Constants::GRID_WIDTH; i++)
+	{
+		for (unsigned int j = 0; j < Constants::GRID_HEIGHT; j++)
+		{
+			if (mGrid[i][j].pieceType != TrackPieceType::EMPTY)
+				mVisiblePieces.push_back(mGrid[i][j]);
+		}
+	}
+
+	// Now sort them from distance to the camera
+	SortStoredPiecesByDistance(camera);
+}
+
+// ------------------------------------------------------------------------ //
+
+void EditorGrid::SortStoredPiecesByDistance(BaseCamera* camera)
+{
+	if (!camera)
+		return;
+
+	// Get the camera's position
+	Vector3D cameraPos = camera->GetPosition();
+
+	// ------------------------------------------------------------------------------------------------------------------------------- 
+
+	// Now loop through all stored grid pieces and get their distances from the camera, storing them for later use
+	std::vector<float> distances;
+	Vector2D           currentPos;
+
+	for (unsigned int i = 0; i < mVisiblePieces.size(); i++)
+	{
+		// Error checking, if the piece doesnt exist then something has gone wrong in the visibility checking code
+		if (!mVisiblePieces[i].trackPiece)
+			return;
+
+		// Get this piece's distance
+		currentPos = mVisiblePieces[i].trackPiece->GetGridPositionWorldSpace();
+
+		distances.push_back((cameraPos - Vector3D(currentPos.x, 0.0f, currentPos.y)).LengthSquared());
+	}
+
+	// ------------------------------------------------------------------------------------------------------------------------------- 
+
+	// Now we have the distances stored in the same order as the pieces themselves we can sort the vector by distance
+	unsigned int currentLargestIndex;
+
+	// Loop through the vector to determine which grid piece should be in this index's index
+	for (unsigned int indexToSet = 0; indexToSet < mVisiblePieces.size(); indexToSet++)
+	{
+		currentLargestIndex = indexToSet;
+
+		// Now loop through all of the vector, from the outer loop onwards, finding the correct distance for this index
+		for (unsigned int indexChecking = indexToSet; indexChecking < mVisiblePieces.size(); indexChecking++)
+		{
+			// Check the current index's distance against the current largest, if it is greater than store this new index
+			if (distances[currentLargestIndex] < distances[indexChecking])
+			{
+				currentLargestIndex = indexChecking;
+			}
+		}
+
+		// Now we have completed the run through we need to swap the grid pieces around, and the distance values around
+		float placeholderDistance           = distances[indexToSet];
+
+		// Now set the correct distance to the correct position in the vector
+		distances[indexToSet]               = distances[currentLargestIndex];
+
+		// Now place the previous distance in the space we have just moved
+		distances[currentLargestIndex]      = placeholderDistance;
+
+		// Now we need to apply the change to the grid pieces vector
+		GridPiece placeholderPiece          = mVisiblePieces[indexToSet];
+
+		mVisiblePieces[indexToSet]          = mVisiblePieces[currentLargestIndex];
+
+		mVisiblePieces[currentLargestIndex] = placeholderPiece;
+	}
+
+	// ------------------------------------------------------------------------------------------------------------------------------- 
 }
 
 // ------------------------------------------------------------------------ //

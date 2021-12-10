@@ -52,9 +52,14 @@ public:
 	void	  Update(const float deltaTime, InputHandler& inputHandler);
 
 private:
+	void      FindAllVisibleGridPieces(BaseCamera* camera);
+	void      SortStoredPiecesByDistance(BaseCamera* camera);
+
 	// Internal grid store
 	GridPiece      mGrid[Constants::GRID_WIDTH][Constants::GRID_HEIGHT];
 	GridPiece      mPotentialNewPiece;
+
+	std::vector<GridPiece> mVisiblePieces;
 
 	ID3D11BlendState* mBlendState;
 

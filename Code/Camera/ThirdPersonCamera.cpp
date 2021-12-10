@@ -94,6 +94,8 @@ ThirdPersonCamera::~ThirdPersonCamera()
 
 void ThirdPersonCamera::Update(const float deltaTime) 
 {
+	mHasMovedFromLastFrame = false;
+
 	// Check to see if the player is trying to move the camera
 	if (mInputHandler)
 	{
@@ -111,6 +113,7 @@ void ThirdPersonCamera::Update(const float deltaTime)
 		if (changed)
 		{
 			ReCalculateViewMatrix();
+			mHasMovedFromLastFrame = true;
 		}
 
 		// ---------------------------------------------------------------------------------------------------

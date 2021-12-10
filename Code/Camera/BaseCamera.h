@@ -33,6 +33,8 @@ public:
 	Vector3D GetPosition() { return mPosition; }
 	virtual Vector3D GetFacingDirection() = 0;
 
+	bool GetHasMovedFromLastFrame();
+
 protected:
 	virtual void ReCalculateViewMatrix();
 	        void ReCalculatePerspectiveMatrix();
@@ -55,6 +57,8 @@ protected:
 	float    mMovementSpeed;
 
 	float    mRotationSpeed;
+
+	bool     mHasMovedFromLastFrame;
 };
 
 #endif

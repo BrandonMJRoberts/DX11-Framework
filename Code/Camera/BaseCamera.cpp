@@ -15,6 +15,7 @@ BaseCamera::BaseCamera()
 	, mInputHandler(nullptr)
 	, mMovementSpeed(0.1f)
 	, mRotationSpeed(0.1f)
+	, mHasMovedFromLastFrame(false)
 {
 	//ReCalculateViewMatrix();
 	//ReCalculatePerspectiveMatrix();
@@ -35,6 +36,7 @@ BaseCamera::BaseCamera(InputHandler* inputHandler, Vector3D startPos, Vector3D r
 	, mInputHandler(inputHandler)
 	, mMovementSpeed(movementSpeed)
 	, mRotationSpeed(rotationSpeed)
+	, mHasMovedFromLastFrame(false)
 {
 	//ReCalculateViewMatrix();
 	//ReCalculatePerspectiveMatrix();
@@ -76,3 +78,12 @@ void BaseCamera::ReCalculatePerspectiveMatrix()
 }
 
 // ------------------------------------------------------------ //
+
+bool BaseCamera::GetHasMovedFromLastFrame()
+{
+	bool hasMoved = mHasMovedFromLastFrame;
+
+	mHasMovedFromLastFrame = false;
+
+	return hasMoved;
+}
