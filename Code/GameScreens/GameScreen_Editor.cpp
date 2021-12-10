@@ -3,7 +3,10 @@
 #include "../Models/Model.h"
 #include "../Sky/Sky.h"
 #include "../Test/TestCube.h"
+
 #include "../Camera/ThirdPersonCamera.h"
+#include "../Camera/FirstPersonCamera.h"
+
 #include "../Models/Car.h"
 #include "../Post Processing/PostProcessing.h"
 #include "../Editor/RaceTrack.h"
@@ -14,7 +17,9 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	: GameScreen(shaderHandler, inputHandler)
 	, testCube(nullptr)
 	, testCube2(nullptr)
-	, mCamera(nullptr)
+	, mCurrentCamera(nullptr)
+	, mThirdPersonCamera(nullptr)
+	, mFirstPersonCamera(nullptr)
 	, mPostProcessing(nullptr)
 	, mSkyDome(nullptr)
     , mRaceTrack(nullptr)
@@ -29,7 +34,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 
 	mRaceTrack = new RaceTrack(shaderHandler, inputHandler, "filler");
 
-	mCamera   = new ThirdPersonCamera(&inputHandler,
+	mThirdPersonCamera = new ThirdPersonCamera(&inputHandler,
 		                               shaderHandler,
 									Vector3D(0.0f, 0.0f, 0.0f),
 									30.0f,
@@ -42,18 +47,33 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 									8.0f,
 									90.0);
 
+	mFirstPersonCamera = new FirstPersonCamera(&inputHandler, 
+		                                       Vector3D(0.0f, 10.0f, -30.0f), 
+		                                       Vector3D(1.0f, 0.0f, 0.0f), 
+		                                       Vector3D(0.0f, 0.9f, 0.05f), 
+		                                       DirectX::XMConvertToRadians(60.0f), 
+		                                       0.01f, 
+		                                       800.0f, 
+		                                       16.0f / 9.0f,
+		                                       20.0f);
+
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);
 
 	mShaderHandler.CreateRasterizerState(&renderState);
+
+	mCurrentCamera = mFirstPersonCamera;
 }
 
 // --------------------------------------------------------- //
 
 GameScreen_Editor::~GameScreen_Editor()
 {
-	delete mCamera;
-	mCamera = nullptr;
+	delete mThirdPersonCamera;
+	mThirdPersonCamera = nullptr;
+
+	delete mFirstPersonCamera;
+	mFirstPersonCamera = nullptr;
 
 	delete testCube;
 	testCube = nullptr;
@@ -78,6 +98,8 @@ GameScreen_Editor::~GameScreen_Editor()
 		renderState->Release();
 		renderState = nullptr;
 	}
+
+	mCurrentCamera = nullptr;
 }
 
 // --------------------------------------------------------- //
@@ -98,26 +120,26 @@ void GameScreen_Editor::Render()
 	mShaderHandler.BindRasterizerState(renderState);
 
 	if(mRaceTrack)
-		mRaceTrack->RenderGround(mCamera);
+		mRaceTrack->RenderGround(mCurrentCamera);
 
 	// Render the test cubes
 	if (testCube)
-		testCube->Render(mCamera);
+		testCube->Render(mCurrentCamera);
 
 	if (testCube2)
-		testCube2->Render(mCamera);
+		testCube2->Render(mCurrentCamera);
 
 	if (testCar)
-		testCar->RenderFull(mCamera);
+		testCar->RenderFull(mCurrentCamera);
 
-	if (mCamera)
-		mCamera->RenderFocusPoint();
+	//if (mThirdPersonCamera)
+	//	mThirdPersonCamera->RenderFocusPoint();
 
 	if (mRaceTrack)
-		mRaceTrack->RenderGrid(mCamera);
+		mRaceTrack->RenderGrid(mCurrentCamera);
 
 	if (mSkyDome)
-		mSkyDome->Render(mCamera);
+		mSkyDome->Render(mCurrentCamera);
 
 	// ------------------------------------------------------------------------------------------- //
 
@@ -131,8 +153,8 @@ void GameScreen_Editor::Render()
 
 void GameScreen_Editor::Update(const float deltaTime)
 {
-	if (mCamera)
-		mCamera->Update(deltaTime);
+	if (mCurrentCamera)
+		mCurrentCamera->Update(deltaTime);
 
 	if (mInputHandler.GetIsMouseButtonPressed(4))
 	{

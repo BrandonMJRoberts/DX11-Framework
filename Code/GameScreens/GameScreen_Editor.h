@@ -6,7 +6,11 @@
 class RaceTrack;
 class Model;
 class PostProcessing;
+
+class BaseCamera;
 class ThirdPersonCamera;
+class FirstPersonCamera;
+
 class Car;
 class TestCube;
 class SkyDome;
@@ -22,7 +26,11 @@ public:
 
 private:
 	PostProcessing*        mPostProcessing;
-	ThirdPersonCamera*     mCamera;
+
+	BaseCamera*            mCurrentCamera;
+	ThirdPersonCamera*     mThirdPersonCamera;
+	FirstPersonCamera*     mFirstPersonCamera;
+
 	TestCube*              testCube;
 	TestCube*              testCube2;
 	Car*                   testCar;
