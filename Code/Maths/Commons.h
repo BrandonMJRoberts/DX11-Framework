@@ -29,6 +29,25 @@ struct ConstantBuffer final
 
 // -----------------------------------------------------------------------------
 
+struct SkyConstantBuffer final
+{
+	DirectX::XMMATRIX mWorld;
+	DirectX::XMMATRIX mView;
+	DirectX::XMMATRIX mProjection;
+	Vector3D          cameraPosition;
+	float padding1;
+	Vector3D          cameraViewDirection;
+	float padding2;
+};
+
+struct SkyTimeOfDay final
+{
+	float time;
+	Vector3D padding;
+};
+
+// -----------------------------------------------------------------------------
+
 struct BasicDirectionalLightingData final
 {
 	DirectX::XMFLOAT4 colour;

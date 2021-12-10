@@ -56,25 +56,6 @@ float3 MieCoefficient = float3(2e-6, 2e-6, 2e-6);
 
 // --------------------------------------------------------------------------------------------------------------------------- 
 
-// The phase functions represent the angle dependancy of the scattering coefficients
-// The passed in angle is the angle between the direction of the incident light and the direction of the scattered light
-float RayleighPhase(float angle)
-{
-    return 0.75 * (1.0f + (cos(angle) * cos(angle)));
-}
-
-// Angle is the same as defined above
-// g is an asymmetry factor depicting the width of the forward lobe of the Mie scattering
-float MiePhase(float angle, float g)
-{
-    float firstPart  = (3.0f * (1.0f - (g * g)))          / (2.0f * (2.0f + (g * g)));
-    float secondPart = (1.0f + (cos(angle) * cos(angle))) / pow(1.0f + (g * g) - (2.0f * g * (cos(angle) * cos(angle))), 1.5f);
-    
-    return firstPart * secondPart;
-}
-
-// --------------------------------------------------------------------------------------------------------------------------- 
-
 // The density function scales the scattering coefficients to an arbitrary height, by representing the change in molecular and aerosol density
 // We make the assumption that the molecular density decreases with an exponential rate with respect to the height above earth's surface 
 float DensityRayleigh(float height)
@@ -279,11 +260,12 @@ void main(int3 dispatchThreadID : SV_DispatchThreadID)
     // Convert the texture coords to the parameters required for the equations below
     float3 parameters = ConvertToParameters(textureCoord);
     
-    // Now calculate the single scattering value for these parameters
-    
+    // Now calculate the final scattering values for these parameters
+    float3 rayleighLightScattering;
+    float3 mieLightScattering;
     
     // Write the final values out to the texture store
-    gOutput[dispatchThreadID.xyz] = float4(0.0f, 1.0f, 0.0f, 1.0f);
+    gOutput[dispatchThreadID.xyz] = float4(rayleighLightScattering.rgb, mieLightScattering.r);
 }
 
 // --------------------------------------------------------------------------------------------------------------------------- 

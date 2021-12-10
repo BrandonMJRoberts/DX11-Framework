@@ -45,7 +45,10 @@ private:
 	// Buffer holding the vertex data for the dome
 	ID3D11Buffer*       mVertexBuffer;
 	ID3D11Buffer*       mIndexBuffer;
-	ID3D11Buffer*       mConstantBuffer;
+
+	ID3D11Buffer*       mSkyConstantBuffer;
+	ID3D11Buffer*       mTimeOfDayConstantBuffer;
+	float               mTimeOfDay;
 
 	unsigned int        mVertexBufferStride;
 	unsigned int        mIndexCount;
@@ -64,6 +67,7 @@ private:
 	// V - View angle 
 	// S - Sun angle
 	Texture3D*             mLUTTexture;
+	SamplerState*          mSamplerState;
 };
 
 #endif

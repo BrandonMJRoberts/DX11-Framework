@@ -339,6 +339,9 @@
     <FxCompile Include="SkyDomeMultipleScatteringLUTGeneration.fx">
       <Filter>Shaders\Sky</Filter>
     </FxCompile>
+    <FxCompile Include="SkyDomeFinalRender.fx">
+      <Filter>Shaders\Sky</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Models\Car\Car.obj">

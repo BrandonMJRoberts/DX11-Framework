@@ -4,28 +4,28 @@
 
 	<!-- Times stored in seconds -->
 	<Times>
-		<First>30.000000</First>
-		<Second>40.000000</Second>
-		<Third>50.000000</Third>
-		<Fourth>60.000000</Fourth>
-		<Fifth>70.000000</Fifth>
+		<First> 30.000000 </First>
+		<Second> 40.000000 </Second>
+		<Third> 50.000000 </Third>
+		<Fourth> 60.000000 </Fourth>
+		<Fifth> 70.000000 </Fifth>
 	</Times>
 
 	<!-- Weather data for this track design-->
 	<Weather>
 
 		<!-- Time of day stored as a 24 hour time -->
-		<TimeOfDay>1200</TimeOfDay>
+		<TimeOfDay> 1200 </TimeOfDay>
 
 		<Clouds>
-			<MovementSpeedX>0.000000</MovementSpeedX>
-			<MovementSpeedY>0.000000</MovementSpeedY>
+			<MovementSpeedX> 0.000000 </MovementSpeedX>
+			<MovementSpeedY> 0.000000 </MovementSpeedY>
 
-			<GlobalCoverage>0.500000</GlobalCoverage>
+			<GlobalCoverage> 0.500000 </GlobalCoverage>
 		</Clouds>
 
 		<!-- Can be 'Sun', 'Rain', 'Snow', or 'Fog' -->
-		<Type>SUN</Type>
+		<Type> SUN </Type>
 	</Weather>
 
 		<!-- The dimensions are always the same so no need to store the specific dimensions -->
@@ -36,16 +36,16 @@
 		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
 		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
 		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 24 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
-		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 24 24 25 25 25 25 25 25 
+		25 25 25 25 25 25 24 24 25 25 24 24 24 24 24 25 
+		25 25 25 25 25 25 24 24 24 25 24 25 25 25 24 25 
+		25 25 25 25 25 25 24 24 24 25 24 25 25 25 24 25 
+		25 25 25 25 25 25 24 24 24 25 24 25 25 24 24 25 
+		25 25 25 25 25 25 25 24 24 24 24 25 25 25 25 25 
+		25 25 25 25 25 25 25 24 24 25 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 24 24 25 25 25 25 25 25 
+		25 25 25 25 25 25 25 25 25 25 24 24 24 25 25 24 
+		25 25 25 25 25 25 25 25 25 25 25 25 25 24 24 24 
 		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
 		25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 
 	</TrackData>

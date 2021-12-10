@@ -14,12 +14,15 @@ SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, un
 	, mPixelShader(nullptr)
 	, mVertexBuffer(nullptr)
 	, mIndexBuffer(nullptr)
-	, mConstantBuffer(nullptr)
+	, mSkyConstantBuffer(nullptr)
+	, mTimeOfDayConstantBuffer(nullptr)
 	, mShaderHandler(shaderHandler)
 	, mInputLayout(nullptr)
 	, mModelMat(MatrixMaths::Identity4X4)
 	, renderState(nullptr)
 	, mLUTTexture(nullptr)
+	, mTimeOfDay(1200.0f)
+	, mSamplerState(nullptr)
 
 	, mLUTGenerationComputeShader(nullptr)
 {
@@ -77,6 +80,21 @@ SkyDome::~SkyDome()
 		mLUTGenerationComputeShader->Release();
 		mLUTGenerationComputeShader = nullptr;
 	}
+
+	delete mSamplerState;
+	mSamplerState = nullptr;
+
+	if (mTimeOfDayConstantBuffer)
+	{
+		mTimeOfDayConstantBuffer->Release();
+		mTimeOfDayConstantBuffer = nullptr;
+	}
+
+	if (mSkyConstantBuffer)
+	{
+		mSkyConstantBuffer->Release();
+		mSkyConstantBuffer = nullptr;
+	}
 }
 
 // ---------------------------------------------------------------- 
@@ -104,8 +122,10 @@ void SkyDome::Render(BaseCamera* camera)
 	// Now bind the index buffer
 	mShaderHandler.BindIndexBuffersToRegisters(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	// Now setup the constant buffer data
-	ConstantBuffer cb;
+	// -------------------------------------------------------------------------------------------------------------------
+
+	// Now setup the sky constant buffer data
+	SkyConstantBuffer cb;
 
 	// Get the stored world matrix for the dome
 	DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&mModelMat);
@@ -122,12 +142,30 @@ void SkyDome::Render(BaseCamera* camera)
 					    projection     = DirectX::XMLoadFloat4x4(&persp);
 					    cb.mProjection = DirectX::XMMatrixTranspose(projection);
 
-				     cb.cameraPosition = camera->GetPosition();
+				     cb.cameraPosition      = camera->GetPosition();
+					 cb.cameraViewDirection = camera->GetFacingDirection();
 
 	// Now send the data to the shader
-	mShaderHandler.UpdateSubresource(mConstantBuffer, 0, nullptr, &cb, 0, 0);
-	mShaderHandler.SetVertexShaderConstantBufferData(0, 1, &mConstantBuffer);
-	mShaderHandler.SetPixelShaderConstantBufferData(0, 1, &mConstantBuffer);
+	mShaderHandler.UpdateSubresource(mSkyConstantBuffer, 0, nullptr, &cb, 0, 0);
+	mShaderHandler.SetVertexShaderConstantBufferData(0, 1, &mSkyConstantBuffer);
+	mShaderHandler.SetPixelShaderConstantBufferData(0, 1, &mSkyConstantBuffer);
+
+	// -------------------------------------------------------------------------------------------------------------------
+
+	// Pass the current time of day into the shader
+	SkyTimeOfDay timeCB;
+	timeCB.time = mTimeOfDay;
+	mShaderHandler.UpdateSubresource(mTimeOfDayConstantBuffer, 0, nullptr, &timeCB, 0, 0);
+
+	// -------------------------------------------------------------------------------------------------------------------
+
+	// Bind the LUT texture to the shader
+	if(mLUTTexture)
+		mLUTTexture->BindTextureToShaders(0, 1);
+
+	// Bind the sampler to the shader
+	if(mSamplerState)
+		mSamplerState->BindSamplerState(0, 1);
 
 	// For this render we are going to use triangle strips as it is simpler to define a dome using triangle strips than triangle lists
 	if (!mShaderHandler.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
@@ -166,11 +204,11 @@ void SkyDome::SetupShaders()
 	// --------------------------------------------------------------------------------------------------
 
 	// Generate the vertex shader
-	VertexShaderReturnData returnData = mShaderHandler.CompileVertexShader(L"SkyDomeRender.fx", "VS");
+	VertexShaderReturnData returnData = mShaderHandler.CompileVertexShader(L"SkyDomeFinalRender.fx", "VS");
 		                mVertexShader = returnData.vertexShader;
 
 	// Generate the pixel shader
-    mPixelShader = mShaderHandler.CompilePixelShader(L"SkyDomeRender.fx", "PS");
+    mPixelShader = mShaderHandler.CompilePixelShader(L"SkyDomeFinalRender.fx", "PS");
 
 	// Position, normal and texture coord
 	D3D11_INPUT_ELEMENT_DESC fullRenderLayout[] =
@@ -181,17 +219,23 @@ void SkyDome::SetupShaders()
 	// Now setup the input layout for the shader
 	mShaderHandler.SetDeviceInputLayout(returnData.Blob, fullRenderLayout, 1, &mInputLayout);
 
-	// Create the constant buffer
-	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(ConstantBuffer), &mConstantBuffer))
+	// Create the sky constant buffer
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(SkyConstantBuffer), &mSkyConstantBuffer))
+		return;
+
+	// Create the time of day constant buffer
+	if (!mShaderHandler.CreateBuffer(D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, (D3D11_CPU_ACCESS_FLAG)0, nullptr, sizeof(SkyTimeOfDay), &mTimeOfDayConstantBuffer))
 		return;
 
 	// --------------------------------------------------------------------------------------------------
 
 	// Create the compute shader
-	//mShaderHandler.CreateComputeShader(L"SkyDomeLUTGeneration.fx", "main", &mLUTGenerationComputeShader);
+	mShaderHandler.CreateComputeShader(L"SkyDomeSingleScatteringLUTGeneration.fx", "main", &mLUTGenerationComputeShader);
 
 	// Create the texture with the correct flags set
 	mLUTTexture = new Texture3D(mShaderHandler, 128, 128, 128, 1, 1, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, DXGI_FORMAT_R32G32B32A32_FLOAT);
+
+	mSamplerState = new SamplerState(mShaderHandler, D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, 0.0f, 0, 1, 0.0f, 0.0f, 0.0f, 0.0f, D3D11_COMPARISON_ALWAYS);
 }
 
 // ---------------------------------------------------------------- 
@@ -315,22 +359,22 @@ void SkyDome::CalculateIndicies()
 
 void SkyDome::FillLUT()
 {
-	//if (!mLUTTexture)
-	//	return;
+	if (!mLUTTexture)
+		return;
 
-	//// Bind the compute shader
-	//mShaderHandler.BindComputeShader(mLUTGenerationComputeShader);
+	// Bind the compute shader
+	mShaderHandler.BindComputeShader(mLUTGenerationComputeShader);
 
-	//// Now bind the texture we are going to be writing to, to the shader
-	//mLUTTexture->BindTextureToComputeShader(0, 1);
+	// Now bind the texture we are going to be writing to, to the shader
+	mLUTTexture->BindTextureToComputeShader(0, 1);
 
-	//// Now call the draw call so that the texture is rendered to 
-	//mShaderHandler.DispatchComputeShader(16, 16, 16);
+	// Now call the draw call so that the texture is rendered to 
+	mShaderHandler.DispatchComputeShader(16, 16, 16);
 
-	//mLUTTexture->UnbindTextureFromComputeShader(0);
+	mLUTTexture->UnbindTextureFromComputeShader(0);
 
-	//// Unbind the compute shader
-	//mShaderHandler.BindComputeShader(nullptr);
+	// Unbind the compute shader
+	mShaderHandler.BindComputeShader(nullptr);
 }
 
 // ---------------------------------------------------------------- 

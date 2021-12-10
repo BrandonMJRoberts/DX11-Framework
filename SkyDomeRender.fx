@@ -42,10 +42,7 @@ VS_OUTPUT VS(float3 Pos : POSITION)
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_Target
-{
-    // Calculate the correct colour for the pixel based on atmospheric stuff
-
-    
+{    
     // Do the texture lookup and return it back
     return float4(0.01f, 0.5f, 0.8f, 1.0f);
 }
