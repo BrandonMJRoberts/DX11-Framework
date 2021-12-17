@@ -25,7 +25,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, mSkyDome(nullptr)
     , mRaceTrack(nullptr)
 	, mCurrentCameraMode(CameraMode::FIRST_PERSON)
-	, mRenderState(nullptr)
+	, mFilledRenderState(nullptr)
+	, mWireframeRenderState(nullptr)
 	, mTopDownCamera(nullptr)
 	, mSideOnCamera(nullptr)
 {
@@ -89,7 +90,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);
 
-	mShaderHandler.CreateRasterizerState(&mRenderState);
+	mShaderHandler.CreateRasterizerState(&mFilledRenderState);
+	mShaderHandler.CreateRasterizerState(&mWireframeRenderState, D3D11_FILL_WIREFRAME, D3D11_CULL_FRONT);
 
 
 	mCurrentCamera     = mFirstPersonCamera;
@@ -124,10 +126,16 @@ GameScreen_Editor::~GameScreen_Editor()
 	delete mRaceTrack;
 	mRaceTrack = nullptr;
 
-	if (mRenderState)
+	if (mFilledRenderState)
 	{
-		mRenderState->Release();
-		mRenderState = nullptr;
+		mFilledRenderState->Release();
+		mFilledRenderState = nullptr;
+	}
+
+	if (mWireframeRenderState)
+	{
+		mWireframeRenderState->Release();
+		mWireframeRenderState = nullptr;
 	}
 
 	mCurrentCamera = nullptr;
@@ -148,7 +156,15 @@ void GameScreen_Editor::Render()
 
 	// ------------------------------------------------------------------------------------------- //
 
-	mShaderHandler.BindRasterizerState(mRenderState);
+	if (mCurrentFillMode == RenderFillMode::FILLED)
+	{
+		mShaderHandler.BindRasterizerState(mFilledRenderState);
+	}
+	else if (mCurrentFillMode == RenderFillMode::WIREFRAME)
+	{
+		mShaderHandler.BindRasterizerState(mWireframeRenderState);
+	}
+
 
 	if(mRaceTrack)
 		mRaceTrack->RenderGround(mCurrentCamera);
@@ -177,7 +193,8 @@ void GameScreen_Editor::Render()
 
 	// ------------------------------------------------------------------------------------------- //
 
-	mShaderHandler.BindRasterizerState(mRenderState);
+	// Bind back to fill state for the final render, as it would just draw 2 triangles otherwise
+	mShaderHandler.BindRasterizerState(mFilledRenderState);
 	mPostProcessing->Render();
 
 	// ------------------------------------------------------------------------------------------- //
@@ -189,13 +206,10 @@ void GameScreen_Editor::Update(const float deltaTime)
 {
 	CameraSwappingCheck();
 
+	RenderFillStateSwapCheck();
+
 	if (mCurrentCamera)
 		mCurrentCamera->Update(deltaTime);
-
-	//if (mInputHandler.GetIsMouseButtonPressed(4))
-	//{
-	//	testCube->move(deltaTime);
-	//}
 
 	if (mRaceTrack)
 		mRaceTrack->Update(deltaTime, mCurrentCamera);
@@ -254,6 +268,24 @@ void GameScreen_Editor::CameraSwappingCheck()
 
 		mCurrentCameraMode = CameraMode::SIDE_ON;
 		mCurrentCamera     = mSideOnCamera;
+	}
+}
+
+// ------------------------------------------------------------------- //
+
+void GameScreen_Editor::RenderFillStateSwapCheck()
+{
+	if (mInputHandler.GetIsKeyPressed('9'))
+	{
+		// Go to normal rendering state
+		if(mFilledRenderState)
+			mCurrentFillMode = RenderFillMode::FILLED;
+	}
+	else if (mInputHandler.GetIsKeyPressed('0'))
+	{
+		// Go to wireframe mode
+		if(mWireframeRenderState)
+			mCurrentFillMode = RenderFillMode::WIREFRAME;
 	}
 }
 

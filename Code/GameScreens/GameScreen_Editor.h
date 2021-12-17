@@ -31,6 +31,16 @@ enum class CameraMode
 
 // -----------------------------------------------------------------------------------------
 
+enum class RenderFillMode
+{
+	FILLED,
+	WIREFRAME,
+
+	MAX
+};
+
+// -----------------------------------------------------------------------------------------
+
 class GameScreen_Editor final : public GameScreen
 {
 public:
@@ -42,6 +52,7 @@ public:
 
 private:
 	void CameraSwappingCheck();
+	void RenderFillStateSwapCheck();
 
 	PostProcessing*        mPostProcessing;
 
@@ -58,7 +69,10 @@ private:
 	Car*                   testCar;
 	SkyDome*               mSkyDome;
 	RaceTrack*             mRaceTrack;
-	ID3D11RasterizerState* mRenderState;
+
+	RenderFillMode         mCurrentFillMode;
+	ID3D11RasterizerState* mFilledRenderState;
+	ID3D11RasterizerState* mWireframeRenderState;
 
 	CameraMode             mCurrentCameraMode;
 };
