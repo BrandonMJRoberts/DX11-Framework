@@ -820,7 +820,7 @@ bool ShaderHandler::CreateComputeShader(LPCWSTR fileName, LPCSTR entryPoint, ID3
     {
         if (errorBlob)
         {
-            const char* errorMessage = (const char*)errorBlob->GetBufferPointer();
+            //const char* errorMessage = (const char*)errorBlob->GetBufferPointer();
 
             errorBlob->Release();
         }

@@ -109,7 +109,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT ps;
     HDC hdc;
 
-    UINT width, height;
+    //UINT width, height;
 
     switch (message)
     {
@@ -167,7 +167,7 @@ bool GameScreenManager::InitWindow(HINSTANCE hInstance, int nCmdShow)
 
     // Create window
     mInstanceHandle = hInstance;
-    RECT rc = {0, 0, ScreenWidth, ScreenHeight}; // Set the screen corner positions
+    RECT rc = {0, 0, (LONG)ScreenWidth, (LONG)ScreenHeight}; // Set the screen corner positions
 
     // Apply this positional data
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);

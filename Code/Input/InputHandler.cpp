@@ -69,7 +69,7 @@ void InputHandler::HandleWindowsInput(HWND hwnd, UINT message, LPARAM lParam)
 				}
 			}
 
-			mMouseDelta = Vector2D(rawInput->data.mouse.lLastX, rawInput->data.mouse.lLastY);
+			mMouseDelta = Vector2D((float)rawInput->data.mouse.lLastX, (float)rawInput->data.mouse.lLastY);
 
 			switch (rawInput->data.mouse.usButtonFlags)
 			{

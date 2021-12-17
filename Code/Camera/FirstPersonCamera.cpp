@@ -109,14 +109,15 @@ void FirstPersonCamera::RotationCheck(bool& changed, const float deltaTime)
 
 void FirstPersonCamera::CapToRotationBounds(float& angleToRotateBy)
 {
-	
+	UNREFERENCED_PARAMETER(angleToRotateBy);
 }
 
 // ----------------------------------------------------------------- //
 
 void FirstPersonCamera::MouseWheelCheck(bool& changed, const float deltaTime)
 {
-
+	UNREFERENCED_PARAMETER(changed);
+	UNREFERENCED_PARAMETER(deltaTime);
 }
 
 // ----------------------------------------------------------------- //

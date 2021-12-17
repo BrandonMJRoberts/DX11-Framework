@@ -41,7 +41,7 @@ TrackPieceFactory::TrackPieceFactory(ShaderHandler* shaderHander)
 	, mGhostRenderVertexShader(nullptr)
 	, mGhostRenderPixelShader(nullptr)
 {
-	
+	UNREFERENCED_PARAMETER(shaderHander);
 }
 
 // -------------------------------------------------------------------- //

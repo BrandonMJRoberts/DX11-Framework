@@ -562,7 +562,7 @@ std::streampos RaceTrack::LoadInTrackData(std::ifstream& file, std::string fileP
 
 			while (ssLine >> trackID)
 			{
-				mRaceTrack->SetGridPiece((TrackPieceType)trackID, Vector2D(row, col));
+				mRaceTrack->SetGridPiece((TrackPieceType)trackID, Vector2D((float)row, (float)col));
 
 				col++;
 			}

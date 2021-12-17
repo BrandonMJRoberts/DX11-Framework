@@ -260,8 +260,8 @@ void VolumetricClouds::GenerateDataPointsForNoise(unsigned int slices, std::vect
 			randomPoint = Vector2D::zero;
 
 			// First choose a random point within the range of the grid's pixels
-			randomPoint.x = rand() % pixelsPerGridBox;
-			randomPoint.y = rand() % pixelsPerGridBox;
+			randomPoint.x = (float)(rand() % pixelsPerGridBox);
+			randomPoint.y = (float)(rand() % pixelsPerGridBox);
 
 			// Now add on the offset to get it into the correct box position
 			randomPoint.x += (j * pixelsPerGridBox);

@@ -366,6 +366,8 @@ Texture3D::Texture3D(ShaderHandler& shaderHandler, unsigned int width, unsigned 
 	  mShaderHandler(shaderHandler),
 	  mUnorderedAccessView(nullptr)
 {
+	UNREFERENCED_PARAMETER(arraySize);
+
 	D3D11_TEXTURE3D_DESC desc;
 	desc.Width			= width;
 	desc.Height			= height;
@@ -440,7 +442,7 @@ Texture3D::~Texture3D()
 
 void Texture3D::LoadTextureInFromFile(std::string& filePath)
 {
-
+	UNREFERENCED_PARAMETER(filePath);
 }
 
 // --------------------------------------------------------------------- //
