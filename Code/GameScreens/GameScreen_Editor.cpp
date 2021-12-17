@@ -23,6 +23,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, mPostProcessing(nullptr)
 	, mSkyDome(nullptr)
     , mRaceTrack(nullptr)
+	, mCurrentCameraMode(CameraMode::FIRST_PERSON)
+	, mRenderState(nullptr)
 {
 	testCube  = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
@@ -60,9 +62,11 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);
 
-	mShaderHandler.CreateRasterizerState(&renderState);
+	mShaderHandler.CreateRasterizerState(&mRenderState);
 
-	mCurrentCamera = mThirdPersonCamera;
+
+	mCurrentCamera     = mFirstPersonCamera;
+	mCurrentCameraMode = CameraMode::FIRST_PERSON;
 }
 
 // --------------------------------------------------------- //
@@ -93,10 +97,10 @@ GameScreen_Editor::~GameScreen_Editor()
 	delete mRaceTrack;
 	mRaceTrack = nullptr;
 
-	if (renderState)
+	if (mRenderState)
 	{
-		renderState->Release();
-		renderState = nullptr;
+		mRenderState->Release();
+		mRenderState = nullptr;
 	}
 
 	mCurrentCamera = nullptr;
@@ -117,7 +121,7 @@ void GameScreen_Editor::Render()
 
 	// ------------------------------------------------------------------------------------------- //
 
-	mShaderHandler.BindRasterizerState(renderState);
+	mShaderHandler.BindRasterizerState(mRenderState);
 
 	if(mRaceTrack)
 		mRaceTrack->RenderGround(mCurrentCamera);
@@ -132,8 +136,11 @@ void GameScreen_Editor::Render()
 	if (testCar)
 		testCar->RenderFull(mCurrentCamera);
 
-	//if (mThirdPersonCamera)
-	//	mThirdPersonCamera->RenderFocusPoint();
+	if (   mCurrentCameraMode == CameraMode::THIRD_PERSON
+		&& mThirdPersonCamera)
+	{
+		mThirdPersonCamera->RenderFocusPoint();
+	}
 
 	if (mRaceTrack)
 		mRaceTrack->RenderGrid(mCurrentCamera);
@@ -143,7 +150,7 @@ void GameScreen_Editor::Render()
 
 	// ------------------------------------------------------------------------------------------- //
 
-	mShaderHandler.BindRasterizerState(renderState);
+	mShaderHandler.BindRasterizerState(mRenderState);
 	mPostProcessing->Render();
 
 	// ------------------------------------------------------------------------------------------- //

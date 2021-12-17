@@ -15,6 +15,14 @@ class Car;
 class TestCube;
 class SkyDome;
 
+enum class CameraMode
+{
+	FIRST_PERSON,
+	THIRD_PERSON,
+
+	MAX
+};
+
 class GameScreen_Editor final : public GameScreen
 {
 public:
@@ -36,7 +44,9 @@ private:
 	Car*                   testCar;
 	SkyDome*               mSkyDome;
 	RaceTrack*             mRaceTrack;
-	ID3D11RasterizerState* renderState;
+	ID3D11RasterizerState* mRenderState;
+
+	CameraMode             mCurrentCameraMode;
 };
 
 #endif
