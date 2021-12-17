@@ -6,6 +6,7 @@
 
 #include "../Camera/ThirdPersonCamera.h"
 #include "../Camera/FirstPersonCamera.h"
+#include "../Camera/StaticFirstPersonCamera.h"
 
 #include "../Models/Car.h"
 #include "../Post Processing/PostProcessing.h"
@@ -25,6 +26,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
     , mRaceTrack(nullptr)
 	, mCurrentCameraMode(CameraMode::FIRST_PERSON)
 	, mRenderState(nullptr)
+	, mTopDownCamera(nullptr)
+	, mSideOnCamera(nullptr)
 {
 	testCube  = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 
@@ -58,6 +61,30 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 		                                       800.0f, 
 		                                       16.0f / 9.0f,
 		                                       20.0f);
+
+	mSideOnCamera  = new StaticFirstPersonCamera(&inputHandler,
+		                                   Vector3D(0.0f, 5.0f, -30.0f),
+		                                   Vector3D(1.0f, 0.0f,  0.0f),
+		                                   Vector3D(0.0f, 1.0f,  0.0f),
+		                                   DirectX::XMConvertToRadians(60.0f),
+		                                   10.0f,
+		                                   10.0f,
+		                                   0.01f,
+		                                   800.0f,
+		                                   16.0f / 9.0f,
+		                                   20.0f);
+
+	mTopDownCamera = new StaticFirstPersonCamera(&inputHandler,
+		                                   Vector3D(0.0f, 60.0f, 0.0f),
+		                                   Vector3D(1.0f, 0.0f, 0.0f),
+		                                   Vector3D(0.0f, 0.0f, 1.0f),
+		                                   DirectX::XMConvertToRadians(60.0f),
+		                                   10.0f,
+		                                   10.0f,
+		                                   0.01f,
+		                                   800.0f,
+		                                   16.0f / 9.0f,
+		                                   20.0f);
 
 	// Now setup the post processing stuff
 	mPostProcessing = new PostProcessing(shaderHandler);
@@ -160,13 +187,15 @@ void GameScreen_Editor::Render()
 
 void GameScreen_Editor::Update(const float deltaTime)
 {
+	CameraSwappingCheck();
+
 	if (mCurrentCamera)
 		mCurrentCamera->Update(deltaTime);
 
-	if (mInputHandler.GetIsMouseButtonPressed(4))
-	{
-		testCube->move(deltaTime);
-	}
+	//if (mInputHandler.GetIsMouseButtonPressed(4))
+	//{
+	//	testCube->move(deltaTime);
+	//}
 
 	if (mRaceTrack)
 		mRaceTrack->Update(deltaTime, mCurrentCamera);
@@ -184,6 +213,48 @@ void GameScreen_Editor::Update(const float deltaTime)
 
 	if (mSkyDome)
 		mSkyDome->Update(deltaTime);
+}
+
+// ------------------------------------------------------------------- //
+
+void GameScreen_Editor::CameraSwappingCheck()
+{
+	if (mInputHandler.GetIsKeyPressed('1'))
+	{
+		// Swap to third person camera
+		if (mCurrentCameraMode == CameraMode::THIRD_PERSON || !mThirdPersonCamera)
+			return;
+
+		mCurrentCameraMode = CameraMode::THIRD_PERSON;
+		mCurrentCamera     = mThirdPersonCamera;
+	}
+	else if (mInputHandler.GetIsKeyPressed('2'))
+	{
+		// Swap to first person camera
+		if (mCurrentCameraMode == CameraMode::FIRST_PERSON || !mFirstPersonCamera)
+			return;
+
+		mCurrentCameraMode = CameraMode::FIRST_PERSON;
+		mCurrentCamera     = mFirstPersonCamera;
+	}
+	else if (mInputHandler.GetIsKeyPressed('3'))
+	{
+		// Top down camera
+		if (mCurrentCameraMode == CameraMode::TOP_DOWN || !mTopDownCamera)
+			return;
+
+		mCurrentCameraMode = CameraMode::TOP_DOWN;
+		mCurrentCamera     = mTopDownCamera;
+	}
+	else if (mInputHandler.GetIsKeyPressed('4'))
+	{
+		// Side on camera that rotates around the edge of the play area
+		if (mCurrentCameraMode == CameraMode::SIDE_ON || !mSideOnCamera)
+			return;
+
+		mCurrentCameraMode = CameraMode::SIDE_ON;
+		mCurrentCamera     = mSideOnCamera;
+	}
 }
 
 // ------------------------------------------------------------------- //

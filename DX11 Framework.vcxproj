@@ -387,6 +387,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code\Camera\FirstPersonCamera.cpp" />
+    <ClCompile Include="Code\Camera\StaticFirstPersonCamera.cpp" />
     <ClCompile Include="Code\Camera\ThirdPersonCamera.cpp" />
     <ClCompile Include="Code\Camera\BaseCamera.cpp" />
     <ClCompile Include="Code\Collisions\TrackCollision.cpp" />
@@ -416,6 +417,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Camera\FirstPersonCamera.h" />
+    <ClInclude Include="Code\Camera\StaticFirstPersonCamera.h" />
     <ClInclude Include="Code\Camera\ThirdPersonCamera.h" />
     <ClInclude Include="Code\Camera\BaseCamera.h" />
     <ClInclude Include="Code\Collisions\TrackCollision.h" />
