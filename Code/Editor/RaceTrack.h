@@ -39,9 +39,9 @@ public:
 	void      SaveTrack(std::string filePath);
 
 	void      LoadInTrackFromFile(std::string filePath);
-	void      LoadInTimes(std::ifstream& file,     std::string filePath);
-	void      LoadInWeather(std::ifstream& file,   std::string filePath);
-	void      LoadInTrackData(std::ifstream& file, std::string filePath);
+	std::streampos      LoadInTimes(std::ifstream& file,     std::string filePath, std::streampos currentFilePos);
+	std::streampos      LoadInWeather(std::ifstream& file,   std::string filePath, std::streampos currentFilePos);
+	std::streampos      LoadInTrackData(std::ifstream& file, std::string filePath, std::streampos currentFilePos);
 
 private:
 	void      SaveOutGridToFile(std::ofstream& file, std::string filePath);

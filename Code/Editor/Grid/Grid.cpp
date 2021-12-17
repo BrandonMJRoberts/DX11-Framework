@@ -383,3 +383,10 @@ void EditorGrid::SortStoredPiecesByDistance(BaseCamera* camera)
 }
 
 // ------------------------------------------------------------------------ //
+
+void EditorGrid::RefreshGridVisibility(BaseCamera* camera)
+{
+	FindAllVisibleGridPieces(camera);
+}
+
+// ------------------------------------------------------------------------ //

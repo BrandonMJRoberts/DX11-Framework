@@ -77,6 +77,8 @@ void RaceTrack::Update(const float deltaTime, BaseCamera* camera)
 	else if (mInputHandler.GetIsKeyPressed('L'))
 	{
 		LoadInTrackFromFile("Saved Tracks/ComputerGeneratedExample.xml");
+
+		mRaceTrack->RefreshGridVisibility(camera);
 	}
 }
 
@@ -300,26 +302,64 @@ void RaceTrack::LoadInTrackFromFile(std::string filePath)
 			return;
 		}
 
+		std::stringstream ssline;
+		std::string       placeholder = "";
+		std::streampos    currentFilePos;
+
 		// Now load in the new data
 		while (std::getline(file, line))
 		{
+			placeholder =  "";
+			ssline      =  std::stringstream(line);
+			ssline      >> placeholder;
+
+			if (placeholder == "</TrackData>")
+			{
+				file.close();
+				return;
+			}
+
 			// Check to see what we are handling now
-			if (line == "<Times>")
+			if (placeholder == "<Times>")
 			{
+				// Get the current position in the file
+				currentFilePos = file.tellg();
+
 				file.close();
-				LoadInTimes(file, filePath);
+				currentFilePos = LoadInTimes(file, filePath, currentFilePos);
+
+				// Now re-open the file
+				file.open(filePath.c_str(), std::ios::in);
+
+				file.seekg(currentFilePos);
+			}
+			 
+			if (placeholder == "<Weather>")
+			{
+				// Get the current position in the file
+				currentFilePos = file.tellg();
+
+				file.close();
+				currentFilePos = LoadInWeather(file, filePath, currentFilePos);
+
+				// Now re-open the file
+				file.open(filePath.c_str(), std::ios::in);
+
+				file.seekg(currentFilePos);
 			}
 
-			if (line == "<Weather>")
+			if (placeholder == "<TrackData>")
 			{
-				file.close();
-				LoadInWeather(file, filePath);
-			}
+				// Get the current position in the file
+				currentFilePos = file.tellg();
 
-			if (line == "<TrackData>")
-			{
 				file.close();
-				LoadInTrackData(file, filePath);
+				currentFilePos = LoadInTrackData(file, filePath, currentFilePos);
+
+				// Now re-open the file
+				file.open(filePath.c_str(), std::ios::in);
+
+				file.seekg(currentFilePos);
 			}
 		}
 	}
@@ -327,7 +367,7 @@ void RaceTrack::LoadInTrackFromFile(std::string filePath)
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::LoadInTimes(std::ifstream& file, std::string filePath)
+std::streampos RaceTrack::LoadInTimes(std::ifstream& file, std::string filePath, std::streampos currentFilePos)
 {
 	// First re-open the file
 	file.open(filePath.c_str(), std::ios::in);
@@ -336,16 +376,20 @@ void RaceTrack::LoadInTimes(std::ifstream& file, std::string filePath)
 	{
 		// Now read in the data from the file, checking to see what data we are loading in
 		std::string       line;
-		std::string       placeHolder;
+		std::string       placeHolder = "";
 		std::stringstream ssLine;
 		unsigned int      timesRead = 0;
 		float             currentTimeBeingRead = 0.0f;
 
+		// Go back to where the prior function left off
+		file.seekg(currentFilePos);
+
 		while (std::getline(file, line))
 		{
 			// First extract the time name we are dealing with
-			ssLine = std::stringstream(line);
-			ssLine >> placeHolder;
+			placeHolder =  "";
+			ssLine      =  std::stringstream(line);
+			ssLine      >> placeHolder;
 
 			if (placeHolder == "<First>")
 			{
@@ -393,28 +437,35 @@ void RaceTrack::LoadInTimes(std::ifstream& file, std::string filePath)
 		}
 	}
 
+	currentFilePos = file.tellg();
+
 	file.close();
+
+	return currentFilePos;
 }
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::LoadInWeather(std::ifstream& file, std::string filePath)
+std::streampos RaceTrack::LoadInWeather(std::ifstream& file, std::string filePath, std::streampos currentFilePos)
 {
 	// First re-open the file
 	file.open(filePath.c_str(), std::ios::in);
 
 	std::string       line;
-	std::string       placeholder;
+	std::string       placeholder = "";
 	std::stringstream ssLine;
 
 	if (file.is_open() && file.good())
 	{
+		// Go back to where the prior function left off
+		file.seekg(currentFilePos);
+
 		// Read in the lines from the file
 		while (std::getline(file, line))
 		{
-			ssLine = std::stringstream(line);
-
-			ssLine >> placeholder;
+			placeholder =  "";
+			ssLine      =  std::stringstream(line);
+			ssLine      >> placeholder;
 
 			// Handle time of day
 			if (placeholder == "<TimeOfDay>")
@@ -431,10 +482,11 @@ void RaceTrack::LoadInWeather(std::ifstream& file, std::string filePath)
 				// Get the next line until we hit the end of the declaration
 				while (std::getline(file, line))
 				{
-					if (line == "</Clouds>")
-						break;
-
+					ssLine = std::stringstream(line);
 					ssLine >> placeholder;
+
+					if (placeholder == "</Clouds>")
+						break;
 
 					if (placeholder == "<MovementSpeedX>")
 					{
@@ -458,33 +510,53 @@ void RaceTrack::LoadInWeather(std::ifstream& file, std::string filePath)
 				continue;
 			}
 
-			break;
+			if (placeholder == "<Type>")
+			{
+				continue;
+			}
+
+			if (placeholder == "</Weather>")
+				break;
 		}
 	}
 
+	currentFilePos = file.tellg();
+
 	file.close();
+
+	return currentFilePos;
 }
 
 // -------------------------------------------------------------------------------- //
 
-void RaceTrack::LoadInTrackData(std::ifstream& file, std::string filePath)
+std::streampos RaceTrack::LoadInTrackData(std::ifstream& file, std::string filePath, std::streampos currentFilePos)
 {
 	// First re-open the file
 	file.open(filePath.c_str(), std::ios::in);
 
 	std::string       line;
+	std::string       placeholder;
 	std::stringstream ssLine;
 	unsigned int      trackID;
 
 	// Error checking
 	if (file.is_open() && file.good())
 	{
+		// Go back to where the prior function left off
+		file.seekg(currentFilePos);
+
 		unsigned int row = 0, col = 0;
 
 		while (std::getline(file, line))
 		{
-			if (line == "</TrackData>")
+			ssLine =  std::stringstream(line);
+			ssLine >> placeholder;
+
+			if (placeholder == "</TrackData>")
 				break;
+
+			// Refresh the string stream so that it doesnt lose the first value in the grid
+			ssLine = std::stringstream(line);
 
 			col = 0;
 
@@ -499,7 +571,11 @@ void RaceTrack::LoadInTrackData(std::ifstream& file, std::string filePath)
 		}
 	}
 
+	currentFilePos = file.tellg();
+
 	file.close();
+
+	return currentFilePos;
 }
 
 // -------------------------------------------------------------------------------- //

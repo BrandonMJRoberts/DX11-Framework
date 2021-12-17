@@ -29,6 +29,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, mWireframeRenderState(nullptr)
 	, mTopDownCamera(nullptr)
 	, mSideOnCamera(nullptr)
+	, mCurrentFillMode(RenderFillMode::FILLED)
 {
 	testCube  = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
 

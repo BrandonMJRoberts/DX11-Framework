@@ -51,6 +51,8 @@ public:
 	void	  Render(BaseCamera* camera, InputHandler& inputHandler);
 	void	  Update(const float deltaTime, InputHandler& inputHandler, BaseCamera* camera);
 
+	void      RefreshGridVisibility(BaseCamera* camera);
+
 private:
 	void      FindAllVisibleGridPieces(BaseCamera* camera);
 	void      SortStoredPiecesByDistance(BaseCamera* camera);
