@@ -65,6 +65,16 @@ void  StaticFirstPersonCamera::MovementCheck(bool& changed, const float deltaTim
 	// Now bind the camera to the play area
 	if (mPosition.y < 1.0f)
 		mPosition.y = 1.0f;
+
+	if (mPosition.x > 64.0f)
+		mPosition.x = 64.0f;
+	else if (mPosition.x < -64.0f)
+		mPosition.x = -64.0f;
+
+	if (mPosition.z > 64.0f)
+		mPosition.z = 64.0f;
+	else if (mPosition.z < -64.0f)
+		mPosition.z = -64.0f;
 }
 
 // ---------------------------------------------------------------------

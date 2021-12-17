@@ -6,5 +6,5 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
-illum 16
+illum 128
 map_Kd Models/Track/Empty/ColourPallet.png
