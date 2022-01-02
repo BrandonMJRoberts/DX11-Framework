@@ -32,7 +32,6 @@ class EditorGrid
 {
 public:
 	EditorGrid(ShaderHandler& shaderHandler);
-	EditorGrid(ShaderHandler& shaderHandler, std::string filePathForTrackLoad);
 	~EditorGrid();
 
 	GridPiece GetTrackPiece(unsigned int x, unsigned int y);
@@ -56,6 +55,7 @@ private:
 	void      SortStoredPiecesByDistance(BaseCamera* camera);
 
 	void      RotatePotentialPieceCheck(InputHandler& inputHandler);
+	void	  CyclePotentialPiecesCheck(InputHandler& inputHandler);
 
 	// ------------------------------------------------------------------- //
 
@@ -72,6 +72,7 @@ private:
 	bool              mAddPieceState;
 	bool              mSwappedState;
 	bool              mRotatedFlag;
+	bool              mCycledPieceTypeFlag;
 };
 
 // ------------------------------------------------------------------------ //

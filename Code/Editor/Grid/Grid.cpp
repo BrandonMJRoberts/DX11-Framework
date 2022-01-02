@@ -137,6 +137,8 @@ void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler, BaseC
 	// Check to see if the new piece should be rotated or not
 	RotatePotentialPieceCheck(inputHandler);
 
+	CyclePotentialPiecesCheck(inputHandler);
+
 	// Check to see if the player has clicked the left mouse button
 	if (inputHandler.GetIsMouseButtonPressed(0))
 	{
@@ -411,6 +413,78 @@ void EditorGrid::SetPieceRotation(unsigned int rotationAmount, unsigned int x, u
 	if (mGrid[x][y].trackPiece)
 	{
 		mGrid[x][y].trackPiece->SetRotation(rotationAmount);
+	}
+}
+
+// ------------------------------------------------------------------- //
+
+void EditorGrid::CyclePotentialPiecesCheck(InputHandler& inputHandler)
+{
+	if (inputHandler.GetIsKeyPressed('7'))
+	{
+		if (mCycledPieceTypeFlag)
+			return;
+
+		// Cycle back down the list one
+		TrackPieceType newPieceType  = mPotentialNewPiece.pieceType;
+		Vector2D       piecePosition = mPotentialNewPiece.trackPiece->GetGridPositionWorldSpace();
+
+		// Check for a loop
+		if ((int)mPotentialNewPiece.pieceType - 1 < 0)
+			newPieceType = TrackPieceType::GHOST;
+		else
+		{
+			// If not looping then just increment by one
+			newPieceType = (TrackPieceType)((int)mPotentialNewPiece.pieceType - 1);
+		}
+
+		// Now update the track piece model to match the new type
+		unsigned int rotateStored = mPotentialNewPiece.trackPiece->GetRotationAmount() * 90;
+
+		// Remove the old piece
+		delete mPotentialNewPiece.trackPiece;
+
+		mPotentialNewPiece.trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(newPieceType, piecePosition);
+
+		mPotentialNewPiece.trackPiece->SetRotation(rotateStored);
+		mPotentialNewPiece.pieceType = newPieceType;
+
+		mCycledPieceTypeFlag = true;
+	}
+	else if (inputHandler.GetIsKeyPressed('8'))
+	{
+		if (mCycledPieceTypeFlag)
+			return;
+
+		// Cycle up the list one
+		TrackPieceType newPieceType  = mPotentialNewPiece.pieceType;
+		Vector2D       piecePosition = mPotentialNewPiece.trackPiece->GetGridPositionWorldSpace();
+
+		// Check for a loop
+		if ((int)mPotentialNewPiece.pieceType + 1 > (int)TrackPieceType::GHOST)
+			newPieceType = TrackPieceType::START_ONE_ENTRANCE;
+		else
+		{
+			// If not looping then just increment by one
+			newPieceType = (TrackPieceType)((int)mPotentialNewPiece.pieceType + 1);
+		}
+		
+		// Now update the track piece model to match the new type
+		unsigned int rotateStored = mPotentialNewPiece.trackPiece->GetRotationAmount() * 90;
+
+		delete mPotentialNewPiece.trackPiece;
+
+		// Give it the new model
+		mPotentialNewPiece.trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(newPieceType, piecePosition);
+
+		mPotentialNewPiece.trackPiece->SetRotation(rotateStored);
+		mPotentialNewPiece.pieceType = newPieceType;
+
+		mCycledPieceTypeFlag = true;
+	}
+	else
+	{
+		mCycledPieceTypeFlag = false;
 	}
 }
 
