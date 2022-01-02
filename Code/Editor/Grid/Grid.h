@@ -38,8 +38,8 @@ public:
 	GridPiece GetTrackPiece(unsigned int x, unsigned int y);
 	GridPiece GetTrackPiece(Vector2D position);
 
-	void      SetGridPiece(TrackPieceType typeToAdd, Vector2D position);
-	void      SetGridPiece(TrackPieceType typeToAdd, unsigned int x, unsigned int y);
+	void      SetGridPiece(TrackPieceType typeToAdd, unsigned int rotation, Vector2D position);
+	void      SetGridPiece(TrackPieceType typeToAdd, unsigned int rotation, unsigned int x, unsigned int y);
 
 	void      ClearGrid();
 
@@ -57,6 +57,10 @@ private:
 	void      FindAllVisibleGridPieces(BaseCamera* camera);
 	void      SortStoredPiecesByDistance(BaseCamera* camera);
 
+	void      RotatePotentialPieceCheck(InputHandler& inputHandler);
+
+	// ------------------------------------------------------------------- //
+
 	// Internal grid store
 	GridPiece      mGrid[Constants::GRID_WIDTH][Constants::GRID_HEIGHT];
 	GridPiece      mPotentialNewPiece;
@@ -69,6 +73,7 @@ private:
 
 	bool              mAddPieceState;
 	bool              mSwappedState;
+	bool              mRotatedFlag;
 };
 
 // ------------------------------------------------------------------------ //

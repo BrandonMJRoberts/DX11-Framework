@@ -45,8 +45,11 @@ public:
 
 private:
 	void      SaveOutGridToFile(std::ofstream& file, std::string filePath);
+	void      SaveOutGridRotationToFile(std::ofstream& file, std::string filePath);
 	void      SaveOutBestTimesToFile(std::ofstream& file, std::string filePath);
 	void      SaveOutweatherDataToFile(std::ofstream& file, std::string filePath);
+
+	// ------------------------------------------------------------------- //
 
 	float          mBestTrackTimes[5];
 	std::string    mTrackName;

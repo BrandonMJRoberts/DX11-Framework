@@ -12,6 +12,7 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 	, mBlendState(nullptr)
 	, mAddPieceState(true)
 	, mSwappedState(false)
+	, mRotatedFlag(false)
 {
 	// Make sure that the grid is empty
 	ClearGrid();
@@ -71,7 +72,7 @@ GridPiece EditorGrid::GetTrackPiece(Vector2D position)
 
 // ------------------------------------------------------------------------ //
 
-void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, Vector2D position)
+void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, unsigned int rotation, Vector2D position)
 {
 	// First check to see if the piece is not already the same thing
 	if (typeToAdd == GetTrackPiece(position).pieceType)
@@ -84,16 +85,20 @@ void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, Vector2D position)
 		mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece = nullptr;
 
 		mGrid[(unsigned int)position.x][(unsigned int)position.y].pieceType  = TrackPieceType::EMPTY;
+
 		return;
 	}
 
 	mGrid[(unsigned int)position.x][(unsigned int)position.y].pieceType  = typeToAdd;
 	mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd, TrackPiece::ConvertFromGridToWorldPosition(position));
+
+	if(mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece)
+		mGrid[(unsigned int)position.x][(unsigned int)position.y].trackPiece->SetRotation(rotation);
 }
 
 // ------------------------------------------------------------------------ //
 
-void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, unsigned int x, unsigned int y)
+void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, unsigned int rotation, unsigned int x, unsigned int y)
 {
 	if (typeToAdd == mGrid[x][y].pieceType)
 		return;
@@ -103,6 +108,9 @@ void      EditorGrid::SetGridPiece(TrackPieceType typeToAdd, unsigned int x, uns
 
 	// Assign the track piece
 	mGrid[x][y].trackPiece = TrackPieceFactory::GetInstance()->CreateTrackPiece(typeToAdd, TrackPiece::ConvertFromGridToWorldPosition(Vector2D((float)x, (float)y)));
+
+	if (mGrid[x][y].trackPiece)
+		mGrid[x][y].trackPiece->SetRotation(rotation);
 }
 
 // ------------------------------------------------------------------------ //
@@ -139,6 +147,9 @@ void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler, BaseC
 		mSwappedState = false;
 	}
 
+	// Check to see if the new piece should be rotated or not
+	RotatePotentialPieceCheck(inputHandler);
+
 	// Check to see if the player has clicked the left mouse button
 	if (inputHandler.GetIsMouseButtonPressed(0))
 	{
@@ -152,13 +163,14 @@ void EditorGrid::Update(const float deltaTime, InputHandler& inputHandler, BaseC
 
 			// Place the new piece in the internal grid where the highlight shows
 			gridPos = mPotentialNewPiece.trackPiece->GetGridPosition();
-			SetGridPiece(mPotentialNewPiece.pieceType, gridPos);
+
+			SetGridPiece(mPotentialNewPiece.pieceType, mPotentialNewPiece.trackPiece->GetRotationAmount() * 90, gridPos);
 		}
 		else
 		{
 			// If the player presses the right mouse button over a piece then it is removed
 			gridPos = mPotentialNewPiece.trackPiece->GetGridPosition();
-			SetGridPiece(TrackPieceType::EMPTY, gridPos);
+			SetGridPiece(TrackPieceType::EMPTY, 0, gridPos);
 		}
 
 		FindAllVisibleGridPieces(camera);
@@ -390,3 +402,23 @@ void EditorGrid::RefreshGridVisibility(BaseCamera* camera)
 }
 
 // ------------------------------------------------------------------------ //
+
+void EditorGrid::RotatePotentialPieceCheck(InputHandler& inputHandler)
+{
+	if (inputHandler.GetIsKeyPressed('R'))
+	{
+		// Rotate the potential piece 90 degrees
+		if (!mRotatedFlag && mPotentialNewPiece.trackPiece)
+		{
+			mPotentialNewPiece.trackPiece->Rotate();
+
+			mRotatedFlag = true;
+		}
+	}
+	else
+	{
+		mRotatedFlag = false;
+	}
+}
+
+// ------------------------------------------------------------------- //

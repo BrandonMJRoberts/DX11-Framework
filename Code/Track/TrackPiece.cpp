@@ -7,10 +7,11 @@
 
 TrackPiece::TrackPiece(Model& model, Vector2D worldPosition)//, TrackCollision& collision)
 	: mGridPosition(worldPosition)
-	, mFacingDirection(0.0f, 0.0f, 0.0f)
 	, mModel(model)
-	//, mCollision(collision)
 	, mModelMatrix(MatrixMaths::Identity4X4)
+	, mCurrentRotation(0)
+	//, mCollision(collision)
+	//, mFacingDirection(0.0f, 0.0f, 0.0f)
 {
 	// Apply the position to the model matrix
 	DirectX::XMStoreFloat4x4(&mModelMatrix, DirectX::XMMatrixTranslation((float)mGridPosition.x, 0.0f, 
@@ -179,6 +180,20 @@ Vector2D TrackPiece::ConvertFromGridToWorldPosition(Vector2D gridPos)
 	gridPos *= 8;
 
 	return gridPos;
+}
+
+// --------------------------------------------------------------------------------------------------------- //
+
+void TrackPiece::Rotate()
+{
+	// Rotate 90 degrees around
+	mCurrentRotation += 90;
+
+	if (mCurrentRotation >= 360)
+		mCurrentRotation = 0;
+
+	// Apply the rotation to the model matrix
+	DirectX::XMStoreFloat4x4(&mModelMatrix, DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), (float)mCurrentRotation));
 }
 
 // --------------------------------------------------------------------------------------------------------- //

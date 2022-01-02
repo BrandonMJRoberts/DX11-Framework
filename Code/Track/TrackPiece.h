@@ -26,14 +26,19 @@ public:
 	static Vector2D ConvertFromWorldToGridPosition(Vector2D worldPos);
 	static Vector2D ConvertFromGridToWorldPosition(Vector2D gridPos);
 
+	void Rotate();
+
+	unsigned int GetRotationAmount()                   { return mCurrentRotation / 90; }
+	void         SetRotation(unsigned int newRotation) { mCurrentRotation = newRotation; }
+
 private:
-	Vector2D          mGridPosition;
-	DirectX::XMFLOAT3 mFacingDirection;
-
-	DirectX::XMFLOAT4X4 mModelMatrix;
-
-	Model&            mModel;
+	//DirectX::XMFLOAT3 mFacingDirection;
 	//TrackCollision&   mCollision;
+
+	Vector2D            mGridPosition;
+	unsigned int        mCurrentRotation;
+	DirectX::XMFLOAT4X4 mModelMatrix;
+	Model&              mModel;
 };
 
 // -------------------------------------------------------------------- //

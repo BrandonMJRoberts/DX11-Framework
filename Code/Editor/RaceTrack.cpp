@@ -110,6 +110,8 @@ void RaceTrack::SaveTrack(std::string filePath)
 
 		SaveOutGridToFile(file, filePath);
 
+		SaveOutGridRotationToFile(file, filePath);
+
 		// Now re-open the file
 		file.open(filePath, std::ios::app);
 		if (!file.is_open() || !file.good())
@@ -271,6 +273,49 @@ void RaceTrack::SaveOutweatherDataToFile(std::ofstream& file, std::string filePa
 			file.write(lineToWrite.c_str(), lineToWrite.length());
 
 		lineToWrite = "\t</Weather>\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+	}
+
+	file.close();
+}
+
+// -------------------------------------------------------------------------------- //
+
+void RaceTrack::SaveOutGridRotationToFile(std::ofstream& file, std::string filePath)
+{
+	// First re-open the file
+	file.open(filePath.c_str(), std::ios::app);
+
+	if (file.is_open() && file.good())
+	{
+		// Now write the data to the file
+		std::string lineToWrite = "\n\t\t<!-- The dimensions are the same as above so no need to store -->\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t\t<!-- The ID's stored here are: 0 - No rotation, 1 - 90 degrees rotation and so on-->\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+		lineToWrite = "\t<RotationData>\n";
+		file.write(lineToWrite.c_str(), lineToWrite.length());
+
+			// Now write out the internal store of the track
+			for (unsigned int i = 0; i < 16; i++)
+			{
+				lineToWrite = "\t\t";
+
+				for (unsigned int j = 0; j < 16; j++)
+				{
+					if(mRaceTrack->GetTrackPiece(i, j).trackPiece)
+						lineToWrite.append(std::to_string(mRaceTrack->GetTrackPiece(i, j).trackPiece->GetRotationAmount()) + " ");
+					else
+						lineToWrite.append("0 ");
+				}
+
+				lineToWrite.append("\n");
+				file.write(lineToWrite.c_str(), lineToWrite.length());
+			}
+
+		lineToWrite = "\t</RotationData>\n";
 		file.write(lineToWrite.c_str(), lineToWrite.length());
 	}
 
@@ -562,7 +607,7 @@ std::streampos RaceTrack::LoadInTrackData(std::ifstream& file, std::string fileP
 
 			while (ssLine >> trackID)
 			{
-				mRaceTrack->SetGridPiece((TrackPieceType)trackID, Vector2D((float)row, (float)col));
+				mRaceTrack->SetGridPiece((TrackPieceType)trackID, 0, Vector2D((float)row, (float)col));
 
 				col++;
 			}
