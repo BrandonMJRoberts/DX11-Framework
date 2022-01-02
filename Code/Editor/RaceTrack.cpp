@@ -406,6 +406,20 @@ void RaceTrack::LoadInTrackFromFile(std::string filePath)
 
 				file.seekg(currentFilePos);
 			}
+
+			if (placeholder == "<RotationData>")
+			{
+				// Get the current position in the file
+				currentFilePos = file.tellg();
+
+				file.close();
+				currentFilePos = LoadInTrackRotationData(file, filePath, currentFilePos);
+
+				// Now re-open the file
+				file.open(filePath.c_str(), std::ios::in);
+
+				file.seekg(currentFilePos);
+			}
 		}
 	}
 }
@@ -608,6 +622,57 @@ std::streampos RaceTrack::LoadInTrackData(std::ifstream& file, std::string fileP
 			while (ssLine >> trackID)
 			{
 				mRaceTrack->SetGridPiece((TrackPieceType)trackID, 0, Vector2D((float)row, (float)col));
+
+				col++;
+			}
+
+			row++;
+		}
+	}
+
+	currentFilePos = file.tellg();
+
+	file.close();
+
+	return currentFilePos;
+}
+
+// -------------------------------------------------------------------------------- //
+
+std::streampos RaceTrack::LoadInTrackRotationData(std::ifstream& file, std::string filePath, std::streampos currentFilePos)
+{
+	// First re-open the file
+	file.open(filePath.c_str(), std::ios::in);
+
+	std::string       line;
+	std::string       placeholder;
+	std::stringstream ssLine;
+	unsigned int      rotationAmount;
+
+	// Error checking
+	if (file.is_open() && file.good())
+	{
+		// Go back to where the prior function left off
+		file.seekg(currentFilePos);
+
+		unsigned int row = 0, col = 0;
+
+		while (std::getline(file, line))
+		{
+			ssLine = std::stringstream(line);
+			ssLine >> placeholder;
+
+			if (placeholder == "</RotationData>")
+				break;
+
+			// Refresh the string stream so that it doesnt lose the first value in the grid
+			ssLine = std::stringstream(line);
+
+			col = 0;
+
+			while (ssLine >> rotationAmount)
+			{
+				mRaceTrack->SetPieceRotation(rotationAmount * 90, row, col);
 
 				col++;
 			}

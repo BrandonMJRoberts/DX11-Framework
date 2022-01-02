@@ -36,20 +36,7 @@ EditorGrid::EditorGrid(ShaderHandler& shaderHandler)
 		                            D3D11_COLOR_WRITE_ENABLE_ALL);
 }
 
-// ------------------------------------------------------------------------ //
-
-EditorGrid::EditorGrid(ShaderHandler& shaderHandler, std::string filePathForTrackLoad)
-	: mShaderHandler(shaderHandler)
-	, mSwappedState(false)
-	, mAddPieceState(true)
-{
-	// Make sure that the grid is empty
-	ClearGrid();
-
-	LoadInGridFromFile(filePathForTrackLoad);
-}
-
-// ------------------------------------------------------------------------ //
+// -------------------------------------------------------------------------- //
 
 EditorGrid::~EditorGrid()
 {
@@ -293,20 +280,6 @@ void EditorGrid::Render(BaseCamera* camera, InputHandler& inputHandler)
 
 // ------------------------------------------------------------------------ //
 
-void EditorGrid::LoadInGridFromFile(std::string filePath)
-{
-
-}
-
-// ------------------------------------------------------------------------ //
-
-void EditorGrid::SaveOutTrackInternalDataToFile()
-{
-
-}
-
-// ------------------------------------------------------------------------ //
-
 void EditorGrid::FindAllVisibleGridPieces(BaseCamera* camera)
 {
 	// Loop through the entire grid and see if it is visible to the camera
@@ -418,6 +391,26 @@ void EditorGrid::RotatePotentialPieceCheck(InputHandler& inputHandler)
 	else
 	{
 		mRotatedFlag = false;
+	}
+}
+
+// ------------------------------------------------------------------- //
+
+void EditorGrid::SetPieceRotation(unsigned int rotationAmount, Vector2D gridPos)
+{
+	if (mGrid[(unsigned int)gridPos.x][(unsigned int)gridPos.y].trackPiece)
+	{
+		mGrid[(unsigned int)gridPos.x][(unsigned int)gridPos.y].trackPiece->SetRotation(rotationAmount);
+	}
+}
+
+// ------------------------------------------------------------------- //
+
+void EditorGrid::SetPieceRotation(unsigned int rotationAmount, unsigned int x, unsigned int y)
+{
+	if (mGrid[x][y].trackPiece)
+	{
+		mGrid[x][y].trackPiece->SetRotation(rotationAmount);
 	}
 }
 

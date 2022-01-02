@@ -41,12 +41,10 @@ public:
 	void      SetGridPiece(TrackPieceType typeToAdd, unsigned int rotation, Vector2D position);
 	void      SetGridPiece(TrackPieceType typeToAdd, unsigned int rotation, unsigned int x, unsigned int y);
 
+	void      SetPieceRotation(unsigned int rotationAmount, Vector2D gridPos);
+	void      SetPieceRotation(unsigned int rotationAmount, unsigned int x, unsigned int y);
+
 	void      ClearGrid();
-
-	void      LoadInGridFromFile(std::string filePath);
-
-	void      SaveOutTrackInternalDataToFile();
-
 
 	void	  Render(BaseCamera* camera, InputHandler& inputHandler);
 	void	  Update(const float deltaTime, InputHandler& inputHandler, BaseCamera* camera);

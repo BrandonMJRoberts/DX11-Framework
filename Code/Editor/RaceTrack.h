@@ -39,11 +39,13 @@ public:
 	void      SaveTrack(std::string filePath);
 
 	void      LoadInTrackFromFile(std::string filePath);
-	std::streampos      LoadInTimes(std::ifstream& file,     std::string filePath, std::streampos currentFilePos);
-	std::streampos      LoadInWeather(std::ifstream& file,   std::string filePath, std::streampos currentFilePos);
-	std::streampos      LoadInTrackData(std::ifstream& file, std::string filePath, std::streampos currentFilePos);
 
 private:
+	std::streampos      LoadInTimes(std::ifstream& file, std::string filePath, std::streampos currentFilePos);
+	std::streampos      LoadInWeather(std::ifstream& file, std::string filePath, std::streampos currentFilePos);
+	std::streampos      LoadInTrackData(std::ifstream& file, std::string filePath, std::streampos currentFilePos);
+	std::streampos      LoadInTrackRotationData(std::ifstream& file, std::string filePath, std::streampos currentFilePos);
+
 	void      SaveOutGridToFile(std::ofstream& file, std::string filePath);
 	void      SaveOutGridRotationToFile(std::ofstream& file, std::string filePath);
 	void      SaveOutBestTimesToFile(std::ofstream& file, std::string filePath);
