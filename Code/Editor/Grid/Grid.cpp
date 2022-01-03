@@ -462,7 +462,7 @@ void EditorGrid::CyclePotentialPiecesCheck(InputHandler& inputHandler)
 
 		// Check for a loop
 		if ((int)mPotentialNewPiece.pieceType + 1 > (int)TrackPieceType::GHOST)
-			newPieceType = TrackPieceType::START_ONE_ENTRANCE;
+			newPieceType = TrackPieceType::START;
 		else
 		{
 			// If not looping then just increment by one

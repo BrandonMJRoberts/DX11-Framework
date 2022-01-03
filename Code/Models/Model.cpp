@@ -337,7 +337,9 @@ void Model::FullRender(BaseCamera* camera, const DirectX::XMFLOAT4X4 modelMat)
 	// Update the constant buffer
 	mShaderHandler.UpdateSubresource(mMatrixConstantBuffer,   0, nullptr, &cb, 0, 0);
 	mShaderHandler.UpdateSubresource(mLightConstantBuffer,    0, nullptr, &lightingData, 0, 0);
-	mShaderHandler.UpdateSubresource(mMaterialConstantBuffer, 0, nullptr, &(*mMaterialData[0]), 0, 0);
+
+	if(mMaterialData.size() > 0)
+		mShaderHandler.UpdateSubresource(mMaterialConstantBuffer, 0, nullptr, &(*mMaterialData[0]), 0, 0);
 
 	// Set the data in the shaders
 	mShaderHandler.SetVertexShaderConstantBufferData(0, 1, &mMatrixConstantBuffer);

@@ -76,8 +76,7 @@ void TrackPiece::SetNewGridPosition(Vector2D newPos)
 	mGridPosition.x = (float)(int)newPos.x;
 	mGridPosition.y = (float)(int)newPos.y;
 
-	DirectX::XMStoreFloat4x4(&mModelMatrix, DirectX::XMMatrixTranslation((float)mGridPosition.x, 0.0f, 
-		                                                                 (float)mGridPosition.y));
+	UpdateModelMatrix();
 }
 
 // --------------------------------------------------------------------------------------------------------- //
@@ -192,8 +191,27 @@ void TrackPiece::Rotate()
 	if (mCurrentRotation >= 360)
 		mCurrentRotation = 0;
 
+	UpdateModelMatrix();
+}
+
+// --------------------------------------------------------------------------------------------------------- //
+
+void TrackPiece::SetRotation(unsigned int newRotation) 
+{ 
+	mCurrentRotation = newRotation; 
+
+	UpdateModelMatrix();
+}
+
+// --------------------------------------------------------------------------------------------------------- //
+
+void TrackPiece::UpdateModelMatrix()
+{
+	DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMConvertToRadians((float)mCurrentRotation));
+	DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation((float)mGridPosition.x, 0.0f, (float)mGridPosition.y);
+
 	// Apply the rotation to the model matrix
-	DirectX::XMStoreFloat4x4(&mModelMatrix, DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), (float)mCurrentRotation));
+	DirectX::XMStoreFloat4x4(&mModelMatrix, rotationMatrix * translationMatrix);
 }
 
 // --------------------------------------------------------------------------------------------------------- //

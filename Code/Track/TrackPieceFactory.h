@@ -14,45 +14,21 @@ class TrackCollision;
 
 enum class TrackPieceType : unsigned int
 {
-	// Starts //
-		START_ONE_ENTRANCE = 0,
-		START_STRAIGHT_THROUGH,
-		START_T_PIECE,
-		START_OPEN,
-		START_AIR,
+		START = 0,  // Starts //
+		CHECKPOINT, // Checkpoint //
 
-	// Ends //
-		END_ONE_ENTRANCE,
-		END_STRAIGHT_THOUGH,
-		END_T_PIECE,
-		END_OPEN,
-		END_AIR,	
+		SLOPE,      
 
-	// Checkpoints //
-		CHECKPOINT,
-
-	// Normal Pieces //
-
-		// Slopes
-		SLOPE_UP,
 		SLOPE_UP_RIGHT,
 		SLOPE_UP_LEFT,
-
-		SLOPE_DOWN,
 		SLOPE_DOWN_RIGHT,
 		SLOPE_DOWN_LEFT,
 
-		// Straights + curves
-		STRAIGHT_FORWARD,	
+		STRAIGHT_FORWARD, // Straights + curves
 		T_PIECE,
 		FOUR_CROSS,
 
-		CURVE_RIGHT,
-		CURVE_LEFT,
-
-		// Custom
-		JUMP_UP,
-		JUMP_DOWN,
+		CURVE,
 
 		GHOST,
 		EMPTY,

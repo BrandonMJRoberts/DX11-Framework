@@ -29,11 +29,13 @@ public:
 	void Rotate();
 
 	unsigned int GetRotationAmount()                   { return mCurrentRotation / 90; }
-	void         SetRotation(unsigned int newRotation) { mCurrentRotation = newRotation; }
+	void         SetRotation(unsigned int newRotation);
 
 private:
 	//DirectX::XMFLOAT3 mFacingDirection;
 	//TrackCollision&   mCollision;
+
+	void UpdateModelMatrix();
 
 	Vector2D            mGridPosition;
 	unsigned int        mCurrentRotation;

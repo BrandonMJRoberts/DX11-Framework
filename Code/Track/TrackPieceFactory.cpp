@@ -9,33 +9,20 @@ ShaderHandler*     TrackPieceFactory::mShaderHandler = nullptr;
 // -------------------------------------------------------------------- //
 
 TrackPieceFactory::TrackPieceFactory(ShaderHandler* shaderHander) 
-	: kFilePathsToModels({ "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+	: kFilePathsToModels({ "Models/Track/Finish/Finish.obj", 
+		                   "Models/Track/Checkpoint/Checkpoint.obj", 
+		                   "Models/Track/Jump/Jump.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj",
 		                   "Models/Track/Empty/PlaceholderGhost.obj",  
+		                   "Models/Track/Straight/StraightTrack.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-						   "Models/Track/Empty/PlaceholderGhost.obj",
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj" })
-	, kFilePathsToCollisionData({ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", })
+	, kFilePathsToCollisionData({ "", "", "", "", "", "", "", "", "", "", "", "", "",})
 	, mDefaultRenderVertexShader(nullptr)
 	, mDefaultRenderPixelShader(nullptr)
 	, mGhostRenderVertexShader(nullptr)
