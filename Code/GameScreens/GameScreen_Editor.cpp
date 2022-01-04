@@ -62,7 +62,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 		                                       0.01f, 
 		                                       800.0f, 
 		                                       16.0f / 9.0f,
-		                                       20.0f);
+		                                       20.0f,
+		                                       1.0f);
 
 	mSideOnCamera  = new StaticFirstPersonCamera(&inputHandler,
 		                                   Vector3D(0.0f, 5.0f, -30.0f),

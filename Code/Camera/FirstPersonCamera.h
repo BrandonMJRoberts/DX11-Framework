@@ -7,7 +7,7 @@ class FirstPersonCamera : public BaseCamera
 {
 public:
 	//FirstPersonCamera();
-	         FirstPersonCamera(InputHandler* inputHandler, Vector3D startPosition, Vector3D right, Vector3D up, float FOV, float nearPlane = 0.01f, float farPlane = 100.0f, float aspect = 16.0f / 9.0f, float movementSpeed = 15.0f);
+	         FirstPersonCamera(InputHandler* inputHandler, Vector3D startPosition, Vector3D right, Vector3D up, float FOV, float nearPlane = 0.01f, float farPlane = 100.0f, float aspect = 16.0f / 9.0f, float movementSpeed = 15.0f, float rotationSpeed = 10.0f);
 	virtual ~FirstPersonCamera() override;
 
 	virtual void  Update(const float deltaTime) override;
@@ -19,9 +19,12 @@ protected:
 	virtual void  MouseWheelCheck(bool& changed, const float deltaTime);
 	void  RotationCheck(bool& changed, const float deltaTime);
 
-	void  CapToRotationBounds(float& angleToRotateBy);
+	void RotateAroundCameraRight(float angle);
+	void RotateAroundWorldUp(float angle);
 
 	Vector3D mFacingDirection;
+
+	float mCameraAngleToVertical;
 
 	float mXRotationAngle;
 	float mYRotationAngle;
