@@ -25,8 +25,8 @@ enum class TrackPieceType : unsigned int
 		//SLOPE_DOWN_LEFT,
 
 		STRAIGHT_FORWARD, // Straights + curves
-		T_PIECE,
-		FOUR_CROSS,
+		//T_PIECE,
+		//FOUR_CROSS,
 
 		CURVE,
 

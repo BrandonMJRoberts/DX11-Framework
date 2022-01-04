@@ -17,12 +17,12 @@ TrackPieceFactory::TrackPieceFactory(ShaderHandler* shaderHander)
 		                   //"Models/Track/Empty/PlaceholderGhost.obj",
 		                   //"Models/Track/Empty/PlaceholderGhost.obj",  
 		                   "Models/Track/Straight/StraightTrack.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
-		                   "Models/Track/Empty/PlaceholderGhost.obj", 
+		                  // "Models/Track/Empty/PlaceholderGhost.obj", 
+		                  // "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Corner/Corner.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj", 
 		                   "Models/Track/Empty/PlaceholderGhost.obj" })
-	, kFilePathsToCollisionData({ "", "", "", "", "", "", "", "", "",})
+	, kFilePathsToCollisionData({ "", "", "", "", "", "", "",})
 	, mDefaultRenderVertexShader(nullptr)
 	, mDefaultRenderPixelShader(nullptr)
 	, mGhostRenderVertexShader(nullptr)
