@@ -207,8 +207,9 @@ void TrackPiece::SetRotation(unsigned int newRotation)
 
 void TrackPiece::UpdateModelMatrix()
 {
-	DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMConvertToRadians((float)mCurrentRotation));
+	DirectX::XMMATRIX rotationMatrix    = DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMConvertToRadians((float)mCurrentRotation));
 	DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation((float)mGridPosition.x, 0.0f, (float)mGridPosition.y);
+	//DirectX::XMMATRIX scaleMatrix       = DirectX::XMMatrixScaling(3.0f, 3.0f, 3.0f);
 
 	// Apply the rotation to the model matrix
 	DirectX::XMStoreFloat4x4(&mModelMatrix, rotationMatrix * translationMatrix);

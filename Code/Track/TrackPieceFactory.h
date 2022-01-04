@@ -19,10 +19,10 @@ enum class TrackPieceType : unsigned int
 
 		SLOPE,      
 
-		SLOPE_UP_RIGHT,
-		SLOPE_UP_LEFT,
-		SLOPE_DOWN_RIGHT,
-		SLOPE_DOWN_LEFT,
+		//SLOPE_UP_RIGHT,
+		//SLOPE_UP_LEFT,
+		//SLOPE_DOWN_RIGHT,
+		//SLOPE_DOWN_LEFT,
 
 		STRAIGHT_FORWARD, // Straights + curves
 		T_PIECE,

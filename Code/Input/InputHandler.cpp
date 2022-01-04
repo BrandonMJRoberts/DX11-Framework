@@ -17,6 +17,11 @@ void InputHandler::HandleWindowsInput(HWND hwnd, UINT message, LPARAM lParam)
 	default:
 		return;
 
+	// Window re-sizing handling
+	case WM_SIZE:	
+
+	break;
+
 	case WM_INPUT:
 		UINT dwSize = 0;
 

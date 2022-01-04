@@ -24,7 +24,7 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, mPostProcessing(nullptr)
 	, mSkyDome(nullptr)
     , mRaceTrack(nullptr)
-	, mCurrentCameraMode(CameraMode::FIRST_PERSON)
+	, mCurrentCameraMode(CameraMode::THIRD_PERSON)
 	, mFilledRenderState(nullptr)
 	, mWireframeRenderState(nullptr)
 	, mTopDownCamera(nullptr)
@@ -95,8 +95,8 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	mShaderHandler.CreateRasterizerState(&mWireframeRenderState, D3D11_FILL_WIREFRAME, D3D11_CULL_FRONT);
 
 
-	mCurrentCamera     = mFirstPersonCamera;
-	mCurrentCameraMode = CameraMode::FIRST_PERSON;
+	mCurrentCamera     = mThirdPersonCamera;
+	mCurrentCameraMode = CameraMode::THIRD_PERSON;
 }
 
 // --------------------------------------------------------- //
