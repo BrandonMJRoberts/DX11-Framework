@@ -31,9 +31,9 @@ GameScreen_Editor::GameScreen_Editor(ShaderHandler& shaderHandler, InputHandler&
 	, mSideOnCamera(nullptr)
 	, mCurrentFillMode(RenderFillMode::FILLED)
 {
-	testCube  = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 0.0f));
+	testCube  = new TestCube(shaderHandler, Vector3D(80.0f, 0.0f, 0.0f));
 
-	testCube2 = new TestCube(shaderHandler, Vector3D(3.0f, 0.0f, 3.0f));
+	testCube2 = new TestCube(shaderHandler, Vector3D(80.0f, 0.0f, 6.0f));
 
 	testCar   = new Car(shaderHandler);
 

@@ -19,6 +19,9 @@ Car::Car(ShaderHandler& shaderHandler)
 
     // Now load in the model
 	mCarModel = new Model(mShaderHandler, "Models/Car/Car.obj", mFullRenderVertexShader, mFullRenderPixelShader, returnDataFullRender.Blob, true);
+
+	// Move the car out of the way
+	DirectX::XMStoreFloat4x4(&mModelMat, DirectX::XMMatrixTranslation(80.0f, 0.0f, -6.0f));
 }
 
 // ------------------------------------------------------------------ //
