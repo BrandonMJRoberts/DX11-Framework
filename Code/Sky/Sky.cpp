@@ -35,7 +35,8 @@ SkyDome::SkyDome(ShaderHandler& shaderHandler, Vector3D centre, float radius, un
 	// Now fill the LUT
 	FillLUT();
 
-	mShaderHandler.CreateRasterizerState(&renderState, D3D11_FILL_WIREFRAME, D3D11_CULL_FRONT);
+	mShaderHandler.CreateRasterizerState(&renderState, D3D11_FILL_SOLID, D3D11_CULL_FRONT);
+	//mShaderHandler.CreateRasterizerState(&renderState, D3D11_FILL_WIREFRAME, D3D11_CULL_FRONT);
 }
 
 // ---------------------------------------------------------------- 
@@ -105,7 +106,6 @@ void SkyDome::Render(BaseCamera* camera)
 	if (!mVertexShader || !mPixelShader || !mInputLayout ||!camera)
 		return;
 
-	// Make the dome render in wireframe mode
 	mShaderHandler.BindRasterizerState(renderState);
 
 	// Set the input layout for this render
@@ -295,21 +295,20 @@ void SkyDome::CalculateVerticies()
 void SkyDome::CalculateIndicies()
 {
 	// Calulation of indicies in order to render a sphere
-
 	std::vector<unsigned int> indexData;
 
 	// Now calculate the indices for the triangles
 	// Start with the top ring of triangles around the pole, as the top is stored as a single point instead of a load of points in the same place
 	for (unsigned int i = 0; i < mDivisions; i++)
 	{
-		// For each of these triangles - 0 will be the first value as they all link to the top
-		indexData.push_back(0);
+		// Now add the index next to the previous index on the same loop
+		indexData.push_back(((i + 1) % mDivisions) + 1);
 
 		// Now add the current index on the first loop
 		indexData.push_back(i + 1);
 
-		// Now add the index next to the previous index on the same loop
-		indexData.push_back(((i + 1) % mDivisions) + 1);
+		// For each of these triangles - 0 will be the first value as they all link to the top
+		indexData.push_back(0);
 	}
 
 	unsigned int currentIndexID;
@@ -322,6 +321,8 @@ void SkyDome::CalculateIndicies()
 
 		for (unsigned int j = 0; j < mDivisions; j++)
 		{
+			// --------------------------------------------------------------------
+
 			// Start off with the current ID of the loop we are on
 			indexData.push_back(currentIndexID + j);
 
@@ -330,6 +331,15 @@ void SkyDome::CalculateIndicies()
 
 			// Now add the ID of the index on the loop below ours
 			indexData.push_back((currentIndexID + mDivisions) + j);
+
+			// --------------------------------------------------------------------
+
+			// Now for the other triangle in the rectangle
+			indexData.push_back((currentIndexID + mDivisions) + j + 1);
+
+			indexData.push_back((currentIndexID + mDivisions) + j);
+
+			indexData.push_back(currentIndexID + ((j + 1) % mDivisions));
 		}
 	}
 	
@@ -338,14 +348,14 @@ void SkyDome::CalculateIndicies()
 	// Now calculate the bottom most ring of triangles
 	for (unsigned int i = 0; i < mDivisions; i++)
 	{
-		// For each of these triangles the last index will be the first value as they all link to the top
-		indexData.push_back(endIndexID);
+		// Now add the index next to the previous index on the same loop
+		indexData.push_back(endIndexID - (((i + 1) % mDivisions) + 1));		
 
 		// Now add the current index on the loop above the end point
 		indexData.push_back(endIndexID - ((i % mDivisions) + 1));
 
-		// Now add the index next to the previous index on the same loop
-		indexData.push_back(endIndexID - (((i + 1) % mDivisions) + 1));
+		// For each of these triangles the last index will be the first value as they all link to the top
+		indexData.push_back(endIndexID);
 	}
 
 	mIndexCount = indexData.size();
